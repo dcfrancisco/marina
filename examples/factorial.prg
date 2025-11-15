@@ -1,4 +1,6 @@
 // Factorial function example
+ClearScreen()
+
 FUNCTION Factorial(n)
     LOCAL result
     

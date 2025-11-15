@@ -1,4 +1,22 @@
-# Clipper Compiler and Virtual Machine
+# Marina 🚢
+
+```
+                                      |>
+                                     /|
+                                    / |
+                                   /  |
+                  ________________/   |________________
+                 \                                    /
+                  \    M A R I N A   C L I P P E R   /
+                   \                                /
+                    \______________________________/
+                     ~~~ ~ ~~ ~~~ ~ ~~ ~~~ ~ ~~ ~~~
+                    ~ ~~ ~~~ ~ ~~ ~~~ ~ ~~ ~~~ ~ ~~
+```
+
+**A modern Rust-based compiler and virtual machine for the Clipper programming language**
+
+---
 
 A Rust-based compiler and virtual machine for the Clipper programming language.
 
@@ -145,6 +163,14 @@ LOCAL num := 5
 3. **Compiler** - Traverses AST and generates bytecode instructions
 4. **VM** - Stack-based virtual machine that executes bytecode
 
+---
+
+## Support This Project
+
+☕ **Keep me caffeinated so I can keep debugging things you won't have to** — [buy me a coffee](https://www.buymeacoffee.com/dcfrancisco) 🙌
+
+---
+
 ## License
 
-MIT
+[MIT License](LICENSE) - Copyright (c) 2025 Danny Francisco

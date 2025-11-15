@@ -1,6 +1,8 @@
 // Comprehensive Clipper Demo
 // This program demonstrates most working features
 
+ClearScreen()
+
 ? "================================="
 ? "  Clipper Compiler & VM Demo"
 ? "================================="

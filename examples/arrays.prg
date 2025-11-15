@@ -1,4 +1,6 @@
 // Array operations
+ClearScreen()
+
 LOCAL arr, i
 
 arr := {10, 20, 30, 40, 50}

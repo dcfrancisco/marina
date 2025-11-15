@@ -1,10 +1,12 @@
 // Loop examples
+ClearScreen()
+
 LOCAL i, sum
 
 // FOR loop
 sum := 0
 FOR i := 1 TO 10
-sum := sum + i
+    sum := sum + i
 NEXT
 
 ? "Sum 1 to 10:", sum
@@ -13,8 +15,8 @@ NEXT
 i := 1
 sum := 0
 WHILE i <= 5
-sum := sum + i
-i := i + 1
+    sum := sum + i
+    i := i + 1
 ENDDO
 
 ? "Sum 1 to 5:", sum

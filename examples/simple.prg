@@ -1,4 +1,6 @@
 // Simple arithmetic and variables
+ClearScreen()
+
 LOCAL x, y, result
 
 x := 10

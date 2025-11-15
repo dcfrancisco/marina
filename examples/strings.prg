@@ -1,3 +1,5 @@
+ClearScreen()
+
 // String operations
 LOCAL name, greeting, fullMessage
 
@@ -10,5 +12,6 @@ fullMessage := greeting + name
 
 // Comparison
 IF name == "Clipper"
-? "Name matches!"
+    ? "Name matches!"
 ENDIF
+? Replicate("=", 40)
