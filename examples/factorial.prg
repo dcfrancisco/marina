@@ -1,6 +1,14 @@
 // Factorial function example
 ClearScreen()
 
+// Main program
+LOCAL num, fact
+
+num := 5
+fact := Factorial(num)
+
+? "Factorial of", num, "is", fact
+
 FUNCTION Factorial(n)
     LOCAL result
     
@@ -10,12 +18,4 @@ FUNCTION Factorial(n)
         result := n * Factorial(n - 1)
     ENDIF
     
-    RETURN result
-
-    // Main program
-    LOCAL num, fact
-
-    num := 5
-    fact := Factorial(num)
-
-    ? "Factorial of", num, "is", fact
+RETURN result

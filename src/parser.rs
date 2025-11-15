@@ -87,14 +87,31 @@ impl Parser {
         self.consume(&TokenType::RightParen, "Expected ')' after parameters")?;
         
         let mut body = Vec::new();
-        while !self.check(&TokenType::Return) && !self.is_at_end() {
-            // Simple parsing - in real implementation, we'd have proper function end detection
-            if self.peek().lexeme.to_uppercase() == "ENDFUNC" 
-                || self.peek().lexeme.to_uppercase() == "ENDPROC" {
-                self.advance();
+        while !self.is_at_end() {
+            let current_lexeme = self.peek().lexeme.to_uppercase();
+            
+            // Stop at RETURN or ENDFUNC/ENDPROC
+            if current_lexeme == "RETURN" || current_lexeme == "ENDFUNC" || current_lexeme == "ENDPROC" {
                 break;
             }
-            body.push(self.declaration()?);
+            
+            // Stop at next function
+            if self.check(&TokenType::Function) || self.check(&TokenType::Procedure) {
+                break;
+            }
+            
+            body.push(self.statement()?);
+        }
+        
+        // Handle RETURN if present
+        if !self.is_at_end() && self.peek().lexeme.to_uppercase() == "RETURN" {
+            self.advance();
+            if !self.check(&TokenType::Semicolon) && !self.is_at_end() {
+                let expr = self.expression()?;
+                body.push(Stmt::Return(Some(expr)));
+            } else {
+                body.push(Stmt::Return(None));
+            }
         }
         
         Ok(Stmt::Function {
@@ -106,7 +123,9 @@ impl Parser {
     }
     
     fn statement(&mut self) -> Result<Stmt, String> {
-        if self.match_token(&[TokenType::Return]) {
+        if self.match_token(&[TokenType::Local]) {
+            self.var_declaration(VarScope::Local)
+        } else if self.match_token(&[TokenType::Return]) {
             self.return_statement()
         } else if self.match_token(&[TokenType::If]) {
             self.if_statement()

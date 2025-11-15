@@ -57,9 +57,11 @@ A Rust-based compiler and virtual machine for the Clipper programming language.
 - Assignment: `:=`, `=`
 
 ### Functions
-- Function definition with FUNCTION/PROCEDURE
-- Function calls with parameters
-- RETURN statement
+- User-defined functions with FUNCTION/PROCEDURE keyword
+- Function calls with parameters  
+- Recursive functions supported
+- Forward references (function can be defined after usage)
+- RETURN statement with optional value
 
 ### Database Operations (stubs)
 - USE - Open database
@@ -110,7 +112,10 @@ See the `examples/` directory for sample Clipper programs:
 - `strings.prg` - String operations
 - `arrays.prg` - Array creation and indexing
 - `conditionals.prg` - IF/ELSE conditional logic
-- `factorial.prg` - Recursive factorial function (not yet working - functions WIP)
+- `simple_func.prg` - Simple function example (Add function)
+- `factorial.prg` - Recursive factorial function
+- `console_demo.prg` - Console positioning and ANSI escape codes demo
+- `xmas_tree.prg` - Christmas tree ASCII art using Replicate() and SetPos()
 
 ## Project Structure
 

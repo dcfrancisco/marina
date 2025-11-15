@@ -88,16 +88,20 @@ fn run(source: &str, show_tokens: bool, show_ast: bool, show_disassembly: bool) 
     
     // Compilation
     let compiler = Compiler::new();
-    let chunk = compiler.compile(program)?;
+    let (chunk, functions) = compiler.compile(program)?;
     
     if show_disassembly {
         chunk.disassemble("main");
+        println!("\n=== Function Table ===");
+        for (name, addr) in &functions {
+            println!("{}: {}", name, addr);
+        }
         println!();
     }
     
     // Execution
     let mut vm = VM::new();
-    vm.run(&chunk)?;
+    vm.run(&chunk, functions)?;
     
     Ok(())
 }

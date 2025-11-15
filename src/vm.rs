@@ -7,6 +7,7 @@ pub struct VM {
     globals: HashMap<usize, Value>,
     locals: Vec<Value>,  // Top-level locals (not in functions)
     call_frames: Vec<CallFrame>,
+    functions: HashMap<String, usize>,  // Function name -> address
     ip: usize,
     cursor_row: usize,
     cursor_col: usize,
@@ -17,7 +18,8 @@ pub struct VM {
 #[derive(Debug, Clone)]
 struct CallFrame {
     return_ip: usize,
-    stack_start: usize,
+    locals_start: usize,  // Where this frame's locals start
+    locals_count: usize,  // How many locals this frame has
 }
 
 impl VM {
@@ -27,6 +29,7 @@ impl VM {
             globals: HashMap::new(),
             locals: Vec::new(),
             call_frames: Vec::new(),
+            functions: HashMap::new(),
             ip: 0,
             cursor_row: 0,
             cursor_col: 0,
@@ -35,14 +38,15 @@ impl VM {
         }
     }
     
-    pub fn run(&mut self, chunk: &Chunk) -> Result<(), String> {
+    pub fn run(&mut self, chunk: &Chunk, functions: HashMap<String, usize>) -> Result<(), String> {
         self.ip = 0;
+        self.functions = functions;
         
         while self.ip < chunk.code.len() {
             let instruction = &chunk.code[self.ip];
             
             // Debug output
-            // println!("IP: {}, Stack: {:?}", self.ip, self.stack);
+            // println!("IP: {} {:?}, Stack len: {}", self.ip, instruction.opcode, self.stack.len());
             
             match &instruction.opcode {
                 OpCode::Push => {
@@ -180,8 +184,10 @@ impl VM {
                             .clone();
                         self.stack.push(value);
                     } else {
-                        let stack_start = self.call_frames.last().unwrap().stack_start;
-                        let value = self.stack.get(stack_start + idx)
+                        // Function locals - use frame's locals
+                        let frame = self.call_frames.last().unwrap();
+                        let local_idx = frame.locals_start + idx;
+                        let value = self.locals.get(local_idx)
                             .ok_or(format!("Local variable {} not found", idx))?
                             .clone();
                         self.stack.push(value);
@@ -200,11 +206,13 @@ impl VM {
                         }
                         self.locals[idx] = value;
                     } else {
-                        let stack_start = self.call_frames.last().unwrap().stack_start;
-                        while self.stack.len() <= stack_start + idx {
-                            self.stack.push(Value::Nil);
+                        // Function locals - use frame's locals
+                        let frame = self.call_frames.last().unwrap();
+                        let local_idx = frame.locals_start + idx;
+                        while self.locals.len() <= local_idx {
+                            self.locals.push(Value::Nil);
                         }
-                        self.stack[stack_start + idx] = value;
+                        self.locals[local_idx] = value;
                     }
                     self.ip += 1;
                 }
@@ -232,7 +240,7 @@ impl VM {
                 
                 OpCode::JumpIfFalse => {
                     let target = instruction.operand.ok_or("JUMP_IF_FALSE requires target")?;
-                    let condition = self.stack.last().ok_or("Stack underflow")?;
+                    let condition = self.pop()?;
                     if !condition.is_truthy() {
                         self.ip = target;
                     } else {
@@ -242,7 +250,7 @@ impl VM {
                 
                 OpCode::JumpIfTrue => {
                     let target = instruction.operand.ok_or("JUMP_IF_TRUE requires target")?;
-                    let condition = self.stack.last().ok_or("Stack underflow")?;
+                    let condition = self.pop()?;
                     if condition.is_truthy() {
                         self.ip = target;
                     } else {
@@ -253,13 +261,43 @@ impl VM {
                 OpCode::Call => {
                     let arity = instruction.operand.ok_or("CALL requires arity")?;
                     
-                    // Get function name from stack
+                    // Get function name from stack (always a String now)
                     let func_value = self.stack.get(self.stack.len() - arity - 1)
                         .ok_or("Stack underflow getting function")?;
                     
+                    let func_name = match func_value {
+                        Value::String(name) => name.clone(),
+                        _ => return Err("Function name must be a string".to_string()),
+                    };
+                    
+                    // Check if it's a user-defined function
+                    if let Some(&func_addr) = self.functions.get(&func_name) {
+                        // Pop function name
+                        let _func = self.stack.remove(self.stack.len() - arity - 1);
+                        
+                        // Create call frame
+                        let frame = CallFrame {
+                            return_ip: self.ip + 1,
+                            locals_start: self.locals.len(),
+                            locals_count: arity,
+                        };
+                        
+                        // Move arguments from stack to locals
+                        for _ in 0..arity {
+                            let arg = self.pop()?;
+                            self.locals.insert(self.locals.len(), arg);
+                        }
+                        // Reverse to match parameter order
+                        let start = self.locals.len() - arity;
+                        self.locals[start..].reverse();
+                        
+                        self.call_frames.push(frame);
+                        self.ip = func_addr;
+                        continue; // Don't increment IP
+                    }
+                    
                     // Handle built-in functions
-                    if let Value::String(func_name) = func_value {
-                        match func_name.as_str() {
+                    match func_name.as_str() {
                             "SetPos" | "DevPos" => {
                                 if arity != 2 {
                                     return Err(format!("{} requires 2 arguments (row, col)", func_name));
@@ -371,9 +409,6 @@ impl VM {
                                 return Err(format!("Unknown function: {}", func_name));
                             }
                         }
-                    } else {
-                        return Err("Function calls not yet fully implemented".to_string());
-                    }
                     
                     self.ip += 1;
                 }
@@ -381,7 +416,11 @@ impl VM {
                 OpCode::Return => {
                     if let Some(frame) = self.call_frames.pop() {
                         let return_value = self.pop()?;
-                        self.stack.truncate(frame.stack_start);
+                        
+                        // Remove this frame's locals
+                        self.locals.truncate(frame.locals_start);
+                        
+                        // Push return value onto stack
                         self.stack.push(return_value);
                         self.ip = frame.return_ip;
                     } else {

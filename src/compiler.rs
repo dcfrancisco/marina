@@ -7,6 +7,7 @@ pub struct Compiler {
     locals: Vec<String>,
     scope_depth: usize,
     globals: HashMap<String, usize>,
+    functions: HashMap<String, usize>, // function name -> bytecode address
 }
 
 impl Compiler {
@@ -16,16 +17,29 @@ impl Compiler {
             locals: Vec::new(),
             scope_depth: 0,
             globals: HashMap::new(),
+            functions: HashMap::new(),
         }
     }
     
-    pub fn compile(mut self, program: Program) -> Result<Chunk, String> {
+    pub fn compile(mut self, program: Program) -> Result<(Chunk, HashMap<String, usize>), String> {
+        // First pass: scan for function definitions and reserve addresses
+        // We'll insert placeholder jumps and patch them later
+        let mut func_placeholders = HashMap::new();
+        
+        for (idx, stmt) in program.statements.iter().enumerate() {
+            if let Stmt::Function { name, .. } = stmt {
+                // Reserve a placeholder - we'll update this with actual address later
+                func_placeholders.insert(name.clone(), idx);
+            }
+        }
+        
+        // Second pass: compile statements
         for stmt in program.statements {
             self.compile_statement(&stmt)?;
         }
         
         self.chunk.write(OpCode::Halt, None);
-        Ok(self.chunk)
+        Ok((self.chunk, self.functions))
     }
     
     fn compile_statement(&mut self, stmt: &Stmt) -> Result<(), String> {
@@ -46,11 +60,13 @@ impl Compiler {
                         }
                         let local_idx = self.locals.iter().position(|l| l == name).unwrap();
                         self.chunk.write(OpCode::SetLocal, Some(local_idx));
+                        self.chunk.write(OpCode::Pop, None); // Pop the assigned value
                     }
                     _ => {
                         // Global, Static, Private, Public all treated as globals for now
                         let global_idx = self.get_or_create_global(name);
                         self.chunk.write(OpCode::SetGlobal, Some(global_idx));
+                        self.chunk.write(OpCode::Pop, None); // Pop the assigned value
                     }
                 }
             }
@@ -69,30 +85,25 @@ impl Compiler {
             }
             
             Stmt::Function { name, params, body, .. } => {
-                // Store function start address
-                let func_address = self.chunk.code.len();
-                let func_value = Value::Function {
-                    name: name.clone(),
-                    arity: params.len(),
-                    address: func_address,
-                };
-                
-                let func_idx = self.chunk.add_constant(func_value);
-                let global_idx = self.get_or_create_global(name);
-                
-                self.chunk.write(OpCode::Push, Some(func_idx));
-                self.chunk.write(OpCode::SetGlobal, Some(global_idx));
-                
                 // Jump over function body
                 let jump_idx = self.chunk.code.len();
                 self.chunk.write(OpCode::Jump, Some(0)); // Placeholder
                 
-                // Compile function body
-                self.scope_depth += 1;
+                // Store function start address in function table
+                let func_start = self.chunk.code.len();
+                self.functions.insert(name.clone(), func_start);
+                
+                // Save and clear locals for function scope
+                let saved_locals = self.locals.clone();
+                self.locals.clear();
+                
+                // Parameters become local variables (pushed in reverse by caller)
                 for param in params {
                     self.locals.push(param.clone());
                 }
                 
+                // Compile function body
+                self.scope_depth += 1;
                 for stmt in body {
                     self.compile_statement(stmt)?;
                 }
@@ -107,7 +118,7 @@ impl Compiler {
                 self.chunk.code[jump_idx].operand = Some(end_address);
                 
                 self.scope_depth -= 1;
-                self.locals.truncate(self.locals.len() - params.len());
+                self.locals = saved_locals;
             }
             
             Stmt::Return(expr) => {
@@ -367,7 +378,8 @@ impl Compiler {
                     self.chunk.write(OpCode::Push, Some(newline_idx));
                     self.chunk.write(OpCode::Print, None);
                 } else {
-                    // Push function name as a string constant
+                    // All functions (user-defined and built-in) use name-based calling
+                    // Push function name as string
                     let name_idx = self.chunk.add_constant(Value::String(name.clone()));
                     self.chunk.write(OpCode::Push, Some(name_idx));
                     
