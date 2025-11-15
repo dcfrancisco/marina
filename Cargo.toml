@@ -4,3 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+
+[profile.release]
+strip = false  # Disable symbol stripping to avoid rust-objcopy LLVM.dylib warning
