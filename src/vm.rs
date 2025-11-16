@@ -45,9 +45,6 @@ impl VM {
         while self.ip < chunk.code.len() {
             let instruction = &chunk.code[self.ip];
             
-            // Debug output
-            // println!("IP: {} {:?}, Stack len: {}", self.ip, instruction.opcode, self.stack.len());
-            
             match &instruction.opcode {
                 OpCode::Push => {
                     let idx = instruction.operand.ok_or("PUSH requires constant index")?;

@@ -305,6 +305,78 @@ impl Compiler {
                 }
             }
             
+            Stmt::Case { expr, cases, otherwise } => {
+                // Compile the expression to match against
+                self.compile_expression(expr)?;
+                
+                let mut end_jumps: Vec<usize> = Vec::new();
+                let mut next_case_jumps: Vec<usize> = Vec::new();
+                
+                // Compile each case
+                for (value_expr, statements) in cases {
+                    // Patch previous case's jump to next case
+                    for jump_pos in &next_case_jumps {
+                        self.chunk.code[*jump_pos].operand = Some(self.chunk.code.len());
+                    }
+                    next_case_jumps.clear();
+                    
+                    // Duplicate the match expression on stack
+                    self.chunk.write(OpCode::GetLocal, Some(0)); // Temp hack - need DUP opcode
+                    // Better: compile expr again for now
+                    self.compile_expression(expr)?;
+                    
+                    // Compile the case value
+                    self.compile_expression(value_expr)?;
+                    
+                    // Compare
+                    self.chunk.write(OpCode::Equal, None);
+                    
+                    // Jump to next case if not equal
+                    let jump_to_next = self.chunk.code.len();
+                    self.chunk.write(OpCode::JumpIfFalse, Some(0)); // Placeholder
+                    next_case_jumps.push(jump_to_next);
+                    
+                    // Pop the comparison result
+                    self.chunk.write(OpCode::Pop, None);
+                    
+                    // Execute case statements
+                    for stmt in statements {
+                        self.compile_statement(stmt)?;
+                    }
+                    
+                    // Jump to end after executing case
+                    let jump_to_end = self.chunk.code.len();
+                    self.chunk.write(OpCode::Jump, Some(0)); // Placeholder
+                    end_jumps.push(jump_to_end);
+                }
+                
+                // Patch jumps to otherwise/end
+                for jump_pos in &next_case_jumps {
+                    self.chunk.code[*jump_pos].operand = Some(self.chunk.code.len());
+                }
+                
+                // Pop comparison result before otherwise
+                if !next_case_jumps.is_empty() {
+                    self.chunk.write(OpCode::Pop, None);
+                }
+                
+                // Compile otherwise clause
+                if let Some(otherwise_stmts) = otherwise {
+                    for stmt in otherwise_stmts {
+                        self.compile_statement(stmt)?;
+                    }
+                }
+                
+                // Pop the original match expression
+                self.chunk.write(OpCode::Pop, None);
+                
+                // Patch all end jumps
+                let end_address = self.chunk.code.len();
+                for jump_pos in end_jumps {
+                    self.chunk.code[jump_pos].operand = Some(end_address);
+                }
+            }
+            
             Stmt::DbUse { filename, .. } => {
                 let filename_idx = self.chunk.add_constant(Value::String(filename.clone()));
                 self.chunk.write(OpCode::Push, Some(filename_idx));

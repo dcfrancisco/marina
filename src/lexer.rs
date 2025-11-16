@@ -114,8 +114,20 @@ impl Lexer {
                     TokenType::Minus
                 }
             }
-            '*' => TokenType::Star,
-            '/' => TokenType::Slash,
+            '*' => {
+                if self.match_char('=') {
+                    TokenType::MultiplyAssign
+                } else {
+                    TokenType::Star
+                }
+            }
+            '/' => {
+                if self.match_char('=') {
+                    TokenType::DivideAssign
+                } else {
+                    TokenType::Slash
+                }
+            }
             '%' => TokenType::Percent,
             '^' => TokenType::Power,
             '(' => TokenType::LeftParen,

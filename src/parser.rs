@@ -139,6 +139,8 @@ impl Parser {
             self.loop_statement()
         } else if self.match_token(&[TokenType::Exit]) {
             Ok(Stmt::Exit)
+        } else if self.match_token(&[TokenType::Case]) {
+            self.case_statement()
         } else if self.match_token(&[TokenType::Use]) {
             self.db_use_statement()
         } else if self.match_token(&[TokenType::DbSkip]) {
@@ -274,6 +276,45 @@ impl Parser {
         Ok(Stmt::Loop { body })
     }
     
+    fn case_statement(&mut self) -> Result<Stmt, String> {
+        // CASE expr
+        let expr = self.expression()?;
+        self.skip_newlines();
+        
+        let mut cases = Vec::new();
+        let mut otherwise = None;
+        
+        // Parse CASE value clauses
+        while self.match_token(&[TokenType::Case]) {
+            let value = self.expression()?;
+            self.skip_newlines();
+            
+            let mut statements = Vec::new();
+            while !self.is_at_end() && 
+                  !self.check(&TokenType::Case) && 
+                  !self.check(&TokenType::Otherwise) &&
+                  !self.check(&TokenType::EndCase) {
+                statements.push(self.declaration()?);
+            }
+            
+            cases.push((value, statements));
+        }
+        
+        // Parse optional OTHERWISE clause
+        if self.match_token(&[TokenType::Otherwise]) {
+            self.skip_newlines();
+            let mut statements = Vec::new();
+            while !self.is_at_end() && !self.check(&TokenType::EndCase) {
+                statements.push(self.declaration()?);
+            }
+            otherwise = Some(statements);
+        }
+        
+        self.consume(&TokenType::EndCase, "Expected ENDCASE")?;
+        
+        Ok(Stmt::Case { expr, cases, otherwise })
+    }
+    
     fn db_use_statement(&mut self) -> Result<Stmt, String> {
         let filename = if self.check(&TokenType::String) {
             self.advance().lexeme.clone()
@@ -369,6 +410,59 @@ impl Parser {
                 }
                 _ => {
                     return Err("Invalid assignment target".to_string());
+                }
+            }
+        } else if self.match_token(&[TokenType::PlusAssign, TokenType::MinusAssign, 
+                                      TokenType::MultiplyAssign, TokenType::DivideAssign]) {
+            let op_type = self.previous().token_type.clone();
+            match expr {
+                Expr::Variable(name) => {
+                    let value = self.assignment()?;
+                    // Transform x += y into x := x + y
+                    let op = match op_type {
+                        TokenType::PlusAssign => BinaryOp::Add,
+                        TokenType::MinusAssign => BinaryOp::Subtract,
+                        TokenType::MultiplyAssign => BinaryOp::Multiply,
+                        TokenType::DivideAssign => BinaryOp::Divide,
+                        _ => unreachable!(),
+                    };
+                    let combined = Expr::Binary {
+                        left: Box::new(Expr::Variable(name.clone())),
+                        operator: op,
+                        right: Box::new(value),
+                    };
+                    return Ok(Expr::Assign {
+                        name,
+                        value: Box::new(combined),
+                    });
+                }
+                _ => {
+                    return Err("Invalid augmented assignment target".to_string());
+                }
+            }
+        } else if self.match_token(&[TokenType::Increment, TokenType::Decrement]) {
+            let op_type = self.previous().token_type.clone();
+            match expr {
+                Expr::Variable(name) => {
+                    // Transform x++ into x := x + 1
+                    let one = Expr::Number(1.0);
+                    let op = if op_type == TokenType::Increment {
+                        BinaryOp::Add
+                    } else {
+                        BinaryOp::Subtract
+                    };
+                    let combined = Expr::Binary {
+                        left: Box::new(Expr::Variable(name.clone())),
+                        operator: op,
+                        right: Box::new(one),
+                    };
+                    return Ok(Expr::Assign {
+                        name,
+                        value: Box::new(combined),
+                    });
+                }
+                _ => {
+                    return Err("Invalid increment/decrement target".to_string());
                 }
             }
         }
@@ -676,6 +770,12 @@ impl Parser {
             Ok(self.advance().lexeme.clone())
         } else {
             Err(format!("{} at line {}", message, self.peek().line))
+        }
+    }
+    
+    fn skip_newlines(&mut self) {
+        while self.match_token(&[TokenType::Newline]) {
+            // Skip all newlines
         }
     }
 }

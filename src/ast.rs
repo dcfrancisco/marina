@@ -129,6 +129,13 @@ pub enum Stmt {
         body: Vec<Stmt>,
     },
     
+    // Case statement
+    Case {
+        expr: Expr,
+        cases: Vec<(Expr, Vec<Stmt>)>, // (value, statements)
+        otherwise: Option<Vec<Stmt>>,
+    },
+    
     // Database operations
     DbUse {
         filename: String,

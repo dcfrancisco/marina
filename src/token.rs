@@ -70,6 +70,8 @@ pub enum TokenType {
     Assign,
     PlusAssign,
     MinusAssign,
+    MultiplyAssign,
+    DivideAssign,
     Increment,
     Decrement,
     
