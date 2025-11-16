@@ -185,16 +185,16 @@ These ensure long-term language stability.
 
 ## Compatibility Matrix
 
-| Feature     | Clipper 5.x  | Harbour   | Marina              |
-| ----------- | ------------ | --------- | ------------------- |
-| Macros      | dangerous    | dangerous | SAFE AST macros     |
-| Workareas   | yes          | yes       | no                  |
-| RDD         | yes          | yes       | module engines      |
-| Commands    | yes          | yes       | no                  |
-| Codeblocks  | yes          | yes       | enhanced            |
-| VM          | no           | no        | yes                 |
-| Async       | no           | no        | yes                 |
-| SQL engines | no           | partial   | full                |
-| MongoDB     | no           | no        | yes                 |
-| GUI         | VO only      | partial   | AST GUI DSL         |
-| Modules     | object files | limited   | full modern modules |
+| Feature     | Clipper 5.x  | Marina              |
+| ----------- | ------------ | ------------------- |
+| Macros      | dangerous    | SAFE AST macros     |
+| Workareas   | yes          | no                  |
+| RDD         | yes          | module engines      |
+| Commands    | yes          | no                  |
+| Codeblocks  | yes          | enhanced            |
+| VM          | no           | yes                 |
+| Async       | no           | yes                 |
+| SQL engines | no           | full                |
+| MongoDB     | no           | yes                 |
+| GUI         | VO only      | AST GUI DSL         |
+| Modules     | object files | full modern modules |

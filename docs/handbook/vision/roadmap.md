@@ -824,22 +824,22 @@ The language is designed to last 30–50 years.
 
 ---
 
-## What Makes Marina Different From Harbour/Xbase++
+## What Makes Marina Different From Xbase++
 
-| Feature        | Harbour         | Xbase++         | Marina               |
-| -------------- | --------------- | --------------- | -------------------- |
-| xBase commands | Yes             | Yes             | No                   |
-| Workareas      | Yes             | Yes             | No                   |
-| RDD            | Yes             | Yes             | Modular engines      |
-| VM             | No              | Partial         | Yes                  |
-| Bytecode       | No              | Partial         | Yes                  |
-| Macro system   | Same as Clipper | Same as Clipper | Modern, safe         |
-| Syntax         | xBase           | xBase + OOP     | Clipper-style modern |
-| Memory model   | C-level         | Proprietary     | Rust safe            |
-| SQL            | Limited         | Optional        | Full                 |
-| NoSQL          | No              | No              | Yes                  |
-| Async          | No              | No              | Yes                  |
-| Future-proof   | No              | No              | Yes                  |
+| Feature        | Xbase++         | Marina               |
+| -------------- | --------------- | -------------------- |
+| xBase commands | Yes             | No                   |
+| Workareas      | Yes             | No                   |
+| RDD            | Yes             | Modular engines      |
+| VM             | Partial         | Yes                  |
+| Bytecode       | Partial         | Yes                  |
+| Macro system   | Same as Clipper | Modern, safe         |
+| Syntax         | xBase + OOP     | Clipper-style modern |
+| Memory model   | Proprietary     | Rust safe            |
+| SQL            | Optional        | Full                 |
+| NoSQL          | No              | Yes                  |
+| Async          | No              | Yes                  |
+| Future-proof   | No              | Yes                  |
 
 ## The Big Promise
 

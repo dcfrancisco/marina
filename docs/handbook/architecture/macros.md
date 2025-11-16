@@ -100,7 +100,7 @@ These are used to recreate:
 
 ### Tier 3 — AST Macros
 
-This is where Clipper-2025 surpasses Clipper 5, Harbour, and Xbase++.
+This is where Clipper-2025 surpasses Clipper 5 and Xbase++.
 
 AST Macros allow DSL-like patterns:
 

@@ -27,6 +27,5 @@ This creates a language that feels like:
 * Elixir
 
 But not xBase.
-Not Harbour.
 Not Xbase++.
 Not Visual Objects.
