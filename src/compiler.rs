@@ -8,6 +8,12 @@ pub struct Compiler {
     scope_depth: usize,
     globals: HashMap<String, usize>,
     functions: HashMap<String, usize>, // function name -> bytecode address
+    loop_stack: Vec<LoopContext>, // Track loop contexts for EXIT/BREAK
+}
+
+#[derive(Debug, Clone)]
+struct LoopContext {
+    break_jumps: Vec<usize>, // Positions that need patching to loop end
 }
 
 impl Compiler {
@@ -18,6 +24,7 @@ impl Compiler {
             scope_depth: 0,
             globals: HashMap::new(),
             functions: HashMap::new(),
+            loop_stack: Vec::new(),
         }
     }
     
@@ -171,6 +178,9 @@ impl Compiler {
                 let exit_jump = self.chunk.code.len();
                 self.chunk.write(OpCode::JumpIfFalse, Some(0)); // Placeholder
                 
+                // Push loop context for EXIT handling
+                self.loop_stack.push(LoopContext { break_jumps: Vec::new() });
+                
                 for stmt in body {
                     self.compile_statement(stmt)?;
                 }
@@ -180,6 +190,13 @@ impl Compiler {
                 // Patch exit jump
                 let end_address = self.chunk.code.len();
                 self.chunk.code[exit_jump].operand = Some(end_address);
+                
+                // Patch all EXIT jumps to end of loop
+                if let Some(loop_ctx) = self.loop_stack.pop() {
+                    for break_pos in loop_ctx.break_jumps {
+                        self.chunk.code[break_pos].operand = Some(end_address);
+                    }
+                }
             }
             
             Stmt::For { variable, start, end, step, body } => {
@@ -198,6 +215,9 @@ impl Compiler {
                 
                 let exit_jump = self.chunk.code.len();
                 self.chunk.write(OpCode::JumpIfFalse, Some(0)); // Placeholder
+                
+                // Push loop context
+                self.loop_stack.push(LoopContext { break_jumps: Vec::new() });
                 
                 // Execute body
                 for stmt in body {
@@ -221,11 +241,21 @@ impl Compiler {
                 let end_address = self.chunk.code.len();
                 self.chunk.code[exit_jump].operand = Some(end_address);
                 
+                // Patch all EXIT jumps
+                if let Some(loop_ctx) = self.loop_stack.pop() {
+                    for break_pos in loop_ctx.break_jumps {
+                        self.chunk.code[break_pos].operand = Some(end_address);
+                    }
+                }
+                
                 self.locals.pop();
             }
             
             Stmt::DoWhile { body, condition } => {
                 let loop_start = self.chunk.code.len();
+                
+                // Push loop context
+                self.loop_stack.push(LoopContext { break_jumps: Vec::new() });
                 
                 for stmt in body {
                     self.compile_statement(stmt)?;
@@ -233,22 +263,46 @@ impl Compiler {
                 
                 self.compile_expression(condition)?;
                 self.chunk.write(OpCode::JumpIfTrue, Some(loop_start));
+                
+                // Patch EXIT jumps
+                let end_address = self.chunk.code.len();
+                if let Some(loop_ctx) = self.loop_stack.pop() {
+                    for break_pos in loop_ctx.break_jumps {
+                        self.chunk.code[break_pos].operand = Some(end_address);
+                    }
+                }
             }
             
             Stmt::Loop { body } => {
                 let loop_start = self.chunk.code.len();
+                
+                // Push loop context
+                self.loop_stack.push(LoopContext { break_jumps: Vec::new() });
                 
                 for stmt in body {
                     self.compile_statement(stmt)?;
                 }
                 
                 self.chunk.write(OpCode::Jump, Some(loop_start));
+                
+                // Patch EXIT jumps to end of loop
+                let end_address = self.chunk.code.len();
+                if let Some(loop_ctx) = self.loop_stack.pop() {
+                    for break_pos in loop_ctx.break_jumps {
+                        self.chunk.code[break_pos].operand = Some(end_address);
+                    }
+                }
             }
             
             Stmt::Exit => {
-                // Exit is tricky - needs proper loop tracking
-                // For now, just halt
-                self.chunk.write(OpCode::Halt, None);
+                // Emit jump to be patched at end of loop
+                if let Some(loop_ctx) = self.loop_stack.last_mut() {
+                    let jump_pos = self.chunk.code.len();
+                    self.chunk.write(OpCode::Jump, Some(0)); // Placeholder
+                    loop_ctx.break_jumps.push(jump_pos);
+                } else {
+                    return Err("EXIT statement outside of loop".to_string());
+                }
             }
             
             Stmt::DbUse { filename, .. } => {
@@ -360,6 +414,48 @@ impl Compiler {
             }
             
             Expr::Call { name, args } => {
+                // Handle indexed assignment (__SET_INDEX__)
+                if name == "__SET_INDEX__" {
+                    if args.len() != 3 {
+                        return Err("Internal error: __SET_INDEX__ requires 3 args".to_string());
+                    }
+                    
+                    // For indexed assignment arr[idx] := value, we need to:
+                    // 1. Load the array
+                    // 2. Push index
+                    // 3. Push value
+                    // 4. Call SetIndex (which modifies and returns the array)
+                    // 5. Store the modified array back to the variable
+                    // Note: Don't pop - let the statement handler do that (for expression semantics)
+                    
+                    // Check if args[0] is a simple variable
+                    if let Expr::Variable(var_name) = &args[0] {
+                        // Load array
+                        self.compile_expression(&args[0])?;
+                        // Push index and value
+                        self.compile_expression(&args[1])?;
+                        self.compile_expression(&args[2])?;
+                        // SetIndex pops value, index, array and pushes modified array
+                        self.chunk.write(OpCode::SetIndex, None);
+                        // Store modified array back to variable
+                        if let Some(local_idx) = self.resolve_local(var_name) {
+                            self.chunk.write(OpCode::SetLocal, Some(local_idx));
+                        } else {
+                            let global_idx = self.get_or_create_global(var_name);
+                            self.chunk.write(OpCode::SetGlobal, Some(global_idx));
+                        }
+                        // Leave value on stack for expression semantics (statement handler will pop)
+                    } else {
+                        // Complex expression - just do the operation (may not persist)
+                        self.compile_expression(&args[0])?;
+                        self.compile_expression(&args[1])?;
+                        self.compile_expression(&args[2])?;
+                        self.chunk.write(OpCode::SetIndex, None);
+                        // Leave the modified array on stack
+                    }
+                    return Ok(());
+                }
+                
                 // Special built-in functions
                 if name.to_uppercase() == "PRINT" || name == "?" {
                     for (idx, arg) in args.iter().enumerate() {

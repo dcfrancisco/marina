@@ -350,14 +350,26 @@ impl Parser {
         let expr = self.logical_or()?;
         
         if self.match_token(&[TokenType::Assign]) {
-            if let Expr::Variable(name) = expr {
-                let value = self.assignment()?;
-                return Ok(Expr::Assign {
-                    name,
-                    value: Box::new(value),
-                });
-            } else {
-                return Err("Invalid assignment target".to_string());
+            match expr {
+                Expr::Variable(name) => {
+                    let value = self.assignment()?;
+                    return Ok(Expr::Assign {
+                        name,
+                        value: Box::new(value),
+                    });
+                }
+                Expr::Index { object, index } => {
+                    // Indexed assignment: arr[idx] := value
+                    let value = self.assignment()?;
+                    // Use special __SET_INDEX__ call
+                    return Ok(Expr::Call {
+                        name: "__SET_INDEX__".to_string(),
+                        args: vec![*object, *index, value],
+                    });
+                }
+                _ => {
+                    return Err("Invalid assignment target".to_string());
+                }
             }
         }
         
