@@ -5,6 +5,7 @@ pub enum OpCode {
     // Stack operations
     Push,           // Push constant onto stack
     Pop,            // Pop value from stack
+    Dup,            // Duplicate top of stack
     
     // Arithmetic operations
     Add,
@@ -166,6 +167,7 @@ impl Chunk {
                 }
             }
             OpCode::Pop => println!("POP"),
+            OpCode::Dup => println!("DUP"),
             OpCode::Add => println!("ADD"),
             OpCode::Subtract => println!("SUBTRACT"),
             OpCode::Multiply => println!("MULTIPLY"),

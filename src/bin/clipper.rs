@@ -1,15 +1,4 @@
-mod token;
-mod lexer;
-mod ast;
-mod parser;
-mod bytecode;
-mod compiler;
-mod vm;
-
-use lexer::Lexer;
-use parser::Parser;
-use compiler::Compiler;
-use vm::VM;
+use marina::run;
 use std::env;
 use std::fs;
 use std::io::{self, Write};
@@ -59,51 +48,6 @@ fn main() {
         eprintln!("Error: {}", e);
         std::process::exit(1);
     }
-}
-
-fn run(source: &str, show_tokens: bool, show_ast: bool, show_disassembly: bool) -> Result<(), String> {
-    // Lexical analysis
-    let mut lexer = Lexer::new(source.to_string());
-    let tokens = lexer.scan_tokens()?;
-    
-    if show_tokens {
-        println!("=== TOKENS ===");
-        for token in &tokens {
-            println!("{:?}", token);
-        }
-        println!();
-    }
-    
-    // Parsing
-    let mut parser = Parser::new(tokens);
-    let program = parser.parse()?;
-    
-    if show_ast {
-        println!("=== AST ===");
-        for stmt in &program.statements {
-            println!("{:#?}", stmt);
-        }
-        println!();
-    }
-    
-    // Compilation
-    let compiler = Compiler::new();
-    let (chunk, functions) = compiler.compile(program)?;
-    
-    if show_disassembly {
-        chunk.disassemble("main");
-        println!("\n=== Function Table ===");
-        for (name, addr) in &functions {
-            println!("{}: {}", name, addr);
-        }
-        println!();
-    }
-    
-    // Execution
-    let mut vm = VM::new();
-    vm.run(&chunk, functions)?;
-    
-    Ok(())
 }
 
 fn run_repl() {

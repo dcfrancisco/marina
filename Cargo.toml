@@ -1,5 +1,5 @@
 [package]
-name = "clipper"
+name = "marina"
 version = "0.1.0"
 edition = "2024"
 
@@ -7,7 +7,41 @@ edition = "2024"
 name = "marina"
 path = "src/lib.rs"
 
+# Main compiler/interpreter binary
+[[bin]]
+name = "clipper"
+path = "src/bin/clipper.rs"
+
+# Language Server Protocol binary
+[[bin]]
+name = "marina-lsp"
+path = "src/bin/marina-lsp.rs"
+
+# Debug Adapter Protocol binary
+[[bin]]
+name = "marina-dap"
+path = "src/bin/marina-dap.rs"
+
+# Code formatter binary
+[[bin]]
+name = "marina-fmt"
+path = "src/bin/marina-fmt.rs"
+
 [dependencies]
+# LSP dependencies
+tower-lsp = { version = "0.20", optional = true }
+tokio = { version = "1.35", features = ["full"], optional = true }
+serde = { version = "1.0", features = ["derive"], optional = true }
+serde_json = { version = "1.0", optional = true }
+
+# DAP dependencies (will add when implementing)
+# debugserver-types = { version = "0.5", optional = true }
+
+[features]
+default = []
+lsp = ["tower-lsp", "tokio", "serde", "serde_json"]
+dap = []  # Will add dependencies later
+fmt = []
 
 [profile.release]
 strip = false  # Disable symbol stripping to avoid rust-objcopy LLVM.dylib warning
