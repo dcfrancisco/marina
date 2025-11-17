@@ -1,2 +1,6 @@
 /target
 /.github/
+
+# MacOS files --- IGNORE ---
+.DS_Store 
+**/.DS_Store
