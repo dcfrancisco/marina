@@ -1,7 +1,7 @@
 // Array operations
 ClearScreen()
 
-LOCAL arr, i
+local arr, i
 
 arr := {10, 20, 30, 40, 50}
 
@@ -10,6 +10,6 @@ arr := {10, 20, 30, 40, 50}
 ? "Third element:", arr[2]
 
 // Loop through array
-FOR i := 0 TO 4
+for i := 0 to 4
     ? "Element", i, ":", arr[i]
-NEXT
+next

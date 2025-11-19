@@ -3,34 +3,34 @@
 ? "=== Augmented Assignment Operators Demo ==="
 
 // Test += operator
-LOCAL x := 10
+local x := 10
 ? "x =", x
 x += 5
 ? "After x += 5:", x
 
 // Test -= operator  
-LOCAL y := 20
+local y := 20
 ? ""
 ? "y =", y
 y -= 7
 ? "After y -= 7:", y
 
 // Test *= operator
-LOCAL z := 3
+local z := 3
 ? ""
 ? "z =", z
 z *= 4
 ? "After z *= 4:", z
 
 // Test /= operator
-LOCAL w := 100
+local w := 100
 ? ""
 ? "w =", w
 w /= 5
 ? "After w /= 5:", w
 
 // Test ++ operator (post-increment)
-LOCAL counter := 0
+local counter := 0
 ? ""
 ? "counter =", counter
 counter++
@@ -39,7 +39,7 @@ counter++
 ? "After counter++:", counter
 
 // Test -- operator (post-decrement)
-LOCAL countdown := 10
+local countdown := 10
 ? ""
 ? "countdown =", countdown
 countdown--
@@ -48,7 +48,7 @@ countdown--
 ? "After countdown--:", countdown
 
 // Complex expressions
-LOCAL total := 100
+local total := 100
 ? ""
 ? "total =", total
 total += 50
@@ -63,11 +63,11 @@ total /= 4
 // Using in loops
 ? ""
 ? "Using ++ in a loop:"
-LOCAL i := 0
-WHILE i < 5
+local i := 0
+while i < 5
     ? "  i =", i
     i++
-ENDDO
+enddo
 
 ? ""
 ? "=== Demo Complete ==="

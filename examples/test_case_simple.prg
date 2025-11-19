@@ -1,9 +1,9 @@
 num = 2
-CASE num
-  CASE 1
+case num
+  case 1
     ? "One"
-  CASE 2
+  case 2
     ? "Two"
-  OTHERWISE
+  otherwise
     ? "Other"
-ENDCASE
+endcase

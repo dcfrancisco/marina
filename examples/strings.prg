@@ -1,7 +1,7 @@
 ClearScreen()
 
 // String operations
-LOCAL name, greeting, fullMessage
+local name, greeting, fullMessage
 
 name := "Clipper"
 greeting := "Hello, "
@@ -11,7 +11,7 @@ fullMessage := greeting + name
 ? "Length check:", name
 
 // Comparison
-IF name == "Clipper"
+if name == "Clipper"
     ? "Name matches!"
-ENDIF
+endif
 ? Replicate("=", 40)

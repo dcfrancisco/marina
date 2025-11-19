@@ -3,69 +3,69 @@
 ? "=== CASE Statement Demo ==="
 
 // Test 1: Simple number matching
-LOCAL grade := 85
+local grade := 85
 
 ? "Grade:", grade
 
-CASE grade
-CASE 90
+case grade
+case 90
 ? "Grade: A (Excellent!)"
-CASE 80
+case 80
 ? "Grade: B (Good job!)"
-CASE 70
+case 70
 ? "Grade: C (Passing)"
-OTHERWISE
+otherwise
 ? "Grade: Need improvement"
-ENDCASE
+endcase
 
 // Test 2: String matching
-LOCAL day := "Monday"
+local day := "Monday"
 
 ? ""
 ? "Day:", day
 
-CASE day
-CASE "Monday"
+case day
+case "Monday"
 ? "Start of the work week"
-CASE "Friday"
+case "Friday"
 ? "TGIF!"
-CASE "Saturday"
+case "Saturday"
 ? "Weekend!"
-CASE "Sunday"
+case "Sunday"
 ? "Weekend!"
-OTHERWISE
+otherwise
 ? "Middle of the week"
-ENDCASE
+endcase
 
 // Test 3: Boolean matching
-LOCAL status := TRUE
+local status := TRUE
 
 ? ""
 ? "Status:", status
 
-CASE status
-CASE TRUE
+case status
+case TRUE
 ? "System is active"
-CASE FALSE
+case FALSE
 ? "System is inactive"
-ENDCASE
+endcase
 
 // Test 4: Expression evaluation
-LOCAL x := 15
+local x := 15
 
 ? ""
 ? "Value:", x
 
-CASE x
-CASE 10
+case x
+case 10
 ? "Exactly 10"
-CASE 15
+case 15
 ? "Exactly 15 - matched!"
-CASE 20
+case 20
 ? "Exactly 20"
-OTHERWISE
+otherwise
 ? "Some other value"
-ENDCASE
+endcase
 
 ? ""
 ? "=== CASE Demo Complete ==="

@@ -2,10 +2,10 @@
 ClearScreen()
 
 
-LOCAL x
+local x
 x := Add(3, 4)
 ? "Result:", x
 
-FUNCTION Add(a, b)
-RETURN a + b
+function Add(a, b)
+return a + b
 

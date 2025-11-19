@@ -2,20 +2,20 @@
 ClearScreen()
 
 // Main program
-LOCAL num, fact
+local num, fact
 
 num := 5
 fact := Factorial(num)
 
 ? "Factorial of", num, "is", fact
 
-FUNCTION Factorial(n)
-    LOCAL result
+function Factorial(n)
+    local result
     
-    IF n <= 1
+    if n <= 1
         result := 1
-    ELSE
+    else
         result := n * Factorial(n - 1)
-    ENDIF
+    endif
     
-RETURN result
+return result

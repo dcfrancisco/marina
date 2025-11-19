@@ -10,7 +10,7 @@ SetPos(2, 20)
 OutStd("Clipper-2025 ASCII Art Demo")
 
 // Draw the tree using loops
-LOCAL row, width, i, spaces
+local row, width, i, spaces
 
 // Tree top - Star
 SetPos(4, 39)
@@ -18,7 +18,7 @@ OutStd("*")
 
 // Perfect triangle tree - each row adds 2 stars
 row := 5
-FOR i := 1 TO 12
+for i := 1 to 12
     width := i * 2 - 1
     spaces := 40 - (width + 1) / 2
     SetPos(row, spaces)
@@ -27,14 +27,14 @@ FOR i := 1 TO 12
     OutStd(Replicate("*", width))
     
     row := row + 1
-NEXT
+next
 
 // Tree trunk
-FOR i := 1 TO 3
+for i := 1 to 3
     SetPos(row, 38)
     OutStd("|||")
     row := row + 1
-NEXT
+next
 
 // Ornaments (using positioned numbers/letters)
 SetPos(7, 38)

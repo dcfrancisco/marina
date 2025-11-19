@@ -1,7 +1,7 @@
 // Multiple functions example
 ClearScreen()
 
-LOCAL a, b, c, avg
+local a, b, c, avg
 
 a := 10
 b := 20
@@ -13,16 +13,16 @@ avg := Average(a, b, c)
 ? "Double of average:", Double(avg)
 ? "Square of 5:", Square(5)
 
-FUNCTION Average(x, y, z)
-    LOCAL sum
+function Average(x, y, z)
+    local sum
     sum := Add(x, Add(y, z))
-RETURN sum / 3
+return sum / 3
 
-FUNCTION Add(a, b)
-RETURN a + b
+function Add(a, b)
+return a + b
 
-FUNCTION Double(n)
-RETURN n * 2
+function Double(n)
+return n * 2
 
-FUNCTION Square(n)
-RETURN n * n
+function Square(n)
+return n * n
