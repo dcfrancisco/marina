@@ -84,9 +84,9 @@ SetPos(37, 30)
 OutStd("Puzzle solved!")
 SetPos(38, 30)
 OutStd("Done in ")
-? moveCount
+OutStd(moveCount)
 OutStd(" moves (minimum: ")
-? minMoves
+OutStd(minMoves)
 OutStd(")")
 SetPos(39, 0)
 OutStd("")
@@ -188,7 +188,7 @@ function DrawTowers()
     // Draw move counter
     SetPos(10, 30)
     OutStd("Moves: ")
-    ? moveCount
+    OutStd(moveCount)
     
     // Draw base platforms
     SetPos(baseRow, pegA - 7)
