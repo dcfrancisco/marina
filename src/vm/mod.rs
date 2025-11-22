@@ -42,11 +42,47 @@ impl VM {
     
     pub fn run(&mut self, chunk: &Chunk, functions: HashMap<String, usize>) -> Result<(), String> {
         self.ip = 0;
-        self.functions = functions;
+        self.functions = functions.clone();
         
-        while self.ip < chunk.code.len() {
-            let instruction = &chunk.code[self.ip];
-            self.execute_instruction(chunk, instruction)?;
+        // Check if Main() or main() procedure exists
+        let main_addr = functions.get("Main")
+            .or_else(|| functions.get("main"))
+            .copied();
+        
+        if let Some(addr) = main_addr {
+            // If Main() exists, execute top-level code first (which includes global initialization
+            // and will jump over the Main procedure body), then call Main()
+            while self.ip < chunk.code.len() {
+                let instruction = &chunk.code[self.ip];
+                
+                // Stop when we hit HALT (end of top-level code)
+                if matches!(instruction.opcode, OpCode::Halt) {
+                    break;
+                }
+                
+                self.execute_instruction(chunk, instruction)?;
+            }
+            
+            // Now call Main() procedure
+            self.call_frames.push(CallFrame {
+                return_ip: usize::MAX, // Signal to stop after Main() returns
+                locals_start: self.locals.len(),
+                locals_count: 0,
+            });
+            
+            self.ip = addr;
+            
+            // Execute Main() - loop will exit when Main() returns (ip set to usize::MAX)
+            while self.ip < chunk.code.len() {
+                let instruction = &chunk.code[self.ip];
+                self.execute_instruction(chunk, instruction)?;
+            }
+        } else {
+            // No Main(), just execute all top-level code
+            while self.ip < chunk.code.len() {
+                let instruction = &chunk.code[self.ip];
+                self.execute_instruction(chunk, instruction)?;
+            }
         }
         
         Ok(())

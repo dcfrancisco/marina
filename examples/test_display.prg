@@ -1,0 +1,11 @@
+procedure Main()
+    ClearScreen()
+    SetPos(0, 0)
+    OutStd("Testing Sudoku display...")
+    SetPos(2, 0)
+    OutStd("Line 1")
+    SetPos(3, 0)
+    OutStd("Line 2")
+    SetPos(5, 0)
+    OutStd("End test")
+return

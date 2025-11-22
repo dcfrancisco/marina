@@ -1,7 +1,5 @@
 procedure Main()
-    OutStd("Hello World")
-    local x := 5
-    if x == 5
-        OutStd("x is 5")
-    endif
+    OutStd("Test 1: Simple output")
+    OutStd("")
+    OutStd("Test 2: More text")
 return

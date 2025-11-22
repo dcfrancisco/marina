@@ -1,0 +1,17 @@
+? "Hello"
+procedure Main()
+    OutStd("Starting...")
+    OutStd("")
+    ClearScreen()
+    OutStd("After clear")
+    OutStd("")
+    SetPos(0, 0)
+    OutStd("SUDOKU TEST")
+    OutStd("")
+    SetPos(2, 0)
+    OutStd("Row 2")
+    SetPos(5, 0)
+    OutStd("Press Enter to exit")
+    local x := Space(1)
+    x := GetInput(x)
+return
