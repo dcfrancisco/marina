@@ -31,7 +31,7 @@ endif
 // Display confirmation
 SetPos(6, 30)
 OutStd("Solving Tower of Hanoi with ")
-? diskCount
+OutStd(diskCount) 
 OutStd(" disks...")
 
 // Global variables for disk tracking (no LOCAL so they're accessible in functions)
