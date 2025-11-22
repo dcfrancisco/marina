@@ -1,19 +1,20 @@
 // Tower of Hanoi - Enhanced ASCII Animation
 // Demonstrates recursion and console positioning
-// Enhanced version with colors, timing, and support for up to 13 disks
+// Enhanced version with colors and support for up to 13 disks
+// Optimized for modern terminal sizes (120x40+)
 
 ClearScreen()
 
 // Title screen
-SetPos(0, 25)
+SetPos(0, 45)
 OutStd("╔════════════════════════════════╗")
-SetPos(1, 25)
+SetPos(1, 45)
 OutStd("║     TOWER OF HANOI PUZZLE      ║")
-SetPos(2, 25)
+SetPos(2, 45)
 OutStd("╚════════════════════════════════╝")
 
 // Get number of disks from user
-SetPos(4, 15)
+SetPos(4, 30)
 OutStd("How many disks? (1-13): ")
 local numInput := Space(3)
 numInput := GetInput(numInput)
@@ -28,7 +29,7 @@ if diskCount > 13
 endif
 
 // Display confirmation
-SetPos(6, 15)
+SetPos(6, 30)
 OutStd("Solving Tower of Hanoi with ")
 ? diskCount
 OutStd(" disks...")
@@ -79,15 +80,15 @@ enddo
 minMoves := minMoves - 1
 
 // Final message
-SetPos(21, 10)
+SetPos(37, 30)
 OutStd("Puzzle solved!")
-SetPos(22, 10)
+SetPos(38, 30)
 OutStd("Done in ")
 ? moveCount
 OutStd(" moves (minimum: ")
 ? minMoves
 OutStd(")")
-SetPos(24, 0)
+SetPos(39, 0)
 OutStd("")
 
 // Recursive function to solve Tower of Hanoi
@@ -150,17 +151,17 @@ return nil
 
 // Draw all three towers with disks
 function DrawTowers()
-    local baseRow := 25
-    local pegA := 15
-    local pegB := 40
-    local pegC := 65
-    local poleHeight := 14  // Height based on max 13 disks
+    local baseRow := 35       // Modern terminals have 40+ rows
+    local pegA := 25
+    local pegB := 55
+    local pegC := 85
+    local poleHeight := 14    // Height based on max 13 disks
     
-    // Clear the tower area
-    local clearRow := 11
-    while clearRow <= 26
+    // Clear the tower area (wider for modern screens)
+    local clearRow := 21
+    while clearRow <= 36
         SetPos(clearRow, 0)
-        OutStd(Replicate(" ", 80))
+        OutStd(Replicate(" ", 120))
         clearRow := clearRow + 1
     enddo
     
@@ -185,7 +186,7 @@ function DrawTowers()
     OutStd("C")
     
     // Draw move counter
-    SetPos(7, 10)
+    SetPos(10, 30)
     OutStd("Moves: ")
     ? moveCount
     
@@ -214,10 +215,10 @@ function DrawPeg(pegArray, column, baseRow)
     local arrayLen := 0
     
     // Determine which peg to get length for
-    if column == 15
+    if column == 25
         arrayLen := len1
     else
-        if column == 40
+        if column == 55
             arrayLen := len2
         else
             arrayLen := len3
