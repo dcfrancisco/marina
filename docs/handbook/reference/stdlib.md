@@ -71,6 +71,8 @@ RestorePos()                // Restore saved cursor position
 Inkey(timeout)              // Wait for keypress (seconds, 0=no wait)
 GetInput(cDefault, nRow, nColumn, lSay, cPrompt)
     // Field input with editing
+GetSecret(cDefault, nRow, nColumn, lSay, cPrompt)
+    // Field input with editing
     // cDefault: default value (defines field length)
     // nRow: row position (optional)
     // nColumn: column position (optional)

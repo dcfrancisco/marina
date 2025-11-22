@@ -669,6 +669,121 @@ impl VM {
                     }
                 }
             }
+            "GetSecret" => {
+                // GETSECRET(cDefault, [nRow], [nColumn], [lSay], [cPrompt]) -> cInput
+                // Hidden input - displays asterisks instead of actual characters
+                if arity < 1 || arity > 5 {
+                    return Err("GetSecret requires 1-5 arguments".to_string());
+                }
+                
+                // Get optional parameters (in reverse order from stack)
+                let prompt = if arity >= 5 {
+                    match self.pop()? {
+                        Value::String(s) => s,
+                        _ => String::new(),
+                    }
+                } else {
+                    String::new()
+                };
+                
+                let say_flag = if arity >= 4 {
+                    match self.pop()? {
+                        Value::Boolean(b) => b,
+                        _ => false,
+                    }
+                } else {
+                    false
+                };
+                
+                let col = if arity >= 3 {
+                    self.pop_number()? as usize
+                } else {
+                    self.cursor_col
+                };
+                
+                let row = if arity >= 2 {
+                    self.pop_number()? as usize
+                } else {
+                    self.cursor_row
+                };
+                
+                let default = match self.pop()? {
+                    Value::String(s) => s,
+                    _ => String::new(),
+                };
+                
+                let _func = self.pop()?; // Pop function name
+                
+                // Position cursor if row/col specified
+                if arity >= 2 {
+                    print!("\x1B[{};{}H", row + 1, col + 1);
+                    std::io::stdout().flush().unwrap();
+                }
+                
+                // Display prompt if provided
+                if !prompt.is_empty() {
+                    print!("{}", prompt);
+                    std::io::stdout().flush().unwrap();
+                }
+                
+                // Display asterisks for default value length
+                let asterisks = "*".repeat(default.len());
+                print!("{}", asterisks);
+                std::io::stdout().flush().unwrap();
+                
+                // Move cursor back to start of input field
+                if !default.is_empty() {
+                    print!("\x1B[{}D", default.len());
+                    std::io::stdout().flush().unwrap();
+                }
+                
+                // Simple input (for now, just read a line)
+                // TODO: Implement character-by-character input with immediate asterisk display
+                use std::io::BufRead;
+                let mut input = String::new();
+                let stdin = std::io::stdin();
+                let mut handle = stdin.lock();
+                
+                match handle.read_line(&mut input) {
+                    Ok(_) => {
+                        // Remove trailing newline
+                        if input.ends_with('\n') {
+                            input.pop();
+                            if input.ends_with('\r') {
+                                input.pop();
+                            }
+                        }
+                        
+                        // Pad or truncate to default length
+                        let max_len = default.len();
+                        let input_len = input.len();
+                        
+                        if input.len() < max_len {
+                            input.push_str(&" ".repeat(max_len - input.len()));
+                        } else if input.len() > max_len {
+                            input.truncate(max_len);
+                        }
+                        
+                        // If lSay is true, display asterisks for the input length
+                        if say_flag && arity >= 2 {
+                            // Clear the line and reposition
+                            print!("\x1B[{};{}H", row + 1, col + 1);
+                            if !prompt.is_empty() {
+                                print!("{}", prompt);
+                            }
+                            // Display asterisks for actual input length
+                            print!("{}", "*".repeat(input_len));
+                            std::io::stdout().flush().unwrap();
+                        }
+                        
+                        self.push(Value::String(input));
+                    }
+                    Err(_) => {
+                        // Return default on error
+                        self.push(Value::String(default));
+                    }
+                }
+            }
             _ => {
                 return Err(format!("Unknown function: {}", func_name));
             }

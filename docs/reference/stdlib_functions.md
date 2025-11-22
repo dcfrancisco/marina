@@ -335,6 +335,57 @@ custPhone := GetInput(custPhone, 9, 22)
 - Press Enter to accept, Esc to cancel (returns default)
 - Future: Full editing with arrow keys, insert/overwrite modes
 
+### GetSecret(cDefault, [nRow], [nColumn], [lSay], [cPrompt])
+
+Hidden input function - displays asterisks instead of actual characters. Perfect for password/PIN entry.
+
+**Parameters:**
+- `cDefault` - Default value and field length (required)
+- `nRow` - Screen row for input (optional, uses current position)
+- `nColumn` - Screen column for input (optional, uses current position)
+- `lSay` - Redisplay asterisks when done (optional, default false)
+- `cPrompt` - Text to display before input field (optional)
+
+**Returns:** String containing user input, padded/truncated to default length
+
+```clipper
+// Simple password input
+local password := Space(20)
+password := GetSecret(password)
+
+// Password with prompt at specific position
+local pass := Space(15)
+pass := GetSecret(pass, 10, 20, false, "Enter password: ")
+
+// PIN entry (4 digits)
+local pin := Space(4)
+pin := GetSecret(pin, 5, 10, false, "PIN: ")
+
+// Login form with username and password
+ClearScreen()
+local username := Space(20)
+local password := Space(20)
+
+SetPos(5, 10)
+OutStd("Username: ")
+username := GetInput(username, 5, 20)
+
+SetPos(7, 10)
+OutStd("Password: ")
+password := GetSecret(password, 7, 20)
+
+? "Login as: " + Trim(username)
+? "Password length: " + Str(Len(Trim(password)))
+```
+
+**Notes:**
+- All characters are displayed as asterisks (*) during input
+- The actual input remains hidden from display  
+- Field length is determined by the length of `cDefault`
+- Input is padded with spaces or truncated to match field length
+- When `lSay` is true, asterisks are redisplayed after input
+- Use with `Trim()` to remove padding spaces from result
+
 ## System Functions
 
 ### Now()

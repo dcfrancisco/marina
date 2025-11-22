@@ -174,8 +174,8 @@ function DrawTowers()
     OutStd("C")
     
     // Draw move counter
-    SetPos(7, 10)
-    OutStd("Moves: ")
+    //SetPos(7, 10)
+    //OutStd("Moves: ")
     
     // Draw base platforms
     SetPos(baseRow, pegA - 7)

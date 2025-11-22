@@ -66,7 +66,7 @@ A Rust-based compiler and virtual machine for the Clipper programming language.
   - **Output**: Print/?, OutStd
   - **Console**: SetPos, GotoXY, ClearScreen, SavePos, RestorePos
   - **String**: Val, Space, Len, SubStr, Trim, RTrim, LTrim, AllTrim, Replicate, Chr, Asc
-  - **Input**: Inkey, GetInput
+  - **Input**: Inkey, GetInput, GetSecret
 - RETURN statement
 
 ### Database Operations (stubs only)
@@ -154,6 +154,8 @@ See the `examples/` directory for sample Clipper programs:
 - `val_demo.prg` - Val() function demonstration with user input
 - `simple_input.prg` - Simple input using GetInput() function
 - `input_demo.prg` - Customer registration form demonstrating field input
+- `password_demo.prg` - Password/PIN entry using GetSecret() for hidden input
+- `login_demo.prg` - Secure login system with GetSecret() and attempt limiting
 
 ## Project Structure
 
