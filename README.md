@@ -65,7 +65,7 @@ A Rust-based compiler and virtual machine for the Clipper programming language.
 - Built-in functions:
   - **Output**: Print/?, OutStd
   - **Console**: SetPos, GotoXY, ClearScreen, SavePos, RestorePos
-  - **String**: Space, Len, SubStr, Trim, RTrim, LTrim, AllTrim, Replicate, Chr, Asc
+  - **String**: Val, Space, Len, SubStr, Trim, RTrim, LTrim, AllTrim, Replicate, Chr, Asc
   - **Input**: Inkey, GetInput
 - RETURN statement
 
@@ -149,8 +149,9 @@ See the `examples/` directory for sample Clipper programs:
 - `factorial.prg` - Recursive factorial function
 - `console_demo.prg` - Console positioning and ANSI escape codes demo
 - `xmas_tree.prg` - Christmas tree ASCII art using Replicate() and SetPos()
-- `hanoi.prg` - Tower of Hanoi with recursive algorithm and ASCII animation
+- `hanoi.prg` - Tower of Hanoi with recursive algorithm and ASCII animation (with user input for disk count)
 - `string_functions.prg` - Comprehensive demo of all string manipulation functions
+- `val_demo.prg` - Val() function demonstration with user input
 - `simple_input.prg` - Simple input using GetInput() function
 - `input_demo.prg` - Customer registration form demonstrating field input
 

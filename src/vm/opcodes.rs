@@ -548,6 +548,28 @@ impl VM {
                 
                 self.push(Value::Number(key_code));
             }
+            "Val" => {
+                // VAL(cString) -> nNumber
+                // Converts string to number, returns 0 if invalid
+                if arity != 1 {
+                    return Err("Val requires 1 argument".to_string());
+                }
+                
+                let str_val = match self.pop()? {
+                    Value::String(s) => s,
+                    Value::Number(n) => {
+                        self.pop()?; // Pop function name
+                        self.push(Value::Number(n));
+                        return Ok(());
+                    }
+                    _ => String::new(),
+                };
+                let _func = self.pop()?; // Pop function name
+                
+                // Try to parse the string as a number
+                let number = str_val.trim().parse::<f64>().unwrap_or(0.0);
+                self.push(Value::Number(number));
+            }
             "GetInput" => {
                 // GETINPUT(cDefault, [nRow], [nColumn], [lSay], [cPrompt]) -> cInput
                 if arity < 1 || arity > 5 {

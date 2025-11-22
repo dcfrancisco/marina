@@ -12,24 +12,53 @@ OutStd("║     TOWER OF HANOI PUZZLE      ║")
 SetPos(2, 25)
 OutStd("╚════════════════════════════════╝")
 
-// Global variables for disk tracking (no LOCAL so they're accessible in functions)
-peg1 := {4, 3, 2, 1}  // Disks on peg 1 (largest to smallest)
-peg2 := {0, 0, 0, 0}  // Empty peg 2 (using 0 as placeholder)
-peg3 := {0, 0, 0, 0}  // Empty peg 3 (using 0 as placeholder)
+// Get number of disks from user
+SetPos(4, 15)
+OutStd("How many disks? (3-7): ")
+local numInput := Space(2)
+numInput := GetInput(numInput)
+local diskCount := Val(Trim(numInput))
 
-len1 := 4  // Track lengths of each peg
+// Validate input
+if diskCount < 3
+    diskCount := 3
+endif
+if diskCount > 7
+    diskCount := 7
+endif
+
+// Display confirmation
+SetPos(6, 15)
+OutStd("Solving Tower of Hanoi with ")
+? diskCount
+OutStd(" disks...")
+
+// Global variables for disk tracking (no LOCAL so they're accessible in functions)
+peg1 := {7, 6, 5, 4, 3, 2, 1}  // Disks on peg 1 (largest to smallest, max 7)
+peg2 := {0, 0, 0, 0, 0, 0, 0}  // Empty peg 2 (using 0 as placeholder)
+peg3 := {0, 0, 0, 0, 0, 0, 0}  // Empty peg 3 (using 0 as placeholder)
+
+// Initialize only the requested number of disks
+len1 := diskCount
 len2 := 0
 len3 := 0
 
-diskCount := 4  // Number of disks (3-5 works well visually)
+// Clear unused disk positions
+local i := 0
+while i < 7
+    if i < diskCount
+        peg1[i] := diskCount - i
+    else
+        peg1[i] := 0
+    endif
+    i := i + 1
+enddo
+
+moveCount := 0
+
 moveCount := 0
 
 // Display initial state
-SetPos(4, 10)
-OutStd("Moving 4 disks from Peg A to Peg C...")
-SetPos(5, 10)
-OutStd("Watch the animation...")
-
 DrawTowers()
 
 // Wait a moment for visual effect
@@ -39,16 +68,28 @@ while delay < 100000
 enddo
 
 // Solve the puzzle
-SetPos(18, 0)
+SetPos(20, 0)
 OutStd("")
 SolveHanoi(diskCount, 1, 3, 2)
 
+// Calculate minimum moves (2^n - 1)
+local minMoves := 1
+local j := 0
+while j < diskCount
+    minMoves := minMoves * 2
+    j := j + 1
+enddo
+minMoves := minMoves - 1
+
 // Final message
-SetPos(19, 10)
+SetPos(21, 10)
 OutStd("Puzzle solved!")
-SetPos(20, 10)
-OutStd("Minimum moves for 4 disks: 15")
-SetPos(22, 0)
+SetPos(22, 10)
+OutStd("Minimum moves for ")
+? diskCount
+OutStd(" disks: ")
+? minMoves
+SetPos(24, 0)
 OutStd("")
 
 // Recursive function to solve Tower of Hanoi

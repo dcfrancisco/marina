@@ -29,6 +29,7 @@ Round(n)
 ### String
 
 ```
+Val(s)                      // Convert string to number
 Upper(s)                    // Convert to uppercase
 Lower(s)                    // Convert to lowercase
 Left(s, n)                  // Get leftmost n characters
