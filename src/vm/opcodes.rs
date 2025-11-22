@@ -407,6 +407,246 @@ impl VM {
                 let result = text_str.repeat(count);
                 self.push(Value::String(result));
             }
+            "Space" => {
+                if arity != 1 {
+                    return Err("Space requires 1 argument (count)".to_string());
+                }
+                let count = self.pop_number()? as usize;
+                let _func = self.pop()?; // Pop function name
+                
+                let result = " ".repeat(count);
+                self.push(Value::String(result));
+            }
+            "Len" => {
+                if arity != 1 {
+                    return Err("Len requires 1 argument (string)".to_string());
+                }
+                let text = self.pop()?;
+                let _func = self.pop()?; // Pop function name
+                
+                let length = match text {
+                    Value::String(s) => s.len(),
+                    Value::Array(arr) => arr.len(),
+                    _ => return Err("Len requires a string or array".to_string()),
+                };
+                
+                self.push(Value::Number(length as f64));
+            }
+            "SubStr" => {
+                if arity != 3 {
+                    return Err("SubStr requires 3 arguments (string, start, length)".to_string());
+                }
+                let length = self.pop_number()? as usize;
+                let start = self.pop_number()? as usize;
+                let text = self.pop()?;
+                let _func = self.pop()?; // Pop function name
+                
+                let text_str = match text {
+                    Value::String(s) => s,
+                    _ => return Err("SubStr requires a string".to_string()),
+                };
+                
+                // Clipper uses 1-based indexing for SubStr
+                let start_idx = if start > 0 { start - 1 } else { 0 };
+                let result: String = text_str.chars()
+                    .skip(start_idx)
+                    .take(length)
+                    .collect();
+                
+                self.push(Value::String(result));
+            }
+            "Trim" | "AllTrim" => {
+                if arity != 1 {
+                    return Err(format!("{} requires 1 argument (string)", func_name));
+                }
+                let text = self.pop()?;
+                let _func = self.pop()?; // Pop function name
+                
+                let result = match text {
+                    Value::String(s) => s.trim().to_string(),
+                    _ => return Err("Trim requires a string".to_string()),
+                };
+                
+                self.push(Value::String(result));
+            }
+            "RTrim" => {
+                if arity != 1 {
+                    return Err("RTrim requires 1 argument (string)".to_string());
+                }
+                let text = self.pop()?;
+                let _func = self.pop()?; // Pop function name
+                
+                let result = match text {
+                    Value::String(s) => s.trim_end().to_string(),
+                    _ => return Err("RTrim requires a string".to_string()),
+                };
+                
+                self.push(Value::String(result));
+            }
+            "LTrim" => {
+                if arity != 1 {
+                    return Err("LTrim requires 1 argument (string)".to_string());
+                }
+                let text = self.pop()?;
+                let _func = self.pop()?; // Pop function name
+                
+                let result = match text {
+                    Value::String(s) => s.trim_start().to_string(),
+                    _ => return Err("LTrim requires a string".to_string()),
+                };
+                
+                self.push(Value::String(result));
+            }
+            "Chr" => {
+                if arity != 1 {
+                    return Err("Chr requires 1 argument (ASCII code)".to_string());
+                }
+                let code = self.pop_number()? as u8;
+                let _func = self.pop()?; // Pop function name
+                
+                let result = String::from(code as char);
+                self.push(Value::String(result));
+            }
+            "Asc" => {
+                if arity != 1 {
+                    return Err("Asc requires 1 argument (string)".to_string());
+                }
+                let text = self.pop()?;
+                let _func = self.pop()?; // Pop function name
+                
+                let code = match text {
+                    Value::String(s) => {
+                        s.chars().next().map(|c| c as u32 as f64).unwrap_or(0.0)
+                    }
+                    _ => return Err("Asc requires a string".to_string()),
+                };
+                
+                self.push(Value::Number(code));
+            }
+            "Inkey" => {
+                if arity < 0 || arity > 1 {
+                    return Err("Inkey requires 0 or 1 argument (optional timeout)".to_string());
+                }
+                
+                let _timeout = if arity == 1 {
+                    self.pop_number()? as u64
+                } else {
+                    0
+                };
+                let _func = self.pop()?; // Pop function name
+                
+                use std::io::Read;
+                
+                // Read single character without echo
+                let mut buffer = [0; 1];
+                let result = std::io::stdin().read(&mut buffer);
+                
+                let key_code = match result {
+                    Ok(1) => buffer[0] as f64,
+                    _ => 0.0, // No key or error
+                };
+                
+                self.push(Value::Number(key_code));
+            }
+            "GetInput" => {
+                // GETINPUT(cDefault, [nRow], [nColumn], [lSay], [cPrompt]) -> cInput
+                if arity < 1 || arity > 5 {
+                    return Err("GetInput requires 1-5 arguments".to_string());
+                }
+                
+                // Get optional parameters (in reverse order from stack)
+                let prompt = if arity >= 5 {
+                    match self.pop()? {
+                        Value::String(s) => s,
+                        _ => String::new(),
+                    }
+                } else {
+                    String::new()
+                };
+                
+                let _say_flag = if arity >= 4 {
+                    match self.pop()? {
+                        Value::Boolean(b) => b,
+                        _ => false,
+                    }
+                } else {
+                    false
+                };
+                
+                let col = if arity >= 3 {
+                    self.pop_number()? as usize
+                } else {
+                    self.cursor_col
+                };
+                
+                let row = if arity >= 2 {
+                    self.pop_number()? as usize
+                } else {
+                    self.cursor_row
+                };
+                
+                let default = match self.pop()? {
+                    Value::String(s) => s,
+                    _ => String::new(),
+                };
+                
+                let _func = self.pop()?; // Pop function name
+                
+                // Position cursor if row/col specified
+                if arity >= 2 {
+                    print!("\x1B[{};{}H", row + 1, col + 1);
+                    std::io::stdout().flush().unwrap();
+                }
+                
+                // Display prompt if provided
+                if !prompt.is_empty() {
+                    print!("{}", prompt);
+                    std::io::stdout().flush().unwrap();
+                }
+                
+                // Display default value
+                print!("{}", default);
+                std::io::stdout().flush().unwrap();
+                
+                // Move cursor back to start of input field
+                if !default.is_empty() {
+                    print!("\x1B[{}D", default.len());
+                    std::io::stdout().flush().unwrap();
+                }
+                
+                // Simple input (for now, just read a line)
+                // TODO: Implement full editing with arrow keys, insert/overwrite modes, etc.
+                use std::io::BufRead;
+                let mut input = String::new();
+                let stdin = std::io::stdin();
+                let mut handle = stdin.lock();
+                
+                match handle.read_line(&mut input) {
+                    Ok(_) => {
+                        // Remove trailing newline
+                        if input.ends_with('\n') {
+                            input.pop();
+                            if input.ends_with('\r') {
+                                input.pop();
+                            }
+                        }
+                        
+                        // Pad or truncate to default length
+                        let max_len = default.len();
+                        if input.len() < max_len {
+                            input.push_str(&" ".repeat(max_len - input.len()));
+                        } else if input.len() > max_len {
+                            input.truncate(max_len);
+                        }
+                        
+                        self.push(Value::String(input));
+                    }
+                    Err(_) => {
+                        // Return default on error
+                        self.push(Value::String(default));
+                    }
+                }
+            }
             _ => {
                 return Err(format!("Unknown function: {}", func_name));
             }

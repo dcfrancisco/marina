@@ -29,12 +29,20 @@ Round(n)
 ### String
 
 ```
-Upper(s)
-Lower(s)
-Left(s, n)
-Right(s, n)
-Substr(s, start, len)
-Trim(s)
+Upper(s)                    // Convert to uppercase
+Lower(s)                    // Convert to lowercase
+Left(s, n)                  // Get leftmost n characters
+Right(s, n)                 // Get rightmost n characters
+SubStr(s, start, len)       // Extract substring (1-based indexing)
+Trim(s)                     // Remove leading & trailing spaces
+RTrim(s)                    // Remove trailing spaces
+LTrim(s)                    // Remove leading spaces
+AllTrim(s)                  // Same as Trim(s)
+Space(n)                    // Create string of n spaces
+Replicate(s, n)             // Repeat string s, n times
+Len(s)                      // Get string length
+Chr(n)                      // Convert ASCII code to character
+Asc(s)                      // Get ASCII code of first character
 ```
 
 ### System
@@ -43,6 +51,30 @@ Trim(s)
 Now()
 Env("VAR")
 Sleep(ms)
+```
+
+### Console/Terminal
+
+```
+SetPos(row, col)            // Set cursor position (0-based)
+GotoXY(col, row)            // Same as SetPos but col, row order
+OutStd(s)                   // Output string to stdout
+ClearScreen()               // Clear entire screen
+SavePos()                   // Save current cursor position
+RestorePos()                // Restore saved cursor position
+```
+
+### Input
+
+```
+Inkey(timeout)              // Wait for keypress (seconds, 0=no wait)
+GetInput(cDefault, nRow, nColumn, lSay, cPrompt)
+    // Field input with editing
+    // cDefault: default value (defines field length)
+    // nRow: row position (optional)
+    // nColumn: column position (optional)
+    // lSay: true to display default before input (optional)
+    // cPrompt: prompt string to display (optional)
 ```
 
 ### Blocks
