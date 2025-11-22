@@ -1,9 +1,7 @@
 // Sudoku Puzzle Game
-// Classic 9x9 Sudoku solver
 // Fill in the missing numbers (1-9) so each row, column, and 3x3 box contains all digits
 
 // Global board (81 cells, 0 = empty)
-// Using global so functions can modify it
 board := {5,3,0,0,7,0,0,0,0,
           6,0,0,1,9,5,0,0,0,
           0,9,8,0,0,0,0,6,0,
@@ -25,16 +23,21 @@ fixed := {1,1,0,0,1,0,0,0,0,
           0,0,0,1,1,1,0,0,1,
           0,0,0,0,1,0,0,1,1}
 
-// Draw game title and instructions
+// UI Layout
+promptCol := 10
+boardCol := 25
+titleCol := 28
+msgRow := 18
+
+// Draw game title
 function DrawTitle()
-    SetPos(0, 25)
+    SetPos(0, titleCol - 10)
     OutStd("╔═══════════════════════════════════╗")
-    SetPos(1, 25)
+    SetPos(1, titleCol - 10)
     OutStd("║          SUDOKU PUZZLE            ║")
-    SetPos(2, 25)
+    SetPos(2, titleCol - 10)
     OutStd("╚═══════════════════════════════════╝")
-    
-    SetPos(3, 20)
+    SetPos(3, 15)
     SetColor(14)
     OutStd("Fill each row, column, and 3x3 box with 1-9")
     SetColor(7)
@@ -44,20 +47,28 @@ return nil
 function DrawBoard()
     local row := 0
     local col := 0
+    local clearRow := 5
     
     // Clear board area
-    local clearRow := 5
     while clearRow < 30
         SetPos(clearRow, 0)
         OutStd(Replicate(" ", 80))
         clearRow := clearRow + 1
     enddo
     
-    SetPos(5, 20)
+    SetPos(5, boardCol)
     OutStd("┌───────┬───────┬───────┐")
     
     while row < 9
-        SetPos(6 + row + Int(row / 3), 20)
+        local lineOffset := 0
+        if row > 2
+            lineOffset := 1
+        endif
+        if row > 5
+            lineOffset := 2
+        endif
+        
+        SetPos(6 + row + lineOffset, boardCol)
         OutStd("│ ")
         
         col := 0
@@ -67,13 +78,13 @@ function DrawBoard()
             local isFixed := fixed[idx] == 1
             
             if num == 0
-                SetColor(8)  // Dark gray for empty
+                SetColor(8)
                 OutStd("· ")
             else
                 if isFixed
-                    SetColor(15)  // White for given numbers
+                    SetColor(15)
                 else
-                    SetColor(11)  // Cyan for user entries
+                    SetColor(11)
                 endif
                 OutStd(Str(num))
                 OutStd(" ")
@@ -90,19 +101,23 @@ function DrawBoard()
         OutStd("│")
         
         // Draw horizontal separator after rows 2, 5
-        if (row == 2 || row == 5)
-            SetPos(7 + row + Int(row / 3), 20)
+        if row == 2
+            SetPos(9, boardCol)
+            OutStd("├───────┼───────┼───────┤")
+        endif
+        if row == 5
+            SetPos(13, boardCol)
             OutStd("├───────┼───────┼───────┤")
         endif
         
         row := row + 1
     enddo
     
-    SetPos(15, 20)
+    SetPos(17, boardCol)
     OutStd("└───────┴───────┴───────┘")
 return nil
 
-// Check if puzzle is complete and valid
+// Check if puzzle is solved
 function IsSolved()
     local i := 0
     while i < 81
@@ -111,9 +126,8 @@ function IsSolved()
         endif
         i := i + 1
     enddo
-    
-    // Check all rows, columns, and boxes are valid
     return IsValidBoard()
+return nil
 
 // Check if current board state is valid
 function IsValidBoard()
@@ -151,9 +165,9 @@ function IsValidBoard()
     
     return .T.
 
-// Check if row is valid (no duplicates)
+// Check if row is valid
 function IsValidRow(row)
-    local used := {0,0,0,0,0,0,0,0,0,0}  // index 1-9
+    local used := {0,0,0,0,0,0,0,0,0,0}
     local col := 0
     
     while col < 9
@@ -220,23 +234,20 @@ function IsValidBox(boxRow, boxCol)
     
     return .T.
 
-// Main entry point
 procedure Main()
+    local gameRunning := .T.
+    
     ClearScreen()
     SetCursor(.F.)
-    
     DrawTitle()
     DrawBoard()
     
-    local gameRunning := .T.
-    
     while gameRunning
-        // Get user input
-        SetPos(17, 10)
+        SetPos(19, promptCol)
         OutStd("Enter row (1-9), col (1-9), num (1-9) or 'Q' to quit: ")
-        SetPos(17, 65)
+        SetPos(19, promptCol + 55)
         OutStd(Replicate(" ", 15))
-        SetPos(17, 65)
+        SetPos(19, promptCol + 55)
         
         local input := Space(10)
         input := GetInput(input)
@@ -246,12 +257,10 @@ procedure Main()
         if input == "Q" || input == "q"
             gameRunning := .F.
         else
-            // Parse input: "row col num" or "row,col,num"
             local row := 0
             local col := 0
             local num := 0
             
-            // Try to parse
             if Len(input) >= 5
                 row := Val(SubStr(input, 1, 1))
                 col := Val(SubStr(input, 3, 1))
@@ -264,12 +273,11 @@ procedure Main()
                 endif
             endif
             
-            // Validate and make move
             if row >= 1 && row <= 9 && col >= 1 && col <= 9 && num >= 0 && num <= 9
                 local idx := (row - 1) * 9 + (col - 1)
                 
                 if fixed[idx] == 1
-                    SetPos(18, 10)
+                    SetPos(msgRow, 10)
                     SetColor(12)
                     OutStd("That cell is fixed! Can't change it.")
                     SetColor(7)
@@ -277,22 +285,20 @@ procedure Main()
                 else
                     board[idx] := num
                     DrawBoard()
-                    
-                    // Check if solved
                     if IsSolved()
-                        SetPos(18, 10)
+                        SetPos(msgRow, 10)
                         SetColor(10)
                         OutStd("╔════════════════════════════════════════╗")
-                        SetPos(19, 10)
+                        SetPos(msgRow + 1, 10)
                         OutStd("║  CONGRATULATIONS! PUZZLE SOLVED! 🎉  ║")
-                        SetPos(20, 10)
+                        SetPos(msgRow + 2, 10)
                         OutStd("╚════════════════════════════════════════╝")
                         SetColor(7)
                         Sleep(3000)
                         gameRunning := .F.
                     else
                         if !IsValidBoard()
-                            SetPos(18, 10)
+                            SetPos(msgRow, 10)
                             SetColor(12)
                             OutStd("Invalid! Duplicate number in row/col/box.")
                             SetColor(7)
@@ -301,7 +307,7 @@ procedure Main()
                     endif
                 endif
             else
-                SetPos(18, 10)
+                SetPos(msgRow, 10)
                 SetColor(12)
                 OutStd("Invalid input! Use format: row col num (e.g., 1 3 5)")
                 SetColor(7)
@@ -309,8 +315,7 @@ procedure Main()
             endif
         endif
         
-        // Clear message area
-        SetPos(18, 10)
+        SetPos(msgRow, 10)
         OutStd(Replicate(" ", 60))
     enddo
     

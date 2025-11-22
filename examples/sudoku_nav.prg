@@ -51,7 +51,15 @@ function DrawBoard()
     OutStd("┌───────┬───────┬───────┐")
     
     while row < 9
-        SetPos(6 + row + Int(row / 3), 25)
+        local lineOffset := 0
+        if row > 2
+            lineOffset := 1
+        endif
+        if row > 5
+            lineOffset := 2
+        endif
+        
+        SetPos(6 + row + lineOffset, 25)
         OutStd("│ ")
         
         col := 0
@@ -100,15 +108,19 @@ function DrawBoard()
         OutStd("│")
         
         // Draw horizontal separator after rows 2, 5
-        if (row == 2 || row == 5)
-            SetPos(7 + row + Int(row / 3), 25)
+        if row == 2
+            SetPos(9, 25)
+            OutStd("├───────┼───────┼───────┤")
+        endif
+        if row == 5
+            SetPos(13, 25)
             OutStd("├───────┼───────┼───────┤")
         endif
         
         row := row + 1
     enddo
     
-    SetPos(15, 25)
+    SetPos(17, 25)
     OutStd("└───────┴───────┴───────┘")
 return nil
 
@@ -205,9 +217,9 @@ function IsSolved()
 
 // Show message at bottom
 function ShowMessage(msg, color)
-    SetPos(17, 10)
+    SetPos(19, 10)
     OutStd(Replicate(" ", 70))
-    SetPos(17, 10)
+    SetPos(19, 10)
     SetColor(color)
     OutStd(msg)
     SetColor(7)
