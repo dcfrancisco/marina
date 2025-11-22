@@ -137,7 +137,14 @@ impl Lexer {
             '{' => TokenType::LeftBrace,
             '}' => TokenType::RightBrace,
             ',' => TokenType::Comma,
-            '.' => TokenType::Dot,
+            '.' => {
+                // Check for .T. or .F. (Clipper boolean literals)
+                if self.peek().to_ascii_uppercase() == 'T' || self.peek().to_ascii_uppercase() == 'F' {
+                    return self.scan_clipper_boolean();
+                } else {
+                    TokenType::Dot
+                }
+            }
             ';' => TokenType::Semicolon,
             ':' => {
                 if self.match_char('=') {
@@ -157,7 +164,21 @@ impl Lexer {
                 if self.match_char('=') {
                     TokenType::NotEqual
                 } else {
-                    return Err(format!("Unexpected character '!' at line {}, column {}", self.line, start_column));
+                    TokenType::Not
+                }
+            }
+            '&' => {
+                if self.match_char('&') {
+                    TokenType::And
+                } else {
+                    return Err(format!("Unexpected character '&' at line {}, column {}. Use '&&' for logical AND", self.line, start_column));
+                }
+            }
+            '|' => {
+                if self.match_char('|') {
+                    TokenType::Or
+                } else {
+                    return Err(format!("Unexpected character '|' at line {}, column {}. Use '||' for logical OR", self.line, start_column));
                 }
             }
             '<' => {
@@ -176,7 +197,13 @@ impl Lexer {
                     TokenType::Greater
                 }
             }
-            '?' => TokenType::QuestionMark,
+            '?' => {
+                if self.match_char('?') {
+                    TokenType::DoubleQuestionMark
+                } else {
+                    TokenType::QuestionMark
+                }
+            }
             '"' | '\'' => return self.scan_string(c),
             '\n' => {
                 self.line += 1;
@@ -250,6 +277,33 @@ impl Lexer {
             .unwrap_or(TokenType::Identifier);
         
         Ok(Token::new(token_type, value, self.line, start_column))
+    }
+    
+    fn scan_clipper_boolean(&mut self) -> Result<Token, String> {
+        let start_column = self.column - 1;
+        // We already consumed the first '.'
+        
+        let bool_char = self.advance().to_ascii_uppercase();
+        
+        if !self.match_char('.') {
+            return Err(format!(
+                "Invalid boolean literal at line {}, column {}. Expected '.T.' or '.F.'",
+                self.line, start_column
+            ));
+        }
+        
+        let token_type = if bool_char == 'T' {
+            TokenType::True
+        } else if bool_char == 'F' {
+            TokenType::False
+        } else {
+            return Err(format!(
+                "Invalid boolean literal at line {}, column {}. Expected '.T.' or '.F.'",
+                self.line, start_column
+            ));
+        };
+        
+        Ok(Token::new(token_type, format!(".{}.", bool_char), self.line, start_column))
     }
     
     fn skip_whitespace_and_comments(&mut self) {

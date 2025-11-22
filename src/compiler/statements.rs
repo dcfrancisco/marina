@@ -36,7 +36,7 @@ impl Compiler {
                 self.compile_expression(expr)?;
                 // Don't pop if it's a print statement (it already consumes its values)
                 match expr {
-                    Expr::Call { name, .. } if name == "?" || name.to_uppercase() == "PRINT" => {
+                    Expr::Call { name, .. } if name == "?" || name == "??" || name.to_uppercase() == "PRINT" => {
                         // Print already pops, don't pop again
                     }
                     _ => {

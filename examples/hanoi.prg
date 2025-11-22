@@ -4,6 +4,7 @@
 // Optimized for modern terminal sizes (120x40+)
 
 ClearScreen()
+SetCursor(false)  // Hide cursor for cleaner animation
 
 // Title screen
 SetPos(0, 45)
@@ -17,16 +18,30 @@ OutStd("╚═══════════════════════
 SetPos(4, 30)
 OutStd("How many disks? (1-13): ")
 local numInput := Space(3)
-numInput := GetInput(numInput)
-local diskCount := Val(Trim(numInput))
+local diskCount := 0
 
-// Validate input
-if diskCount < 1
-    diskCount := 1
-endif
-if diskCount > 13
-    diskCount := 13
-endif
+// Validate input with retry loop
+local validInput := .F.
+while !validInput
+    SetPos(4, 54)
+    OutStd("   ")  // Clear previous input
+    SetPos(4, 54)
+    numInput := GetInput(numInput)
+    diskCount := Val(Trim(numInput))
+    
+    // Check if input is valid
+    if diskCount >= 1 && diskCount <= 13
+        validInput := .T.
+    else
+        SetPos(5, 30)
+        SetColor(12)
+        OutStd("Please enter a number between 1 and 13")
+        SetColor(7)
+        Sleep(1000)
+        SetPos(5, 30)
+        OutStd(Replicate(" ", 40))
+    endif
+enddo
 
 // Display confirmation
 SetPos(6, 30)
@@ -35,24 +50,18 @@ OutStd(diskCount)
 OutStd(" disks...")
 
 // Global variables for disk tracking (no LOCAL so they're accessible in functions)
-// Support up to 13 disks
-peg1 := {13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}
+peg1 := {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 peg2 := {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 peg3 := {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
-// Initialize only the requested number of disks
 len1 := diskCount
 len2 := 0
 len3 := 0
 
-// Clear unused disk positions
+// Initialize requested number of disks on peg1
 local i := 0
-while i < 13
-    if i < diskCount
-        peg1[i] := diskCount - i
-    else
-        peg1[i] := 0
-    endif
+while i < diskCount
+    peg1[i] := diskCount - i
     i := i + 1
 enddo
 
@@ -62,10 +71,7 @@ moveCount := 0
 DrawTowers()
 
 // Wait a moment for visual effect
-local delay := 0
-while delay < 100000
-    delay := delay + 1
-enddo
+Sleep(500)
 
 // Solve the puzzle
 SolveHanoi(diskCount, 1, 3, 2)
@@ -91,6 +97,9 @@ OutStd(")")
 SetPos(39, 0)
 OutStd("")
 
+// Show cursor again
+SetCursor(true)
+
 // Recursive function to solve Tower of Hanoi
 function SolveHanoi(n, fromPeg, toPeg, auxPeg)
     if n == 1
@@ -106,7 +115,7 @@ return nil
 function MoveDisk(fromPeg, toPeg)
     local disk
     
-    // Get disk from source peg and update length
+    // Get disk from source peg
     if fromPeg == 1
         len1 := len1 - 1
         disk := peg1[len1]
@@ -123,7 +132,7 @@ function MoveDisk(fromPeg, toPeg)
         endif
     endif
     
-    // Place disk on destination peg and update length
+    // Place disk on destination peg
     if toPeg == 1
         peg1[len1] := disk
         len1 := len1 + 1
@@ -137,16 +146,9 @@ function MoveDisk(fromPeg, toPeg)
         endif
     endif
     
-    // Update move counter and display
     moveCount := moveCount + 1
     DrawTowers()
-    
-    // Small delay for animation effect
-    local pause := 0
-    while pause < 50000
-        pause := pause + 1
-    enddo
-    
+    Sleep(100)
 return nil
 
 // Draw all three towers with disks
@@ -211,10 +213,7 @@ return nil
 
 // Draw disks on a specific peg
 function DrawPeg(pegArray, column, baseRow)
-    local diskNum := 0
     local arrayLen := 0
-    
-    // Determine which peg to get length for
     if column == 25
         arrayLen := len1
     else
@@ -225,116 +224,29 @@ function DrawPeg(pegArray, column, baseRow)
         endif
     endif
     
-    // Only draw if there are disks on this peg
     if arrayLen == 0
         return nil
     endif
     
+    local diskNum := 0
     while diskNum < arrayLen
         local diskSize := pegArray[diskNum]
-        
-        // Skip empty slots (disks with value 0)
         if diskSize > 0
-            local diskRow := baseRow - diskNum - 1
-            local diskWidth := diskSize * 2 - 1
-            local leftPos := column - diskSize + 1
+            local diskWidth := Max(diskSize * 2 - 1, 3)
+            local leftPos := column - Int(diskWidth / 2)
             
-            // Set color based on disk size (cycle through colors 1-14)
-            local colorCode := diskSize % 14 + 1
-            SetColor(colorCode)
-            
-            SetPos(diskRow, leftPos)
-            // Draw disk dynamically based on size
+            SetDiskColor(diskSize % 14 + 1)
+            SetPos(baseRow - diskNum - 1, leftPos)
             OutStd(Replicate("█", diskWidth))
-            
-            // Reset color to default
             SetColor(7)
         endif
-        
         diskNum := diskNum + 1
     enddo
-    
 return nil
 
-// Set console color (simplified - assumes ANSI color support)
-// Colors 1-14 cycle through different foreground colors
-function SetColor(colorNum)
-    // Note: This is a placeholder for color functionality
-    // In a real implementation, this would use ANSI escape codes
-    // or console API calls to set colors
-    // For now, it's a no-op but maintains API compatibility
+// Set console color for disks (bright colors for dark backgrounds)
+function SetDiskColor(colorNum)
+    local colors := {12, 14, 10, 11, 9, 13}
+    local idx := ((colorNum - 1) % 6)
+    SetColor(colors[idx])
 return nil
-
-// Power function helper
-function Power(base, exp)
-    local result := 1
-    local i := 0
-    while i < exp
-        result := result * base
-        i := i + 1
-    enddo
-return result
-
-// String conversion helper
-function Str(num)
-    // Simple integer to string conversion
-    if num == 0
-        return "0"
-    endif
-    
-    local result := ""
-    local temp := num
-    local digits := {}
-    local digitCount := 0
-    
-    while temp > 0
-        digits[digitCount] := temp % 10
-        temp := temp / 10
-        digitCount := digitCount + 1
-    enddo
-    
-    // Build string from digits (reverse order)
-    local i := digitCount - 1
-    while i >= 0
-        local digit := digits[i]
-        if digit == 0
-            result := result + "0"
-        else
-            if digit == 1
-                result := result + "1"
-            else
-                if digit == 2
-                    result := result + "2"
-                else
-                    if digit == 3
-                        result := result + "3"
-                    else
-                        if digit == 4
-                            result := result + "4"
-                        else
-                            if digit == 5
-                                result := result + "5"
-                            else
-                                if digit == 6
-                                    result := result + "6"
-                                else
-                                    if digit == 7
-                                        result := result + "7"
-                                    else
-                                        if digit == 8
-                                            result := result + "8"
-                                        else
-                                            result := result + "9"
-                                        endif
-                                    endif
-                                endif
-                            endif
-                        endif
-                    endif
-                endif
-            endif
-        endif
-        i := i - 1
-    enddo
-    
-return result

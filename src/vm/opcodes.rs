@@ -349,6 +349,70 @@ impl VM {
                 self.cursor_col = 0;
                 self.push(Value::Nil);
             }
+            "SetColor" => {
+                // SETCOLOR(nColorCode)
+                // Sets foreground color using ANSI escape codes
+                // Colors 0-15: standard ANSI colors
+                // Color 7: default/white (reset)
+                if arity != 1 {
+                    return Err("SetColor requires 1 argument (color code)".to_string());
+                }
+                
+                let color_code = self.pop_number()? as i32;
+                let _func = self.pop()?; // Pop function name
+                
+                // Map color codes to ANSI colors
+                // Clipper-style colors: 0-15 for standard colors
+                let ansi_code = match color_code {
+                    0 => "30",      // Black
+                    1 => "34",      // Blue
+                    2 => "32",      // Green
+                    3 => "36",      // Cyan
+                    4 => "31",      // Red
+                    5 => "35",      // Magenta
+                    6 => "33",      // Yellow/Brown
+                    7 => "37",      // White (default)
+                    8 => "90",      // Bright Black (Gray)
+                    9 => "94",      // Bright Blue
+                    10 => "92",     // Bright Green
+                    11 => "96",     // Bright Cyan
+                    12 => "91",     // Bright Red
+                    13 => "95",     // Bright Magenta
+                    14 => "93",     // Bright Yellow
+                    15 => "97",     // Bright White
+                    _ => "37",      // Default to white for out of range
+                };
+                
+                // ANSI: ESC[<color>m
+                print!("\x1B[{}m", ansi_code);
+                std::io::stdout().flush().unwrap();
+                self.push(Value::Nil);
+            }
+            "SetCursor" => {
+                // SETCURSOR(lVisible)
+                // Shows or hides the cursor
+                // true/1 = show cursor, false/0 = hide cursor
+                if arity != 1 {
+                    return Err("SetCursor requires 1 argument (true/false)".to_string());
+                }
+                
+                let visible = match self.pop()? {
+                    Value::Boolean(b) => b,
+                    Value::Number(n) => n != 0.0,
+                    _ => true,
+                };
+                let _func = self.pop()?; // Pop function name
+                
+                if visible {
+                    // ANSI: ESC[?25h (show cursor)
+                    print!("\x1B[?25h");
+                } else {
+                    // ANSI: ESC[?25l (hide cursor)
+                    print!("\x1B[?25l");
+                }
+                std::io::stdout().flush().unwrap();
+                self.push(Value::Nil);
+            }
             "SavePos" => {
                 if arity != 0 {
                     return Err("SavePos requires 0 arguments".to_string());
@@ -569,6 +633,188 @@ impl VM {
                 // Try to parse the string as a number
                 let number = str_val.trim().parse::<f64>().unwrap_or(0.0);
                 self.push(Value::Number(number));
+            }
+            "Str" => {
+                // STR(nNumber) -> cString
+                // Converts number to string representation
+                if arity != 1 {
+                    return Err("Str requires 1 argument".to_string());
+                }
+                
+                let val = self.pop()?;
+                let _func = self.pop()?; // Pop function name
+                
+                let str_result = match val {
+                    Value::Number(n) => {
+                        // Convert number to string
+                        // Remove trailing .0 for integers
+                        if n.fract() == 0.0 {
+                            format!("{}", n as i64)
+                        } else {
+                            format!("{}", n)
+                        }
+                    }
+                    Value::String(s) => s,
+                    Value::Boolean(b) => b.to_string().to_uppercase(),
+                    Value::Nil => "NIL".to_string(),
+                    Value::Array(_) => return Err("Cannot convert array to string with Str()".to_string()),
+                    Value::Function { .. } => "<function>".to_string(),
+                };
+                
+                self.push(Value::String(str_result));
+            }
+            "Abs" => {
+                // ABS(nNumber) -> nNumber
+                // Returns absolute value
+                if arity != 1 {
+                    return Err("Abs requires 1 argument".to_string());
+                }
+                
+                let num = self.pop_number()?;
+                let _func = self.pop()?; // Pop function name
+                
+                self.push(Value::Number(num.abs()));
+            }
+            "Sqrt" => {
+                // SQRT(nNumber) -> nNumber
+                // Returns square root
+                if arity != 1 {
+                    return Err("Sqrt requires 1 argument".to_string());
+                }
+                
+                let num = self.pop_number()?;
+                let _func = self.pop()?; // Pop function name
+                
+                if num < 0.0 {
+                    return Err("Sqrt requires a non-negative number".to_string());
+                }
+                
+                self.push(Value::Number(num.sqrt()));
+            }
+            "Round" => {
+                // ROUND(nNumber, [nDecimals]) -> nNumber
+                // Rounds to nearest integer or specified decimal places
+                if arity < 1 || arity > 2 {
+                    return Err("Round requires 1-2 arguments".to_string());
+                }
+                
+                let decimals = if arity == 2 {
+                    self.pop_number()? as i32
+                } else {
+                    0
+                };
+                
+                let num = self.pop_number()?;
+                let _func = self.pop()?; // Pop function name
+                
+                let result = if decimals == 0 {
+                    num.round()
+                } else {
+                    let multiplier = 10_f64.powi(decimals);
+                    (num * multiplier).round() / multiplier
+                };
+                
+                self.push(Value::Number(result));
+            }
+            "Int" => {
+                // INT(nNumber) -> nNumber
+                // Returns integer portion (truncates toward zero)
+                if arity != 1 {
+                    return Err("Int requires 1 argument".to_string());
+                }
+                
+                let num = self.pop_number()?;
+                let _func = self.pop()?; // Pop function name
+                
+                self.push(Value::Number(num.trunc()));
+            }
+            "Min" => {
+                // MIN(nNumber1, nNumber2, ...) -> nNumber
+                // Returns minimum value
+                if arity < 2 {
+                    return Err("Min requires at least 2 arguments".to_string());
+                }
+                
+                let mut values = Vec::new();
+                for _ in 0..arity {
+                    values.push(self.pop_number()?);
+                }
+                let _func = self.pop()?; // Pop function name
+                
+                let min = values.iter().cloned().fold(f64::INFINITY, f64::min);
+                self.push(Value::Number(min));
+            }
+            "Max" => {
+                // MAX(nNumber1, nNumber2, ...) -> nNumber
+                // Returns maximum value
+                if arity < 2 {
+                    return Err("Max requires at least 2 arguments".to_string());
+                }
+                
+                let mut values = Vec::new();
+                for _ in 0..arity {
+                    values.push(self.pop_number()?);
+                }
+                let _func = self.pop()?; // Pop function name
+                
+                let max = values.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+                self.push(Value::Number(max));
+            }
+            "Sin" => {
+                // SIN(nRadians) -> nNumber
+                // Returns sine of angle in radians
+                if arity != 1 {
+                    return Err("Sin requires 1 argument".to_string());
+                }
+                
+                let num = self.pop_number()?;
+                let _func = self.pop()?; // Pop function name
+                
+                self.push(Value::Number(num.sin()));
+            }
+            "Cos" => {
+                // COS(nRadians) -> nNumber
+                // Returns cosine of angle in radians
+                if arity != 1 {
+                    return Err("Cos requires 1 argument".to_string());
+                }
+                
+                let num = self.pop_number()?;
+                let _func = self.pop()?; // Pop function name
+                
+                self.push(Value::Number(num.cos()));
+            }
+            "Tan" => {
+                // TAN(nRadians) -> nNumber
+                // Returns tangent of angle in radians
+                if arity != 1 {
+                    return Err("Tan requires 1 argument".to_string());
+                }
+                
+                let num = self.pop_number()?;
+                let _func = self.pop()?; // Pop function name
+                
+                self.push(Value::Number(num.tan()));
+            }
+            "Sleep" => {
+                // SLEEP(nMilliseconds)
+                // Pauses execution for specified milliseconds
+                if arity != 1 {
+                    return Err("Sleep requires 1 argument (milliseconds)".to_string());
+                }
+                
+                let ms = self.pop_number()?;
+                let _func = self.pop()?; // Pop function name
+                
+                if ms < 0.0 {
+                    return Err("Sleep requires a non-negative number of milliseconds".to_string());
+                }
+                
+                // Use thread::sleep for the delay
+                let duration = std::time::Duration::from_millis(ms as u64);
+                std::thread::sleep(duration);
+                
+                self.push(Value::Nil);
             }
             "GetInput" => {
                 // GETINPUT(cDefault, [nRow], [nColumn], [lSay], [cPrompt]) -> cInput

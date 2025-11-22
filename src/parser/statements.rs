@@ -136,7 +136,9 @@ impl Parser {
         } else if self.match_token(&[TokenType::Replace]) {
             self.replace_statement()
         } else if self.match_token(&[TokenType::QuestionMark]) {
-            self.print_statement()
+            self.print_statement(true)  // true = with newline
+        } else if self.match_token(&[TokenType::DoubleQuestionMark]) {
+            self.print_statement(false)  // false = without newline
         } else {
             self.expression_statement()
         }
@@ -340,8 +342,8 @@ impl Parser {
         Ok(Stmt::Replace { field, value })
     }
     
-    fn print_statement(&mut self) -> Result<Stmt, String> {
-        // ? can print multiple expressions separated by commas
+    fn print_statement(&mut self, with_newline: bool) -> Result<Stmt, String> {
+        // ? or ?? can print multiple expressions separated by commas
         let mut args = Vec::new();
         
         if !self.is_at_end() && !self.check(&TokenType::Newline) {
@@ -353,9 +355,10 @@ impl Parser {
             }
         }
         
-        // Convert to a PRINT function call
+        // Convert to a PRINT or PRINTNL function call
+        let function_name = if with_newline { "?" } else { "??" };
         Ok(Stmt::Expression(Expr::Call {
-            name: "?".to_string(),
+            name: function_name.to_string(),
             args,
         }))
     }

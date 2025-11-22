@@ -1,0 +1,19 @@
+// Test ?? operator (print without newline)
+
+? "This is with newline"
+? "Another line"
+
+?? "This is "
+?? "on the "
+?? "same line"
+? ""  // Just a newline
+
+?? "Numbers: "
+?? 1
+?? ", "
+?? 2
+?? ", "
+?? 3
+? ""
+
+? "Done!"

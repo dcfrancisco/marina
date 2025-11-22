@@ -109,7 +109,9 @@ impl Compiler {
                 }
                 
                 // Special built-in functions
-                if name.to_uppercase() == "PRINT" || name == "?" {
+                if name.to_uppercase() == "PRINT" || name == "?" || name == "??" {
+                    let with_newline = name.to_uppercase() == "PRINT" || name == "?";
+                    
                     for (idx, arg) in args.iter().enumerate() {
                         self.compile_expression(arg)?;
                         self.chunk.write(OpCode::Print, None);
@@ -121,10 +123,13 @@ impl Compiler {
                             self.chunk.write(OpCode::Print, None);
                         }
                     }
-                    // Print newline at end
-                    let newline_idx = self.chunk.add_constant(Value::String("\n".to_string()));
-                    self.chunk.write(OpCode::Push, Some(newline_idx));
-                    self.chunk.write(OpCode::Print, None);
+                    
+                    // Print newline at end only if requested
+                    if with_newline {
+                        let newline_idx = self.chunk.add_constant(Value::String("\n".to_string()));
+                        self.chunk.write(OpCode::Push, Some(newline_idx));
+                        self.chunk.write(OpCode::Print, None);
+                    }
                 } else {
                     // All functions (user-defined and built-in) use name-based calling
                     // Push function name as string

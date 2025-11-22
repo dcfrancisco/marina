@@ -1,0 +1,18 @@
+// Quick Math Functions Test
+Print("=== Math Functions Test ===")
+Print("")
+
+Print("Abs(-42) =", Abs(-42))
+Print("Sqrt(144) =", Sqrt(144))
+Print("Round(3.7) =", Round(3.7))
+Print("Round(3.14159, 2) =", Round(3.14159, 2))
+Print("Int(7.9) =", Int(7.9))
+Print("Int(-7.9) =", Int(-7.9))
+Print("Min(5, 3, 9, 1) =", Min(5, 3, 9, 1))
+Print("Max(5, 3, 9, 1) =", Max(5, 3, 9, 1))
+Print("Sin(0) =", Sin(0))
+Print("Cos(0) =", Cos(0))
+Print("2 ^ 8 =", 2 ^ 8)
+Print("17 % 5 =", 17 % 5)
+Print("")
+Print("All math functions working!")

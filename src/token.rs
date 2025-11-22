@@ -89,7 +89,8 @@ pub enum TokenType {
     Arrow,
     
     // Special
-    QuestionMark,  // ? (print shorthand in Clipper)
+    QuestionMark,        // ? (print with newline in Clipper)
+    DoubleQuestionMark,  // ?? (print without newline in Clipper)
     Eof,
     Newline,
 }
