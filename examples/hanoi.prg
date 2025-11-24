@@ -6,16 +6,19 @@
 ClearScreen()
 SetCursor(false)  // Hide cursor for cleaner animation
 
+// Layout configuration
+leftMargin := 15
+
 // Title screen
-SetPos(0, 45)
+SetPos(0, leftMargin)
 OutStd("╔════════════════════════════════╗")
-SetPos(1, 45)
+SetPos(1, leftMargin)
 OutStd("║     TOWER OF HANOI PUZZLE      ║")
-SetPos(2, 45)
+SetPos(2, leftMargin)
 OutStd("╚════════════════════════════════╝")
 
 // Get number of disks from user
-SetPos(4, 30)
+SetPos(4, leftMargin)
 OutStd("How many disks? (1-13): ")
 local numInput := Space(3)
 local diskCount := 0
@@ -23,9 +26,9 @@ local diskCount := 0
 // Validate input with retry loop
 local validInput := .F.
 while !validInput
-    SetPos(4, 54)
+    SetPos(4, leftMargin + 24)
     OutStd("   ")  // Clear previous input
-    SetPos(4, 54)
+    SetPos(4, leftMargin + 24)
     numInput := GetInput(numInput)
     diskCount := Val(Trim(numInput))
     
@@ -33,18 +36,18 @@ while !validInput
     if diskCount >= 1 && diskCount <= 13
         validInput := .T.
     else
-        SetPos(5, 30)
+        SetPos(5, leftMargin)
         SetColor(12)
         OutStd("Please enter a number between 1 and 13")
         SetColor(7)
         Sleep(1000)
-        SetPos(5, 30)
+        SetPos(5, leftMargin)
         OutStd(Replicate(" ", 40))
     endif
 enddo
 
 // Display confirmation
-SetPos(6, 30)
+SetPos(6, leftMargin)
 OutStd("Solving Tower of Hanoi with ")
 OutStd(diskCount) 
 OutStd(" disks...")
@@ -86,9 +89,9 @@ enddo
 minMoves := minMoves - 1
 
 // Final message
-SetPos(37, 30)
+SetPos(37, leftMargin)
 OutStd("Puzzle solved!")
-SetPos(38, 30)
+SetPos(38, leftMargin)
 OutStd("Done in ")
 OutStd(moveCount)
 OutStd(" moves (minimum: ")
@@ -188,7 +191,7 @@ function DrawTowers()
     OutStd("C")
     
     // Draw move counter
-    SetPos(10, 30)
+    SetPos(10, leftMargin)
     OutStd("Moves: ")
     OutStd(moveCount)
     
