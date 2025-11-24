@@ -90,7 +90,7 @@ A Rust-based compiler and virtual machine for the Clipper programming language.
 
 **Phase 5 (Ecosystem & IDE):** 📋 Future
 - VSCode extension (when language is mature)
-- Package system (.cpkg/.cjar)
+- Package system (.cpkg)
 - Comprehensive standard library
 
 ## Usage
