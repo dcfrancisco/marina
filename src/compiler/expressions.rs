@@ -144,6 +144,25 @@ impl Compiler {
                 }
             }
             
+            Expr::ModuleCall { module, function, args } => {
+                // Push module name
+                let module_idx = self.chunk.add_constant(Value::String(module.clone()));
+                self.chunk.write(OpCode::Push, Some(module_idx));
+                
+                // Push function name
+                let func_idx = self.chunk.add_constant(Value::String(function.clone()));
+                self.chunk.write(OpCode::Push, Some(func_idx));
+                
+                // Push all arguments
+                for arg in args {
+                    self.compile_expression(arg)?;
+                }
+                
+                // CallModule expects: [module_name, func_name, ...args]
+                // operand = number of args (not including module/func names)
+                self.chunk.write(OpCode::CallModule, Some(args.len()));
+            }
+            
             Expr::Assign { name, value } => {
                 self.compile_expression(value)?;
                 

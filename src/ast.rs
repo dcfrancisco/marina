@@ -30,6 +30,13 @@ pub enum Expr {
         args: Vec<Expr>,
     },
     
+    // Module function call (e.g., console.print())
+    ModuleCall {
+        module: String,
+        function: String,
+        args: Vec<Expr>,
+    },
+    
     // Array/field access
     Index {
         object: Box<Expr>,
@@ -72,6 +79,9 @@ pub enum UnaryOp {
 
 #[derive(Debug, Clone)]
 pub enum Stmt {
+    // Import statement
+    Import(String),  // import "module"
+    
     // Variable declaration
     VarDecl {
         name: String,

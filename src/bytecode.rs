@@ -55,6 +55,10 @@ pub enum OpCode {
     DbSeek,
     DbReplace,
     
+    // Module operations
+    Import,         // Load module into VM module table
+    CallModule,     // Call a module function
+    
     // Built-in functions
     Print,          // Print value
     
@@ -74,6 +78,10 @@ pub enum Value {
         arity: usize,
         address: usize,
     },
+    ModuleFunction {
+        module: String,
+        function: String,
+    },
 }
 
 impl Value {
@@ -85,6 +93,7 @@ impl Value {
             Value::String(s) => !s.is_empty(),
             Value::Array(a) => !a.is_empty(),
             Value::Function { .. } => true,
+            Value::ModuleFunction { .. } => true,
         }
     }
     
@@ -106,6 +115,9 @@ impl Value {
             }
             Value::Function { name, arity, .. } => {
                 format!("<function {}({})>", name, arity)
+            }
+            Value::ModuleFunction { module, function } => {
+                format!("<module function {}.{}>", module, function)
             }
         }
     }
@@ -202,6 +214,8 @@ impl Chunk {
             OpCode::DbGoBottom => println!("DB_GO_BOTTOM"),
             OpCode::DbSeek => println!("DB_SEEK"),
             OpCode::DbReplace => println!("DB_REPLACE"),
+            OpCode::Import => println!("IMPORT         {}", instruction.operand.unwrap_or(0)),
+            OpCode::CallModule => println!("CALL_MODULE    {}", instruction.operand.unwrap_or(0)),
             OpCode::Print => println!("PRINT"),
             OpCode::Halt => println!("HALT"),
         }

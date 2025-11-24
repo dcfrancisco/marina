@@ -1,4 +1,5 @@
 use crate::bytecode::*;
+use crate::module::{Module, ModuleLoader};
 use std::collections::HashMap;
 
 mod opcodes;
@@ -10,6 +11,7 @@ pub struct VM {
     pub(crate) locals: Vec<Value>,  // Top-level locals (not in functions)
     pub(crate) call_frames: Vec<CallFrame>,
     pub(crate) functions: HashMap<String, usize>,  // Function name -> address
+    pub(crate) module_loader: ModuleLoader,  // Module system
     pub(crate) ip: usize,
     pub(crate) cursor_row: usize,
     pub(crate) cursor_col: usize,
@@ -32,6 +34,7 @@ impl VM {
             locals: Vec::new(),
             call_frames: Vec::new(),
             functions: HashMap::new(),
+            module_loader: ModuleLoader::new(),
             ip: 0,
             cursor_row: 0,
             cursor_col: 0,

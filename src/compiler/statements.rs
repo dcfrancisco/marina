@@ -5,6 +5,17 @@ use super::Compiler;
 impl Compiler {
     pub(crate) fn compile_statement(&mut self, stmt: &Stmt) -> Result<(), String> {
         match stmt {
+            Stmt::Import(module_name) => {
+                // Track that this module is imported
+                if !self.modules.contains(module_name) {
+                    self.modules.push(module_name.clone());
+                }
+                
+                // Emit Import bytecode with module name as constant
+                let module_idx = self.chunk.add_constant(Value::String(module_name.clone()));
+                self.chunk.write(OpCode::Import, Some(module_idx));
+            }
+            
             Stmt::VarDecl { name, initializer, scope } => {
                 if let Some(init) = initializer {
                     self.compile_expression(init)?;
@@ -160,12 +171,23 @@ impl Compiler {
                 let var_idx = self.locals.len() - 1;
                 self.chunk.write(OpCode::SetLocal, Some(var_idx));
                 
+                // Determine if this is a downto loop (step is negative)
+                let is_downto = if let Some(Expr::Number(n)) = step {
+                    *n < 0.0
+                } else {
+                    false
+                };
+                
                 let loop_start = self.chunk.code.len();
                 
-                // Check condition
+                // Check condition (>= for downto, <= for to)
                 self.chunk.write(OpCode::GetLocal, Some(var_idx));
                 self.compile_expression(end)?;
-                self.chunk.write(OpCode::LessEqual, None);
+                if is_downto {
+                    self.chunk.write(OpCode::GreaterEqual, None);
+                } else {
+                    self.chunk.write(OpCode::LessEqual, None);
+                }
                 
                 let exit_jump = self.chunk.code.len();
                 self.chunk.write(OpCode::JumpIfFalse, Some(0)); // Placeholder

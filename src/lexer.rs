@@ -21,6 +21,8 @@ impl Lexer {
         keywords.insert("STATIC".to_string(), TokenType::Static);
         keywords.insert("PRIVATE".to_string(), TokenType::Private);
         keywords.insert("PUBLIC".to_string(), TokenType::Public);
+        keywords.insert("IMPORT".to_string(), TokenType::Import);
+        keywords.insert("EXPORT".to_string(), TokenType::Export);
         keywords.insert("IF".to_string(), TokenType::If);
         keywords.insert("ELSE".to_string(), TokenType::Else);
         keywords.insert("ELSEIF".to_string(), TokenType::ElseIf);
@@ -30,6 +32,7 @@ impl Lexer {
         keywords.insert("ENDDO".to_string(), TokenType::EndDo);
         keywords.insert("FOR".to_string(), TokenType::For);
         keywords.insert("TO".to_string(), TokenType::To);
+        keywords.insert("DOWNTO".to_string(), TokenType::DownTo);
         keywords.insert("STEP".to_string(), TokenType::Step);
         keywords.insert("NEXT".to_string(), TokenType::Next);
         keywords.insert("EXIT".to_string(), TokenType::Exit);

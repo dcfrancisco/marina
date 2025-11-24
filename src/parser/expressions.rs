@@ -224,7 +224,58 @@ impl Parser {
         let mut expr = self.primary()?;
         
         loop {
-            if self.match_token(&[TokenType::LeftParen]) {
+            if self.match_token(&[TokenType::Dot]) {
+                // Handle module.function() calls
+                if let Expr::Variable(module_name) = expr {
+                    let function_name = self.consume_identifier("Expected function name after '.'")?;
+                    // Must be followed by '(' for a function call
+                    self.consume(&TokenType::LeftParen, "Expected '(' after module.function")?;
+                    
+                    // Parse arguments
+                    let mut args = Vec::new();
+                    if !self.check(&TokenType::RightParen) {
+                        loop {
+                            args.push(self.expression()?);
+                            if !self.match_token(&[TokenType::Comma]) {
+                                break;
+                            }
+                        }
+                    }
+                    self.consume(&TokenType::RightParen, "Expected ')' after arguments")?;
+                    
+                    expr = Expr::ModuleCall {
+                        module: module_name,
+                        function: function_name,
+                        args,
+                    };
+                } else {
+                    return Err("Dot notation only supported for module.function() calls".to_string());
+                }
+            } else if self.match_token(&[TokenType::Colon]) {
+                // Handle object:method() calls (Clipper style)
+                let method_name = self.consume_identifier("Expected method name after ':'")?;
+                self.consume(&TokenType::LeftParen, "Expected '(' after method name")?;
+                
+                // Parse arguments
+                let mut args = vec![expr]; // Object is first argument
+                if !self.check(&TokenType::RightParen) {
+                    loop {
+                        args.push(self.expression()?);
+                        if !self.match_token(&[TokenType::Comma]) {
+                            break;
+                        }
+                    }
+                }
+                self.consume(&TokenType::RightParen, "Expected ')' after arguments")?;
+                
+                // Convert to a function call with object as first parameter
+                // e.g., arr:append(x) becomes __ARRAY_APPEND(arr, x)
+                let function_name = format!("__ARRAY_{}", method_name.to_uppercase());
+                expr = Expr::Call {
+                    name: function_name,
+                    args,
+                };
+            } else if self.match_token(&[TokenType::LeftParen]) {
                 expr = self.finish_call(expr)?;
             } else if self.match_token(&[TokenType::LeftBracket]) {
                 let index = self.expression()?;
@@ -296,6 +347,7 @@ impl Parser {
             return Ok(expr);
         }
         
+        // Array literals with {} (Clipper style)
         if self.match_token(&[TokenType::LeftBrace]) {
             let mut elements = Vec::new();
             if !self.check(&TokenType::RightBrace) {
@@ -307,6 +359,21 @@ impl Parser {
                 }
             }
             self.consume(&TokenType::RightBrace, "Expected '}' after array elements")?;
+            return Ok(Expr::Array(elements));
+        }
+        
+        // Array literals with [] (modern style)
+        if self.match_token(&[TokenType::LeftBracket]) {
+            let mut elements = Vec::new();
+            if !self.check(&TokenType::RightBracket) {
+                loop {
+                    elements.push(self.expression()?);
+                    if !self.match_token(&[TokenType::Comma]) {
+                        break;
+                    }
+                }
+            }
+            self.consume(&TokenType::RightBracket, "Expected ']' after array elements")?;
             return Ok(Expr::Array(elements));
         }
         

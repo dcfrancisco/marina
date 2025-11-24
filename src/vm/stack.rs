@@ -13,4 +13,8 @@ impl VM {
     pub(crate) fn stack_len(&self) -> usize {
         self.stack.len()
     }
+    
+    pub(crate) fn peek_at(&self, position: usize) -> Option<&Value> {
+        self.stack.get(position)
+    }
 }

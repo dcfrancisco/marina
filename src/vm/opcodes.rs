@@ -180,12 +180,79 @@ impl VM {
                 self.ip += 1;
             }
             
+            OpCode::Import => self.execute_import(chunk, instruction)?,
+            OpCode::CallModule => self.execute_call_module(instruction)?,
+            
             OpCode::Halt => {
                 // Set IP beyond code length to exit the run loop
                 self.ip = usize::MAX;
             }
         }
         
+        Ok(())
+    }
+    
+    fn execute_import(&mut self, chunk: &Chunk, instruction: &Instruction) -> Result<(), String> {
+        let idx = instruction.operand.ok_or("IMPORT requires module name index")?;
+        let module_name = match &chunk.constants[idx] {
+            Value::String(s) => s.clone(),
+            _ => return Err("Module name must be a string".to_string()),
+        };
+        
+        // Check if module exists in module loader
+        if self.module_loader.get_module(&module_name).is_none() {
+            return Err(format!("Module '{}' not found", module_name));
+        }
+        
+        // Module is already loaded in module_loader, just mark as imported
+        self.ip += 1;
+        Ok(())
+    }
+    
+    fn execute_call_module(&mut self, instruction: &Instruction) -> Result<(), String> {
+        let arity = instruction.operand.ok_or("CALL_MODULE requires arity")?;
+        
+        // Stack layout: [module_name, func_name, arg1, arg2, ...]
+        // Get function name
+        let stack_len = self.stack_len();
+        let func_name_pos = stack_len - arity - 1;
+        let module_name_pos = stack_len - arity - 2;
+        
+        let func_name = match self.peek_at(func_name_pos).ok_or("Stack underflow getting function name")? {
+            Value::String(s) => s.clone(),
+            _ => return Err("Function name must be a string".to_string()),
+        };
+        
+        let module_name = match self.peek_at(module_name_pos).ok_or("Stack underflow getting module name")? {
+            Value::String(s) => s.clone(),
+            _ => return Err("Module name must be a string".to_string()),
+        };
+        
+        // Get the module
+        let module = self.module_loader.get_module(&module_name)
+            .ok_or(format!("Module '{}' not loaded", module_name))?;
+        
+        // Get the function from module
+        let native_func = module.get_function(&func_name)
+            .ok_or(format!("Function '{}' not found in module '{}'", func_name, module_name))?;
+        
+        // Collect arguments (top arity values on stack)
+        let mut args = Vec::new();
+        for _ in 0..arity {
+            args.insert(0, self.pop()?);
+        }
+        
+        // Pop function and module names
+        self.pop()?; // func_name
+        self.pop()?; // module_name
+        
+        // Call the native function
+        let result = native_func(&args)?;
+        
+        // Push result onto stack
+        self.push(result);
+        
+        self.ip += 1;
         Ok(())
     }
     
@@ -331,6 +398,7 @@ impl VM {
                     Value::Nil => "NIL".to_string(),
                     Value::Array(arr) => format!("{:?}", arr),
                     Value::Function { .. } => "<function>".to_string(),
+                    Value::ModuleFunction { .. } => "<module function>".to_string(),
                 };
                 print!("{}", text_str);
                 std::io::stdout().flush().unwrap();
@@ -659,6 +727,7 @@ impl VM {
                     Value::Nil => "NIL".to_string(),
                     Value::Array(_) => return Err("Cannot convert array to string with Str()".to_string()),
                     Value::Function { .. } => "<function>".to_string(),
+                    Value::ModuleFunction { .. } => "<module function>".to_string(),
                 };
                 
                 self.push(Value::String(str_result));
@@ -1028,6 +1097,58 @@ impl VM {
                         // Return default on error
                         self.push(Value::String(default));
                     }
+                }
+            }
+            "__ARRAY_APPEND" => {
+                // __ARRAY_APPEND(array, value) - appends value to array
+                if arity != 2 {
+                    return Err("Array append requires 2 arguments (array, value)".to_string());
+                }
+                
+                let value = self.pop()?;
+                let mut array = self.pop()?;
+                let _func = self.pop()?; // Pop function name
+                
+                if let Value::Array(ref mut arr) = array {
+                    arr.push(value);
+                    self.push(array); // Push modified array back
+                } else {
+                    return Err("First argument to append must be an array".to_string());
+                }
+            }
+            "__ARRAY_APPEND_INPLACE" => {
+                // Same as __ARRAY_APPEND but used when we know we need the result
+                if arity != 2 {
+                    return Err("Array append requires 2 arguments (array, value)".to_string());
+                }
+                
+                let value = self.pop()?;
+                let mut array = self.pop()?;
+                let _func = self.pop()?; // Pop function name
+                
+                if let Value::Array(ref mut arr) = array {
+                    arr.push(value);
+                    self.push(array); // Push modified array back
+                } else {
+                    return Err("First argument to append must be an array".to_string());
+                }
+            }
+            "__ARRAY_POP" => {
+                // __ARRAY_POP(array) - removes and returns last element
+                if arity != 1 {
+                    return Err("Array pop requires 1 argument (array)".to_string());
+                }
+                
+                let mut array = self.pop()?;
+                let _func = self.pop()?; // Pop function name
+                
+                if let Value::Array(ref mut arr) = array {
+                    let value = arr.pop().unwrap_or(Value::Nil);
+                    // Note: This doesn't modify the original array in place
+                    // We need to handle this differently
+                    self.push(value);
+                } else {
+                    return Err("Argument to pop must be an array".to_string());
                 }
             }
             _ => {

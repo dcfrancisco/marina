@@ -4,7 +4,9 @@ use super::Parser;
 
 impl Parser {
     pub(crate) fn declaration(&mut self) -> Result<Stmt, String> {
-        if self.match_token(&[TokenType::Local]) {
+        if self.match_token(&[TokenType::Import]) {
+            self.import_declaration()
+        } else if self.match_token(&[TokenType::Local]) {
             self.var_declaration(VarScope::Local)
         } else if self.match_token(&[TokenType::Static]) {
             self.var_declaration(VarScope::Static)
@@ -19,6 +21,15 @@ impl Parser {
         } else {
             self.statement()
         }
+    }
+    
+    fn import_declaration(&mut self) -> Result<Stmt, String> {
+        let module_name = if self.check(&TokenType::String) {
+            self.advance().lexeme.clone()
+        } else {
+            return Err(format!("Expected module name as string at line {}", self.peek().line));
+        };
+        Ok(Stmt::Import(module_name))
     }
     
     fn var_declaration(&mut self, scope: VarScope) -> Result<Stmt, String> {
@@ -217,12 +228,25 @@ impl Parser {
         let variable = self.consume_identifier("Expected loop variable")?;
         self.consume(&TokenType::Assign, "Expected '=' or ':=' after loop variable")?;
         let start = self.expression()?;
-        self.consume(&TokenType::To, "Expected TO in FOR loop")?;
+        
+        // Check for TO or DOWNTO
+        let is_downto = if self.match_token(&[TokenType::DownTo]) {
+            true
+        } else if self.match_token(&[TokenType::To]) {
+            false
+        } else {
+            return Err(format!("Expected TO or DOWNTO in FOR loop at line {}", self.peek().line));
+        };
+        
         let end = self.expression()?;
         
         let step = if self.match_token(&[TokenType::Step]) {
             Some(self.expression()?)
+        } else if is_downto {
+            // Default step for DOWNTO is -1
+            Some(Expr::Number(-1.0))
         } else {
+            // Default step for TO is 1 (implicit)
             None
         };
         

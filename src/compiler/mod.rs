@@ -1,5 +1,6 @@
 use crate::ast::*;
 use crate::bytecode::*;
+use crate::module::ModuleLoader;
 use std::collections::HashMap;
 
 mod statements;
@@ -12,6 +13,7 @@ pub struct Compiler {
     globals: HashMap<String, usize>,
     functions: HashMap<String, usize>, // function name -> bytecode address
     loop_stack: Vec<LoopContext>, // Track loop contexts for EXIT/BREAK
+    modules: Vec<String>, // Track imported modules
 }
 
 #[derive(Debug, Clone)]
@@ -28,6 +30,7 @@ impl Compiler {
             globals: HashMap::new(),
             functions: HashMap::new(),
             loop_stack: Vec::new(),
+            modules: Vec::new(),
         }
     }
     
