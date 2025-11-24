@@ -1,6 +1,5 @@
-// Tower of Hanoi (Marina Edition)
+// Tower of Hanoi (Marina Edition) - Test version with fixed disk count
 // Demonstrates recursion, TUI rendering, colors, and console animation
-// Supports 1–13 disks, optimized for 120x40 terminals
 
 import "console"
 import "tui"
@@ -12,11 +11,9 @@ console.hideCursor()
 
 // Title
 tui.box(0, 40, 3, 80, "TOWER OF HANOI PUZZLE")
-console.setPos(4, 30)
-console.print("How many disks? (1–13): ")
 
-// Input
-diskCount := tui.readInt(1, 13)
+// Fixed input for testing
+diskCount := 3
 
 // State
 pegs := [

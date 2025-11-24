@@ -8,31 +8,26 @@ import "math"
 import "str"
 
 ClearScreen()
-console.hideCursor()
 
 // Title
 tui.box(0, 40, 3, 80, "TOWER OF HANOI PUZZLE")
 console.setPos(4, 30)
 console.print("How many disks? (1–13): ")
 
-// Input
-local diskCount := tui.readInt(1, 13)
+// Input and initialize all globals
+diskCount := tui.readInt(1, 13)
+moveCount := 0
+baseRow := 35
+positions := [25, 55, 85]
+pegs := [[], [], []]
 
-// State
-local pegs := [
-    [],  // Peg A
-    [],  // Peg B
-    []   // Peg C
-]
+// Hide cursor for animation
+console.hideCursor()
 
+// Initialize pegs with disks
 for i := diskCount downto 1
     pegs[1]:append(i)
 end
-
-local moveCount := 0
-
-local baseRow := 35
-local positions := [25, 55, 85]
 
 // --- Render Towers ---
 function drawTowers()
@@ -43,7 +38,8 @@ function drawTowers()
     end
 
     // Poles
-    for col in positions
+    for pegIdx := 1 to 3
+        local col := positions[pegIdx]
         for r := baseRow - 14 to baseRow - 1
             console.setPos(r, col)
             console.print("│")
@@ -51,15 +47,19 @@ function drawTowers()
     end
 
     // Bases
-    for col in positions
+    for pegIdx := 1 to 3
+        local col := positions[pegIdx]
         console.setPos(baseRow, col - 7)
         console.print("═══════════════")
     end
 
     // Labels
-    console.setPos(baseRow + 1, positions[1]); console.print("A")
-    console.setPos(baseRow + 1, positions[2]); console.print("B")
-    console.setPos(baseRow + 1, positions[3]); console.print("C")
+    console.setPos(baseRow + 1, positions[1])
+    console.print("A")
+    console.setPos(baseRow + 1, positions[2])
+    console.print("B")
+    console.setPos(baseRow + 1, positions[3])
+    console.print("C")
 
     // Move counter
     console.setPos(10, 30)
