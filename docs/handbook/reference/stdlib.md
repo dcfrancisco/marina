@@ -63,7 +63,24 @@ OutStd(s)                   // Output string to stdout
 ClearScreen()               // Clear entire screen
 SavePos()                   // Save current cursor position
 RestorePos()                // Restore saved cursor position
+SetColor(n)                 // Set text color (0-15)
+SetCursor(visible)          // Show/hide cursor (true/false)
 ```
+
+#### Color Codes
+
+| Code | Color          | Code | Color          |
+|------|----------------|------|----------------|
+| 0    | Black          | 8    | Bright Black   |
+| 1    | Blue           | 9    | Bright Blue    |
+| 2    | Green          | 10   | Bright Green   |
+| 3    | Cyan           | 11   | Bright Cyan    |
+| 4    | Red            | 12   | Bright Red     |
+| 5    | Magenta        | 13   | Bright Magenta |
+| 6    | Yellow (Brown) | 14   | Bright Yellow  |
+| 7    | White (Gray)   | 15   | Bright White   |
+
+*Default color is 7 (White/Gray)*
 
 ### Input
 

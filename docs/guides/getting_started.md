@@ -152,6 +152,42 @@ Hello
 ./target/release/clipper -d program.prg
 ```
 
+## Console Colors
+
+Marina supports console colors using the `SetColor()` function. Here are the available color codes:
+
+| Code | Color          | Example Usage                    |
+|------|----------------|----------------------------------|
+| 0    | Black          | `SetColor(0)`                    |
+| 1    | Blue           | `SetColor(1)`                    |
+| 2    | Green          | `SetColor(2)`                    |
+| 3    | Cyan           | `SetColor(3)`                    |
+| 4    | Red            | `SetColor(4)`                    |
+| 5    | Magenta        | `SetColor(5)`                    |
+| 6    | Yellow (Brown) | `SetColor(6)`                    |
+| 7    | White (Gray)   | `SetColor(7)` - Default          |
+| 8    | Bright Black   | `SetColor(8)`                    |
+| 9    | Bright Blue    | `SetColor(9)`                    |
+| 10   | Bright Green   | `SetColor(10)`                   |
+| 11   | Bright Cyan    | `SetColor(11)`                   |
+| 12   | Bright Red     | `SetColor(12)`                   |
+| 13   | Bright Magenta | `SetColor(13)`                   |
+| 14   | Bright Yellow  | `SetColor(14)`                   |
+| 15   | Bright White   | `SetColor(15)`                   |
+
+### Color Example
+
+```clipper
+function main()
+    SetColor(12)  // Bright Red
+    OutStd("This is red!")
+    SetColor(7)   // Reset to default
+    OutStd("Back to normal")
+return nil
+```
+
+See [color_demo.prg](../../examples/color_demo.prg) for more examples.
+
 ## Next Steps
 
 - **Learn the language:** Read [Language Syntax Reference](../reference/language_syntax.md)

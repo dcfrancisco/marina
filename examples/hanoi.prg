@@ -18,8 +18,10 @@ pegB := Int(maxWidth / 2)
 pegC := Int(maxWidth * 3 / 4)
 
 // Title screen
+SetColor(12)  // Red color
 SetPos(1, leftMargin)
 OutStd("TOWERS OF HANOI")
+SetColor(7)   // Reset to default color
 
 // Get number of disks from user
 SetPos(4, leftMargin)
