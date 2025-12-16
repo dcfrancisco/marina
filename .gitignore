@@ -1,5 +1,5 @@
 /target
-/.github/
+/.github/copilot/
 
 # MacOS files --- IGNORE ---
 .DS_Store 
