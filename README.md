@@ -13,7 +13,7 @@
 
 **A modern Rust-based compiler and virtual machine for the Clipper programming language**
 
-[![Sponsor](https://img.shields.io/badge/Sponsor-Buy%20Me%20a%20Coffee-yellow.svg)](https://www.buymeacoffee.com/dcfrancisco)
+[![Sponsor](https://img.shields.io/badge/Sponsor-Buy%20Me%20a%20Coffee-yellow.svg)](https://www.buymeacoffee.com/dcfrancisco) [![Sponsor](https://img.shields.io/badge/Sponsor-Bitcoin-orange.svg)](https://mempool.space/address/bc1qz7hlw44akh8vxfjjt5njnyld8ut6hc3gmz20dr)
 
 ---
 
