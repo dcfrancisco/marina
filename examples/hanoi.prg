@@ -9,7 +9,7 @@ SetCursor(false)  // Hide cursor for cleaner animation
 // Layout configuration
 leftMargin := 15
 maxWidth := 120     // Maximum screen width for tower display
-baseRow := 26       // Base row for towers - adjust this to move entire tower up/down
+baseRow := 25       // Base row for towers - adjust this to move entire tower up/down
 poleHeight := 14    // Height based on max 13 disks
 
 // Calculate peg positions based on maxWidth
@@ -97,9 +97,9 @@ enddo
 minMoves := minMoves - 1
 
 // Final message
-SetPos(baseRow + 2, leftMargin)
+SetPos(8, leftMargin)
 OutStd("Puzzle solved!")
-SetPos(baseRow + 3, leftMargin)
+SetPos(9, leftMargin)
 OutStd("Done in ")
 OutStd(moveCount)
 OutStd(" moves (minimum: ")
