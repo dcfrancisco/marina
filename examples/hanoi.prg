@@ -8,6 +8,14 @@ SetCursor(false)  // Hide cursor for cleaner animation
 
 // Layout configuration
 leftMargin := 15
+maxWidth := 120     // Maximum screen width for tower display
+baseRow := 26       // Base row for towers - adjust this to move entire tower up/down
+poleHeight := 14    // Height based on max 13 disks
+
+// Calculate peg positions based on maxWidth
+pegA := Int(maxWidth / 4)
+pegB := Int(maxWidth / 2)
+pegC := Int(maxWidth * 3 / 4)
 
 // Title screen
 SetPos(0, leftMargin)
@@ -74,7 +82,7 @@ moveCount := 0
 DrawTowers()
 
 // Wait a moment for visual effect
-Sleep(500)
+Sleep(50)
 
 // Solve the puzzle
 SolveHanoi(diskCount, 1, 3, 2)
@@ -89,15 +97,15 @@ enddo
 minMoves := minMoves - 1
 
 // Final message
-SetPos(37, leftMargin)
+SetPos(baseRow + 2, leftMargin)
 OutStd("Puzzle solved!")
-SetPos(38, leftMargin)
+SetPos(baseRow + 3, leftMargin)
 OutStd("Done in ")
 OutStd(moveCount)
 OutStd(" moves (minimum: ")
 OutStd(minMoves)
 OutStd(")")
-SetPos(39, 0)
+SetPos(baseRow + 4, 0)
 OutStd("")
 
 // Show cursor again
@@ -151,22 +159,16 @@ function MoveDisk(fromPeg, toPeg)
     
     moveCount := moveCount + 1
     DrawTowers()
-    Sleep(100)
+    // Sleep(100)
 return nil
 
 // Draw all three towers with disks
 function DrawTowers()
-    local baseRow := 35       // Modern terminals have 40+ rows
-    local pegA := 25
-    local pegB := 55
-    local pegC := 85
-    local poleHeight := 14    // Height based on max 13 disks
-    
     // Clear the tower area (wider for modern screens)
-    local clearRow := 21
-    while clearRow <= 36
+    local clearRow := baseRow - poleHeight - 1
+    while clearRow <= baseRow + 2
         SetPos(clearRow, 0)
-        OutStd(Replicate(" ", 120))
+        OutStd(Replicate(" ", maxWidth))
         clearRow := clearRow + 1
     enddo
     
@@ -191,7 +193,7 @@ function DrawTowers()
     OutStd("C")
     
     // Draw move counter
-    SetPos(10, leftMargin)
+    SetPos(7, leftMargin)
     OutStd("Moves: ")
     OutStd(moveCount)
     
@@ -204,23 +206,23 @@ function DrawTowers()
     OutStd("═══════════════")
     
     // Draw disks on peg A
-    DrawPeg(peg1, pegA, baseRow)
+    DrawPeg(peg1, pegA)
     
     // Draw disks on peg B
-    DrawPeg(peg2, pegB, baseRow)
+    DrawPeg(peg2, pegB)
     
     // Draw disks on peg C
-    DrawPeg(peg3, pegC, baseRow)
+    DrawPeg(peg3, pegC)
     
 return nil
 
 // Draw disks on a specific peg
-function DrawPeg(pegArray, column, baseRow)
+function DrawPeg(pegArray, column)
     local arrayLen := 0
-    if column == 25
+    if column == pegA
         arrayLen := len1
     else
-        if column == 55
+        if column == pegB
             arrayLen := len2
         else
             arrayLen := len3
