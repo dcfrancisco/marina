@@ -18,12 +18,8 @@ pegB := Int(maxWidth / 2)
 pegC := Int(maxWidth * 3 / 4)
 
 // Title screen
-SetPos(0, leftMargin)
-OutStd("╔════════════════════════════════╗")
 SetPos(1, leftMargin)
-OutStd("║     TOWER OF HANOI PUZZLE      ║")
-SetPos(2, leftMargin)
-OutStd("╚════════════════════════════════╝")
+OutStd("TOWERS OF HANOI")
 
 // Get number of disks from user
 SetPos(4, leftMargin)
