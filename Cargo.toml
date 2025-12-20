@@ -28,6 +28,9 @@ name = "marina-fmt"
 path = "src/bin/marina-fmt.rs"
 
 [dependencies]
+# For Windows API (VT mode)
+windows = { version = "0.52.0", features = ["Win32_System_Console"] }
+
 # LSP dependencies
 tower-lsp = { version = "0.20", optional = true }
 tokio = { version = "1.35", features = ["full"], optional = true }
