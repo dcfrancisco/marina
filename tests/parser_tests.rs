@@ -1,6 +1,7 @@
 use marina::{
     lexer::Lexer,
     parser::Parser,
+    diagnostics::Severity,
     ast::{Stmt, Expr, BinaryOp, VarScope},
 };
 
@@ -17,6 +18,30 @@ fn parse_source_err(source: &str) -> String {
         Ok(stmts) => panic!("Expected parse to fail, but succeeded with {} statements", stmts.len()),
         Err(e) => e,
     }
+}
+
+#[test]
+fn test_parse_with_diagnostics_collects_multiple_errors() {
+    // Two independent parse errors, separated by semicolons so the parser can recover.
+    let source = "LOCAL x := ; LOCAL y := ;";
+
+    let mut lexer = Lexer::new(source.to_string());
+    let tokens = lexer.scan_tokens().expect("Lexing should succeed");
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.parse_with_diagnostics();
+
+    assert!(result.program.statements.is_empty());
+    assert!(
+        result.diagnostics.len() >= 2,
+        "Expected multiple diagnostics, got {}: {:?}",
+        result.diagnostics.len(),
+        result.diagnostics
+    );
+    assert!(result.diagnostics.iter().all(|d| d.severity == Severity::Error));
+    assert!(result.diagnostics.iter().all(|d| d.span.line == 1));
+    assert!(result.diagnostics.iter().all(|d| d.span.column >= 1));
+    assert!(result.diagnostics.iter().all(|d| !d.message.is_empty()));
 }
 
 #[test]

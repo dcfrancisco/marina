@@ -33,7 +33,7 @@ struct Block {
 /// Goals (MVP):
 /// - Preserve comments and blank lines
 /// - Normalize indentation (default 4 spaces)
-/// - Uppercase keywords outside strings
+/// - Lowercase keywords outside strings
 pub fn format_source(source: &str, options: FormatOptions) -> String {
     // Normalize line endings to \n.
     let normalized = source.replace("\r\n", "\n").replace('\r', "\n");
@@ -154,8 +154,8 @@ pub fn format_source(source: &str, options: FormatOptions) -> String {
             _ => {}
         }
 
-        // Format the code portion (uppercase keywords outside strings).
-        let formatted_code = uppercase_keywords_outside_strings(code_trimmed);
+        // Format the code portion (lowercase keywords outside strings).
+        let formatted_code = lowercase_keywords_outside_strings(code_trimmed);
 
         out.push_str(&" ".repeat(indent_level * options.indent_size));
         out.push_str(&formatted_code);
@@ -347,7 +347,7 @@ fn split_line_comment(line: &str) -> (&str, &str) {
     (line, "")
 }
 
-fn uppercase_keywords_outside_strings(code: &str) -> String {
+fn lowercase_keywords_outside_strings(code: &str) -> String {
     // Keywords list is intentionally small + conservative for MVP.
     const KEYWORDS: &[&str] = &[
         "FUNCTION",
@@ -400,7 +400,7 @@ fn uppercase_keywords_outside_strings(code: &str) -> String {
         }
         let upper = word.to_uppercase();
         if KEYWORDS.iter().any(|k| *k == upper) {
-            out.push_str(&upper);
+            out.push_str(&upper.to_lowercase());
         } else {
             out.push_str(word);
         }
@@ -435,7 +435,7 @@ fn uppercase_keywords_outside_strings(code: &str) -> String {
     if !word.is_empty() {
         let upper = word.to_uppercase();
         if KEYWORDS.iter().any(|k| *k == upper) {
-            out.push_str(&upper);
+            out.push_str(&upper.to_lowercase());
         } else {
             out.push_str(&word);
         }

@@ -10,6 +10,8 @@ use tower_lsp::{Client, LanguageServer, LspService, Server};
 #[cfg(feature = "lsp")]
 use marina::{Lexer, Parser};
 #[cfg(feature = "lsp")]
+use marina::diagnostics::{Diagnostic as MarinaDiagnostic, Severity as MarinaSeverity, Span as MarinaSpan};
+#[cfg(feature = "lsp")]
 use std::collections::HashMap;
 #[cfg(feature = "lsp")]
 use tokio::sync::RwLock;
@@ -97,44 +99,115 @@ impl LanguageServer for MarinaLanguageServer {
     }
 
     async fn completion(&self, _: CompletionParams) -> Result<Option<CompletionResponse>> {
-        Ok(Some(CompletionResponse::Array(vec![
-            CompletionItem {
-                label: "FUNCTION".to_string(),
+        let keywords: &[(&str, &str)] = &[
+            ("function", "Define a function"),
+            ("procedure", "Define a procedure"),
+            ("return", "Return from function/procedure"),
+            ("local", "Declare local variable"),
+            ("static", "Declare static variable"),
+            ("private", "Declare private variable"),
+            ("public", "Declare public variable"),
+
+            ("if", "Conditional statement"),
+            ("elseif", "Conditional branch"),
+            ("else", "Conditional branch"),
+            ("endif", "End IF block"),
+
+            ("do", "Begin DO block"),
+            ("while", "While loop / DO..WHILE terminator"),
+            ("enddo", "End WHILE block"),
+
+            ("for", "For loop"),
+            ("to", "For loop range"),
+            ("step", "For loop step"),
+            ("next", "End FOR block"),
+            ("exit", "Exit loop"),
+
+            ("loop", "Begin LOOP block"),
+            ("endloop", "End LOOP block"),
+
+            ("case", "Begin CASE block / CASE clause"),
+            ("otherwise", "Default CASE clause"),
+            ("endcase", "End CASE block"),
+
+            ("use", "Open database/file"),
+            ("select", "Select work area"),
+            ("dbcreate", "Create DBF"),
+            ("dbappend", "Append record"),
+            ("dbskip", "Skip record"),
+            ("dbgotop", "Go to first record"),
+            ("dbgobottom", "Go to last record"),
+            ("dbseek", "Seek record"),
+            ("index", "Create/set index"),
+            ("close", "Close database"),
+            ("replace", "Replace field"),
+            ("delete", "Mark record deleted"),
+            ("recall", "Recall record"),
+
+            ("and", "Logical AND"),
+            ("or", "Logical OR"),
+            ("not", "Logical NOT"),
+            ("true", "Boolean literal"),
+            ("false", "Boolean literal"),
+            ("nil", "Nil literal"),
+        ];
+
+        let mut items = keywords
+            .iter()
+            .map(|(label, detail)| CompletionItem {
+                label: (*label).to_string(),
                 kind: Some(CompletionItemKind::KEYWORD),
-                detail: Some("Define a function".to_string()),
+                detail: Some((*detail).to_string()),
                 ..Default::default()
-            },
-            CompletionItem {
-                label: "LOCAL".to_string(),
-                kind: Some(CompletionItemKind::KEYWORD),
-                detail: Some("Declare local variable".to_string()),
-                ..Default::default()
-            },
-            CompletionItem {
-                label: "IF".to_string(),
-                kind: Some(CompletionItemKind::KEYWORD),
-                detail: Some("Conditional statement".to_string()),
-                ..Default::default()
-            },
-            CompletionItem {
-                label: "WHILE".to_string(),
-                kind: Some(CompletionItemKind::KEYWORD),
-                detail: Some("While loop".to_string()),
-                ..Default::default()
-            },
-            CompletionItem {
-                label: "FOR".to_string(),
-                kind: Some(CompletionItemKind::KEYWORD),
-                detail: Some("For loop".to_string()),
-                ..Default::default()
-            },
-            CompletionItem {
-                label: "RETURN".to_string(),
-                kind: Some(CompletionItemKind::KEYWORD),
-                detail: Some("Return from function".to_string()),
-                ..Default::default()
-            },
-        ])))
+            })
+            .collect::<Vec<_>>();
+
+        // Built-in functions (now case-insensitive in the VM).
+        let builtins: &[(&str, &str)] = &[
+            ("clearScreen", "Clear the terminal screen"),
+            ("setPos", "Move cursor (row, col)"),
+            ("devPos", "Alias of setPos (row, col)"),
+            ("gotoXY", "Move cursor (col, row)"),
+            ("outStd", "Output text"),
+            ("setColor", "Set text color"),
+            ("setCursor", "Show/hide cursor"),
+            ("savePos", "Save cursor position"),
+            ("restorePos", "Restore cursor position"),
+            ("sleep", "Sleep (milliseconds)"),
+            ("getInput", "Read input with editing"),
+            ("getSecret", "Read hidden input"),
+            ("replicate", "Repeat string"),
+            ("space", "String of spaces"),
+            ("len", "Length of string/array"),
+            ("subStr", "Substring"),
+            ("trim", "Trim both sides"),
+            ("allTrim", "Alias of trim"),
+            ("lTrim", "Trim left"),
+            ("rTrim", "Trim right"),
+            ("chr", "ASCII code to char"),
+            ("asc", "Char to ASCII code"),
+            ("inkey", "Read single key"),
+            ("val", "String to number"),
+            ("str", "Value to string"),
+            ("abs", "Absolute value"),
+            ("sqrt", "Square root"),
+            ("round", "Round number"),
+            ("int", "Truncate number"),
+            ("min", "Minimum"),
+            ("max", "Maximum"),
+            ("sin", "Sine"),
+            ("cos", "Cosine"),
+            ("tan", "Tangent"),
+        ];
+
+        items.extend(builtins.iter().map(|(label, detail)| CompletionItem {
+            label: (*label).to_string(),
+            kind: Some(CompletionItemKind::FUNCTION),
+            detail: Some((*detail).to_string()),
+            ..Default::default()
+        }));
+
+        Ok(Some(CompletionResponse::Array(items)))
     }
 
     async fn hover(&self, _params: HoverParams) -> Result<Option<Hover>> {
@@ -229,142 +302,52 @@ impl MarinaLanguageServer {
     }
 
     fn get_diagnostics(&self, text: &str) -> Vec<Diagnostic> {
-        let mut diagnostics = Vec::new();
+        let mut out = Vec::new();
 
-        // Try to lex the source
+        // Lex (collecting multiple lexer diagnostics)
         let mut lexer = Lexer::new(text.to_string());
-        let tokens = match lexer.scan_tokens() {
-            Ok(tokens) => tokens,
-            Err(e) => {
-                let (line, col) = extract_line_col(&e).unwrap_or((1, 1));
-                diagnostics.push(Diagnostic {
-                    range: diagnostic_range(line, col, &e),
-                    severity: Some(DiagnosticSeverity::ERROR),
-                    source: Some("marina-lsp".to_string()),
-                    message: format!("Lexer error: {}", e),
-                    ..Default::default()
-                });
-                return diagnostics;
-            }
-        };
-
-        // Try to parse
-        let mut parser = Parser::new(tokens);
-        if let Err(e) = parser.parse() {
-            let (line, col) = extract_line_col(&e).unwrap_or((1, 1));
-            diagnostics.push(Diagnostic {
-                range: diagnostic_range(line, col, &e),
-                severity: Some(DiagnosticSeverity::ERROR),
-                source: Some("marina-lsp".to_string()),
-                message: format!("Parser error: {}", e),
-                ..Default::default()
-            });
+        let lex_result = lexer.scan_tokens_with_diagnostics();
+        for diag in lex_result.diagnostics {
+            out.push(to_lsp_diagnostic("Lexer", diag));
         }
 
-        diagnostics
+        // Parse (collecting multiple parser diagnostics)
+        let mut parser = Parser::new(lex_result.tokens);
+        let parse_result = parser.parse_with_diagnostics();
+        for diag in parse_result.diagnostics {
+            out.push(to_lsp_diagnostic("Parser", diag));
+        }
+
+        out
     }
 }
 
 #[cfg(feature = "lsp")]
-fn extract_line_col(message: &str) -> Option<(u32, u32)> {
-    // Supports messages like:
-    // - "... at line 3, column 14"
-    // - "... at line 3"
-    let line = extract_number_after(message, "at line ")?;
-    let col = extract_number_after(message, "column ").unwrap_or(1);
-    Some((line, col))
-}
+fn to_lsp_diagnostic(kind: &str, diag: MarinaDiagnostic) -> Diagnostic {
+    let severity = match diag.severity {
+        MarinaSeverity::Error => DiagnosticSeverity::ERROR,
+        MarinaSeverity::Warning => DiagnosticSeverity::WARNING,
+    };
 
-#[cfg(feature = "lsp")]
-fn extract_number_after(message: &str, needle: &str) -> Option<u32> {
-    let start = message.find(needle)? + needle.len();
-    let digits: String = message[start..]
-        .chars()
-        .take_while(|c| c.is_ascii_digit())
-        .collect();
-    if digits.is_empty() {
-        return None;
+    Diagnostic {
+        range: to_lsp_range(diag.span),
+        severity: Some(severity),
+        source: Some("marina-lsp".to_string()),
+        message: format!("{} error: {}", kind, diag.message),
+        ..Default::default()
     }
-    digits.parse::<u32>().ok()
 }
 
 #[cfg(feature = "lsp")]
-fn diagnostic_range(line_1_based: u32, col_1_based: u32, message: &str) -> Range {
-    let line0 = line_1_based.saturating_sub(1);
-    let col0 = col_1_based.saturating_sub(1);
+fn to_lsp_range(span: MarinaSpan) -> Range {
+    let line0 = span.line.saturating_sub(1) as u32;
+    let col0 = span.column.saturating_sub(1) as u32;
+    let len = span.len.max(1) as u32;
 
-    let len = infer_highlight_len(message).max(1);
     Range::new(
         Position::new(line0, col0),
         Position::new(line0, col0.saturating_add(len.saturating_sub(1))),
     )
-}
-
-#[cfg(feature = "lsp")]
-fn infer_highlight_len(message: &str) -> u32 {
-    // Best-effort heuristics from existing error strings.
-    // We keep this conservative: fall back to 1 char if we can't infer a token.
-
-    // Example: "Unexpected token: Token { token_type: Identifier, lexeme: \"Print\", line: 1, column: 1 } at line 1, column 1"
-    if let Some(lexeme) = extract_lexeme_from_debug_token(message) {
-        return lexeme.chars().count().max(1) as u32;
-    }
-
-    // Example: "Unexpected character '&' at line 1, column 3 ..."
-    if message.contains("Unexpected character '") {
-        return 1;
-    }
-
-    // Example: "Unterminated IF (missing ENDIF) at line 1, column 1"
-    if let Some(word) = extract_word_after(message, "Unterminated ") {
-        return word.chars().count().max(1) as u32;
-    }
-
-    // Example: "Expected ENDIF at line 3, column 1"
-    if let Some(word) = extract_word_after(message, "Expected ") {
-        // Skip punctuation-heavy expectations like "')'" and just highlight 1.
-        if word.chars().all(|c| c.is_ascii_alphabetic() || c == '_') {
-            return word.chars().count().max(1) as u32;
-        }
-    }
-
-    1
-}
-
-#[cfg(feature = "lsp")]
-fn extract_word_after(message: &str, needle: &str) -> Option<String> {
-    let start = message.find(needle)? + needle.len();
-    let tail = &message[start..];
-    let word: String = tail
-        .chars()
-        .take_while(|c| !c.is_whitespace() && *c != '(')
-        .collect();
-    if word.is_empty() { None } else { Some(word) }
-}
-
-#[cfg(feature = "lsp")]
-fn extract_lexeme_from_debug_token(message: &str) -> Option<String> {
-    // Looks for debug formatting that includes: lexeme: "..."
-    let needle = "lexeme: \"";
-    let start = message.find(needle)? + needle.len();
-    let mut out = String::new();
-    let mut escaped = false;
-    for ch in message[start..].chars() {
-        if escaped {
-            out.push(ch);
-            escaped = false;
-            continue;
-        }
-        if ch == '\\' {
-            escaped = true;
-            continue;
-        }
-        if ch == '"' {
-            break;
-        }
-        out.push(ch);
-    }
-    if out.is_empty() { None } else { Some(out) }
 }
 
 #[cfg(feature = "lsp")]

@@ -1,4 +1,5 @@
 use crate::ast::*;
+use crate::diagnostics::{Diagnostic, Span};
 use crate::token::{Token, TokenType};
 
 mod statements;
@@ -22,6 +23,28 @@ impl Parser {
         }
         
         Ok(program)
+    }
+
+    pub fn parse_with_diagnostics(&mut self) -> ParseResult {
+        let mut program = Program::new();
+        let mut diagnostics = Vec::new();
+
+        while !self.is_at_end() {
+            match self.declaration() {
+                Ok(stmt) => program.statements.push(stmt),
+                Err(message) => {
+                    let token = self.peek().clone();
+                    let span = span_from_message_or_token(&message, &token);
+                    diagnostics.push(Diagnostic::error(
+                        message,
+                        span,
+                    ));
+                    self.synchronize();
+                }
+            }
+        }
+
+        ParseResult { program, diagnostics }
     }
     
     // Utility methods
@@ -108,4 +131,104 @@ impl Parser {
         }
         self.error_at(self.previous(), message)
     }
+
+    fn synchronize(&mut self) {
+        // Since we currently drop newline tokens in the lexer, we approximate
+        // "statement boundaries" by scanning for keywords that typically start
+        // a new statement or are common block terminators.
+        if self.is_at_end() {
+            return;
+        }
+
+        let start_index = self.current;
+
+        while !self.is_at_end() {
+            match self.peek().token_type {
+                // Statement separators: consume and stop.
+                TokenType::Semicolon => {
+                    self.advance();
+                    return;
+                }
+
+                // Common block terminators: consume and stop to avoid re-erroring on the terminator.
+                TokenType::EndIf
+                | TokenType::EndDo
+                | TokenType::Next
+                | TokenType::Loop
+                | TokenType::EndCase => {
+                    self.advance();
+                    return;
+                }
+
+                // CASE branch keywords: stop here so the surrounding CASE parser can pick it up.
+                TokenType::Otherwise | TokenType::Case => return,
+
+                // IF branch keywords: stop here so the surrounding IF parser can pick it up.
+                TokenType::Else | TokenType::ElseIf => return,
+
+                // Likely statement starters
+                TokenType::Function
+                | TokenType::Procedure
+                | TokenType::If
+                | TokenType::Do
+                | TokenType::While
+                | TokenType::For
+                | TokenType::Return
+                | TokenType::Local
+                | TokenType::Static
+                | TokenType::Private
+                | TokenType::Public
+                | TokenType::Use
+                | TokenType::Select => return,
+
+                _ => {
+                    self.advance();
+                }
+            }
+        }
+
+        // If we somehow didn't move, advance one token to prevent an infinite loop.
+        if self.current == start_index && !self.is_at_end() {
+            self.advance();
+        }
+    }
+}
+
+fn span_from_message_or_token(message: &str, token: &Token) -> Span {
+    if let Some((line, col)) = extract_line_col(message) {
+        let token_len = token.lexeme.chars().count().max(1);
+        // If the location doesn't match the current token, avoid claiming a long range.
+        let len = if token.line == line as usize && token.column == col as usize {
+            token_len
+        } else {
+            1
+        };
+        return Span::new(line as usize, col as usize, len);
+    }
+
+    let len = token.lexeme.chars().count().max(1);
+    Span::new(token.line, token.column, len)
+}
+
+fn extract_line_col(message: &str) -> Option<(u32, u32)> {
+    let line = extract_number_after(message, "at line ")?;
+    let col = extract_number_after(message, "column ").unwrap_or(1);
+    Some((line, col))
+}
+
+fn extract_number_after(message: &str, needle: &str) -> Option<u32> {
+    let start = message.find(needle)? + needle.len();
+    let digits: String = message[start..]
+        .chars()
+        .take_while(|c| c.is_ascii_digit())
+        .collect();
+    if digits.is_empty() {
+        return None;
+    }
+    digits.parse::<u32>().ok()
+}
+
+pub struct ParseResult {
+    pub program: Program,
+    pub diagnostics: Vec<Diagnostic>,
 }
