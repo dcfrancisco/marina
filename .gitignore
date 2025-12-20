@@ -1,5 +1,6 @@
 /target
 /.github/copilot/
+copilot-instructions.md
 
 # MacOS files --- IGNORE ---
 .DS_Store 

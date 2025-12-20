@@ -1,10 +1,9 @@
 // Marina Code Formatter (marina-fmt)
 // Formats Clipper-2025 (.prg) files with consistent style
 
-use marina::{Lexer, Parser};
+use marina::{formatter, Lexer, Parser};
 use std::env;
 use std::fs;
-use std::io::{self, Write};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -24,7 +23,7 @@ fn main() {
                 print_usage(&args[0]);
                 std::process::exit(0);
             }
-            file if file.ends_with(".prg") => files.push(file.clone()),
+            file if file.ends_with(".prg") => files.push(file.to_string()),
             _ => {
                 eprintln!("Error: Unknown option or invalid file: {}", arg);
                 std::process::exit(1);
@@ -72,24 +71,24 @@ fn format_file(filename: &str, check_only: bool) -> Result<(), String> {
     let mut parser = Parser::new(tokens);
     let _program = parser.parse()?;
     
-    // For now, just pretty-print the AST
-    // TODO: Implement proper code formatting with:
-    // - Consistent indentation (2 or 4 spaces)
-    // - Keyword capitalization (FUNCTION, LOCAL, IF, etc.)
-    // - Statement spacing
-    // - Line wrapping
-    
+    let formatted = formatter::format_source(&source, formatter::FormatOptions::default());
+
+    // Normalize before comparing to avoid \r\n differences.
+    let original_norm = source.replace("\r\n", "\n").replace('\r', "\n");
+
     if check_only {
-        println!("✓ {} is valid Clipper-2025 syntax", filename);
+        if formatted != original_norm {
+            return Err("needs formatting".to_string());
+        }
+        println!("✓ {} is formatted", filename);
+        return Ok(());
+    }
+
+    if formatted != original_norm {
+        fs::write(filename, formatted).map_err(|e| format!("Failed to write file: {}", e))?;
+        println!("Formatted {}", filename);
     } else {
-        println!("Status: Formatting not yet implemented");
-        println!("File {} is syntactically correct but not modified", filename);
-        println!();
-        println!("Planned formatting features:");
-        println!("  - Consistent indentation");
-        println!("  - Keyword capitalization");
-        println!("  - Statement spacing");
-        println!("  - Line wrapping");
+        println!("Already formatted {}", filename);
     }
     
     Ok(())
