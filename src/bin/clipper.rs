@@ -3,7 +3,34 @@ use std::env;
 use std::fs;
 use std::io::{self, Write};
 
+#[cfg(windows)]
+fn enable_vt_mode() {
+    use std::io::{self, Write};
+    use std::ptr::null_mut;
+    use winapi::um::consoleapi::GetConsoleMode;
+    use winapi::um::consoleapi::SetConsoleMode;
+    use winapi::um::processenv::GetStdHandle;
+    use winapi::um::winbase::STD_OUTPUT_HANDLE;
+    use winapi::um::wincon::ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    unsafe {
+        let handle = GetStdHandle(STD_OUTPUT_HANDLE);
+        if handle == winapi::um::handleapi::INVALID_HANDLE_VALUE {
+            return;
+        }
+        let mut mode = 0;
+        if GetConsoleMode(handle, &mut mode) == 0 {
+            return;
+        }
+        if mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING == 0 {
+            let new_mode = mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+            SetConsoleMode(handle, new_mode);
+        }
+    }
+}
+
 fn main() {
+    #[cfg(windows)]
+    enable_vt_mode();
     let args: Vec<String> = env::args().collect();
     
     if args.len() < 2 {
