@@ -1,7 +1,7 @@
 // Secure Login Demo
 // Demonstrates GetSecret() for password input in a real login scenario
 
-ClearScreen()
+clearScreen()
 
 // Title
 SetPos(0, 0)
