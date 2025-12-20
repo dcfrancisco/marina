@@ -7,3 +7,5 @@ copilot-instructions.md
 **/.DS_Store
 
 image.png
+# Ignore VS Code extension .vsix package file
+vscode/marina/*.vsix
