@@ -1,4 +1,5 @@
 use crate::token::{Token, TokenType};
+use crate::diagnostics::{Diagnostic, Span};
 use std::collections::HashMap;
 
 pub struct Lexer {
@@ -71,22 +72,50 @@ impl Lexer {
     }
     
     pub fn scan_tokens(&mut self) -> Result<Vec<Token>, String> {
+        let result = self.scan_tokens_with_diagnostics();
+
+        if let Some(first_error) = result.diagnostics.into_iter().find(|d| d.severity == crate::diagnostics::Severity::Error) {
+            return Err(first_error.message);
+        }
+
+        Ok(result.tokens)
+    }
+
+    pub fn scan_tokens_with_diagnostics(&mut self) -> LexResult {
         let mut tokens = Vec::new();
-        
+        let mut diagnostics = Vec::new();
+
         while !self.is_at_end() {
             self.skip_whitespace_and_comments();
             if self.is_at_end() {
                 break;
             }
-            
-            let token = self.scan_token()?;
-            if token.token_type != TokenType::Newline {
-                tokens.push(token);
+
+            let start_line = self.line;
+            let start_column = self.column;
+            let start_index = self.current;
+            match self.scan_token() {
+                Ok(token) => {
+                    if token.token_type != TokenType::Newline {
+                        tokens.push(token);
+                    }
+                }
+                Err(message) => {
+                    diagnostics.push(Diagnostic::error(
+                        message,
+                        Span::new(start_line, start_column, 1),
+                    ));
+
+                    // Ensure progress in case the lexer hit a strange state.
+                    if self.current == start_index && !self.is_at_end() {
+                        self.advance();
+                    }
+                }
             }
         }
-        
+
         tokens.push(Token::new(TokenType::Eof, String::new(), self.line, self.column));
-        Ok(tokens)
+        LexResult { tokens, diagnostics }
     }
     
     fn scan_token(&mut self) -> Result<Token, String> {
@@ -379,4 +408,9 @@ impl Lexer {
     fn is_at_end(&self) -> bool {
         self.current >= self.source.len()
     }
+}
+
+pub struct LexResult {
+    pub tokens: Vec<Token>,
+    pub diagnostics: Vec<Diagnostic>,
 }

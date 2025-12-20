@@ -299,8 +299,9 @@ impl VM {
     }
     
     fn execute_builtin_function(&mut self, func_name: &str, arity: usize) -> Result<(), String> {
-        match func_name {
-            "SetPos" | "DevPos" => {
+        let func_upper = func_name.to_ascii_uppercase();
+        match func_upper.as_str() {
+            "SETPOS" | "DEVPOS" => {
                 if arity != 2 {
                     return Err(format!("{} requires 2 arguments (row, col)", func_name));
                 }
@@ -316,7 +317,7 @@ impl VM {
                 std::io::stdout().flush().unwrap();
                 self.push(Value::Nil); // Return nil
             }
-            "OutStd" => {
+            "OUTSTD" => {
                 if arity != 1 {
                     return Err("OutStd requires 1 argument (string)".to_string());
                 }
@@ -336,7 +337,7 @@ impl VM {
                 std::io::stdout().flush().unwrap();
                 self.push(Value::Nil); // Return nil
             }
-            "ClearScreen" => {
+            "CLEARSCREEN" => {
                 if arity != 0 {
                     return Err("ClearScreen requires 0 arguments".to_string());
                 }
@@ -349,7 +350,7 @@ impl VM {
                 self.cursor_col = 0;
                 self.push(Value::Nil);
             }
-            "SetColor" => {
+            "SETCOLOR" => {
                 // SETCOLOR(nColorCode)
                 // Sets foreground color using ANSI escape codes
                 // Colors 0-15: standard ANSI colors
@@ -388,7 +389,7 @@ impl VM {
                 std::io::stdout().flush().unwrap();
                 self.push(Value::Nil);
             }
-            "SetCursor" => {
+            "SETCURSOR" => {
                 // SETCURSOR(lVisible)
                 // Shows or hides the cursor
                 // true/1 = show cursor, false/0 = hide cursor
@@ -413,7 +414,7 @@ impl VM {
                 std::io::stdout().flush().unwrap();
                 self.push(Value::Nil);
             }
-            "SavePos" => {
+            "SAVEPOS" => {
                 if arity != 0 {
                     return Err("SavePos requires 0 arguments".to_string());
                 }
@@ -426,7 +427,7 @@ impl VM {
                 std::io::stdout().flush().unwrap();
                 self.push(Value::Nil);
             }
-            "RestorePos" => {
+            "RESTOREPOS" => {
                 if arity != 0 {
                     return Err("RestorePos requires 0 arguments".to_string());
                 }
@@ -439,7 +440,7 @@ impl VM {
                 std::io::stdout().flush().unwrap();
                 self.push(Value::Nil);
             }
-            "GotoXY" => {
+            "GOTOXY" => {
                 // Alias for SetPos with col, row order (X, Y)
                 if arity != 2 {
                     return Err("GotoXY requires 2 arguments (col, row)".to_string());
@@ -454,7 +455,7 @@ impl VM {
                 std::io::stdout().flush().unwrap();
                 self.push(Value::Nil);
             }
-            "Replicate" => {
+            "REPLICATE" => {
                 if arity != 2 {
                     return Err("Replicate requires 2 arguments (string, count)".to_string());
                 }
@@ -471,7 +472,7 @@ impl VM {
                 let result = text_str.repeat(count);
                 self.push(Value::String(result));
             }
-            "Space" => {
+            "SPACE" => {
                 if arity != 1 {
                     return Err("Space requires 1 argument (count)".to_string());
                 }
@@ -481,7 +482,7 @@ impl VM {
                 let result = " ".repeat(count);
                 self.push(Value::String(result));
             }
-            "Len" => {
+            "LEN" => {
                 if arity != 1 {
                     return Err("Len requires 1 argument (string)".to_string());
                 }
@@ -496,7 +497,7 @@ impl VM {
                 
                 self.push(Value::Number(length as f64));
             }
-            "SubStr" => {
+            "SUBSTR" => {
                 if arity != 3 {
                     return Err("SubStr requires 3 arguments (string, start, length)".to_string());
                 }
@@ -519,7 +520,7 @@ impl VM {
                 
                 self.push(Value::String(result));
             }
-            "Trim" | "AllTrim" => {
+            "TRIM" | "ALLTRIM" => {
                 if arity != 1 {
                     return Err(format!("{} requires 1 argument (string)", func_name));
                 }
@@ -533,7 +534,7 @@ impl VM {
                 
                 self.push(Value::String(result));
             }
-            "RTrim" => {
+            "RTRIM" => {
                 if arity != 1 {
                     return Err("RTrim requires 1 argument (string)".to_string());
                 }
@@ -547,7 +548,7 @@ impl VM {
                 
                 self.push(Value::String(result));
             }
-            "LTrim" => {
+            "LTRIM" => {
                 if arity != 1 {
                     return Err("LTrim requires 1 argument (string)".to_string());
                 }
@@ -561,7 +562,7 @@ impl VM {
                 
                 self.push(Value::String(result));
             }
-            "Chr" => {
+            "CHR" => {
                 if arity != 1 {
                     return Err("Chr requires 1 argument (ASCII code)".to_string());
                 }
@@ -571,7 +572,7 @@ impl VM {
                 let result = String::from(code as char);
                 self.push(Value::String(result));
             }
-            "Asc" => {
+            "ASC" => {
                 if arity != 1 {
                     return Err("Asc requires 1 argument (string)".to_string());
                 }
@@ -587,8 +588,8 @@ impl VM {
                 
                 self.push(Value::Number(code));
             }
-            "Inkey" => {
-                if arity < 0 || arity > 1 {
+            "INKEY" => {
+                if arity > 1 {
                     return Err("Inkey requires 0 or 1 argument (optional timeout)".to_string());
                 }
                 
@@ -612,7 +613,7 @@ impl VM {
                 
                 self.push(Value::Number(key_code));
             }
-            "Val" => {
+            "VAL" => {
                 // VAL(cString) -> nNumber
                 // Converts string to number, returns 0 if invalid
                 if arity != 1 {
@@ -634,7 +635,7 @@ impl VM {
                 let number = str_val.trim().parse::<f64>().unwrap_or(0.0);
                 self.push(Value::Number(number));
             }
-            "Str" => {
+            "STR" => {
                 // STR(nNumber) -> cString
                 // Converts number to string representation
                 if arity != 1 {
@@ -663,7 +664,7 @@ impl VM {
                 
                 self.push(Value::String(str_result));
             }
-            "Abs" => {
+            "ABS" => {
                 // ABS(nNumber) -> nNumber
                 // Returns absolute value
                 if arity != 1 {
@@ -675,7 +676,7 @@ impl VM {
                 
                 self.push(Value::Number(num.abs()));
             }
-            "Sqrt" => {
+            "SQRT" => {
                 // SQRT(nNumber) -> nNumber
                 // Returns square root
                 if arity != 1 {
@@ -691,7 +692,7 @@ impl VM {
                 
                 self.push(Value::Number(num.sqrt()));
             }
-            "Round" => {
+            "ROUND" => {
                 // ROUND(nNumber, [nDecimals]) -> nNumber
                 // Rounds to nearest integer or specified decimal places
                 if arity < 1 || arity > 2 {
@@ -716,7 +717,7 @@ impl VM {
                 
                 self.push(Value::Number(result));
             }
-            "Int" => {
+            "INT" => {
                 // INT(nNumber) -> nNumber
                 // Returns integer portion (truncates toward zero)
                 if arity != 1 {
@@ -728,7 +729,7 @@ impl VM {
                 
                 self.push(Value::Number(num.trunc()));
             }
-            "Min" => {
+            "MIN" => {
                 // MIN(nNumber1, nNumber2, ...) -> nNumber
                 // Returns minimum value
                 if arity < 2 {
@@ -744,7 +745,7 @@ impl VM {
                 let min = values.iter().cloned().fold(f64::INFINITY, f64::min);
                 self.push(Value::Number(min));
             }
-            "Max" => {
+            "MAX" => {
                 // MAX(nNumber1, nNumber2, ...) -> nNumber
                 // Returns maximum value
                 if arity < 2 {
@@ -760,7 +761,7 @@ impl VM {
                 let max = values.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
                 self.push(Value::Number(max));
             }
-            "Sin" => {
+            "SIN" => {
                 // SIN(nRadians) -> nNumber
                 // Returns sine of angle in radians
                 if arity != 1 {
@@ -772,7 +773,7 @@ impl VM {
                 
                 self.push(Value::Number(num.sin()));
             }
-            "Cos" => {
+            "COS" => {
                 // COS(nRadians) -> nNumber
                 // Returns cosine of angle in radians
                 if arity != 1 {
@@ -784,7 +785,7 @@ impl VM {
                 
                 self.push(Value::Number(num.cos()));
             }
-            "Tan" => {
+            "TAN" => {
                 // TAN(nRadians) -> nNumber
                 // Returns tangent of angle in radians
                 if arity != 1 {
@@ -796,7 +797,7 @@ impl VM {
                 
                 self.push(Value::Number(num.tan()));
             }
-            "Sleep" => {
+            "SLEEP" => {
                 // SLEEP(nMilliseconds)
                 // Pauses execution for specified milliseconds
                 if arity != 1 {
@@ -816,7 +817,7 @@ impl VM {
                 
                 self.push(Value::Nil);
             }
-            "GetInput" => {
+            "GETINPUT" => {
                 // GETINPUT(cDefault, [nRow], [nColumn], [lSay], [cPrompt]) -> cInput
                 if arity < 1 || arity > 5 {
                     return Err("GetInput requires 1-5 arguments".to_string());
@@ -915,7 +916,7 @@ impl VM {
                     }
                 }
             }
-            "GetSecret" => {
+            "GETSECRET" => {
                 // GETSECRET(cDefault, [nRow], [nColumn], [lSay], [cPrompt]) -> cInput
                 // Hidden input - displays asterisks instead of actual characters
                 if arity < 1 || arity > 5 {
