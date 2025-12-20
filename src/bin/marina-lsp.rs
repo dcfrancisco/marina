@@ -9,11 +9,16 @@ use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer, LspService, Server};
 #[cfg(feature = "lsp")]
 use marina::{Lexer, Parser};
+#[cfg(feature = "lsp")]
+use std::collections::HashMap;
+#[cfg(feature = "lsp")]
+use tokio::sync::RwLock;
 
 #[cfg(feature = "lsp")]
 #[derive(Debug)]
 struct MarinaLanguageServer {
     client: Client,
+    documents: RwLock<HashMap<Url, String>>,
 }
 
 #[cfg(feature = "lsp")]
@@ -28,14 +33,6 @@ impl LanguageServer for MarinaLanguageServer {
             capabilities: ServerCapabilities {
                 text_document_sync: Some(TextDocumentSyncCapability::Kind(
                     TextDocumentSyncKind::FULL,
-                )),
-                diagnostic_provider: Some(DiagnosticServerCapabilities::Options(
-                    DiagnosticOptions {
-                        identifier: Some("marina-lsp".to_string()),
-                        inter_file_dependencies: false,
-                        workspace_diagnostics: false,
-                        work_done_progress_options: WorkDoneProgressOptions::default(),
-                    },
                 )),
                 completion_provider: Some(CompletionOptions {
                     trigger_characters: Some(vec![".".to_string(), ":".to_string()]),
@@ -61,16 +58,36 @@ impl LanguageServer for MarinaLanguageServer {
         self.client
             .log_message(MessageType::INFO, "Document opened")
             .await;
-        
+
+        {
+            let mut docs = self.documents.write().await;
+            docs.insert(params.text_document.uri.clone(), params.text_document.text.clone());
+        }
+
         self.diagnose_document(&params.text_document.uri, &params.text_document.text)
             .await;
     }
 
     async fn did_change(&self, params: DidChangeTextDocumentParams) {
         if let Some(change) = params.content_changes.first() {
+            {
+                let mut docs = self.documents.write().await;
+                docs.insert(params.text_document.uri.clone(), change.text.clone());
+            }
             self.diagnose_document(&params.text_document.uri, &change.text)
                 .await;
         }
+    }
+
+    async fn did_close(&self, params: DidCloseTextDocumentParams) {
+        {
+            let mut docs = self.documents.write().await;
+            docs.remove(&params.text_document.uri);
+        }
+
+        self.client
+            .publish_diagnostics(params.text_document.uri, Vec::new(), None)
+            .await;
     }
 
     async fn completion(&self, _: CompletionParams) -> Result<Option<CompletionResponse>> {
@@ -139,23 +156,29 @@ impl MarinaLanguageServer {
 
         // Try to lex the source
         let mut lexer = Lexer::new(text.to_string());
-        if let Err(e) = lexer.scan_tokens() {
-            diagnostics.push(Diagnostic {
-                range: Range::new(Position::new(0, 0), Position::new(0, 0)),
-                severity: Some(DiagnosticSeverity::ERROR),
-                message: format!("Lexer error: {}", e),
-                ..Default::default()
-            });
-            return diagnostics;
-        }
+        let tokens = match lexer.scan_tokens() {
+            Ok(tokens) => tokens,
+            Err(e) => {
+                let (line, col) = extract_line_col(&e).unwrap_or((1, 1));
+                diagnostics.push(Diagnostic {
+                    range: single_char_range(line, col),
+                    severity: Some(DiagnosticSeverity::ERROR),
+                    source: Some("marina-lsp".to_string()),
+                    message: format!("Lexer error: {}", e),
+                    ..Default::default()
+                });
+                return diagnostics;
+            }
+        };
 
         // Try to parse
-        let tokens = lexer.scan_tokens().unwrap();
         let mut parser = Parser::new(tokens);
         if let Err(e) = parser.parse() {
+            let (line, col) = extract_line_col(&e).unwrap_or((1, 1));
             diagnostics.push(Diagnostic {
-                range: Range::new(Position::new(0, 0), Position::new(0, 0)),
+                range: single_char_range(line, col),
                 severity: Some(DiagnosticSeverity::ERROR),
+                source: Some("marina-lsp".to_string()),
                 message: format!("Parser error: {}", e),
                 ..Default::default()
             });
@@ -166,12 +189,45 @@ impl MarinaLanguageServer {
 }
 
 #[cfg(feature = "lsp")]
+fn extract_line_col(message: &str) -> Option<(u32, u32)> {
+    // Supports messages like:
+    // - "... at line 3, column 14"
+    // - "... at line 3"
+    let line = extract_number_after(message, "at line ")?;
+    let col = extract_number_after(message, "column ").unwrap_or(1);
+    Some((line, col))
+}
+
+#[cfg(feature = "lsp")]
+fn extract_number_after(message: &str, needle: &str) -> Option<u32> {
+    let start = message.find(needle)? + needle.len();
+    let digits: String = message[start..]
+        .chars()
+        .take_while(|c| c.is_ascii_digit())
+        .collect();
+    if digits.is_empty() {
+        return None;
+    }
+    digits.parse::<u32>().ok()
+}
+
+#[cfg(feature = "lsp")]
+fn single_char_range(line_1_based: u32, col_1_based: u32) -> Range {
+    let line0 = line_1_based.saturating_sub(1);
+    let col0 = col_1_based.saturating_sub(1);
+    Range::new(Position::new(line0, col0), Position::new(line0, col0.saturating_add(1)))
+}
+
+#[cfg(feature = "lsp")]
 #[tokio::main]
 async fn main() {
     let stdin = tokio::io::stdin();
     let stdout = tokio::io::stdout();
 
-    let (service, socket) = LspService::new(|client| MarinaLanguageServer { client });
+    let (service, socket) = LspService::new(|client| MarinaLanguageServer {
+        client,
+        documents: RwLock::new(HashMap::new()),
+    });
     
     Server::new(stdin, stdout, socket).serve(service).await;
 }
