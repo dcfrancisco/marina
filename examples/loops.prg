@@ -24,6 +24,6 @@ enddo
 // DO WHILE loop
 i := 1
 do
-? "Count:", i
-i := i + 1
+    ? "Count:", i
+    i := i + 1
 while i <= 3

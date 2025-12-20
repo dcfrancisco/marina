@@ -11,11 +11,11 @@ fact := Factorial(num)
 
 function Factorial(n)
     local result
-    
+
     if n <= 1
         result := 1
     else
         result := n * Factorial(n - 1)
     endif
-    
+
 return result

@@ -3,34 +3,34 @@
 ? "Testing EXIT in LOOP:"
 local counter := 0
 loop
-counter := counter + 1
-? "Loop iteration:", counter
-if counter >= 3
-? "Exiting loop"
-exit
-endif
+    counter := counter + 1
+    ? "Loop iteration:", counter
+    if counter >= 3
+        ? "Exiting loop"
+        exit
+    endif
 endloop
 ? "After loop, counter =", counter
 
 ? ""
 ? "Testing EXIT in WHILE:"
 local x := 0
-while TRUE
-x := x + 1
-? "While iteration:", x
-if x >= 3
-exit
-endif
+while true
+    x := x + 1
+    ? "While iteration:", x
+    if x >= 3
+        exit
+    endif
 enddo
 ? "After while, x =", x
 
 ? ""
 ? "Testing EXIT in FOR:"
 for i := 1 to 100
-? "For iteration:", i
-if i >= 5
-exit
-endif
+    ? "For iteration:", i
+    if i >= 5
+        exit
+    endif
 next
 ? "After for loop"
 

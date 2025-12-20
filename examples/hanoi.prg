@@ -4,13 +4,13 @@
 // Optimized for modern terminal sizes (120x40+)
 
 ClearScreen()
-SetCursor(false)  // Hide cursor for cleaner animation
+SetCursor(false) // Hide cursor for cleaner animation
 
 // Layout configuration
 leftMargin := 15
-maxWidth := 120     // Maximum screen width for tower display
-baseRow := 25       // Base row for towers - adjust this to move entire tower up/down
-poleHeight := 14    // Height based on max 13 disks
+maxWidth := 120 // Maximum screen width for tower display
+baseRow := 25 // Base row for towers - adjust this to move entire tower up/down
+poleHeight := 14 // Height based on max 13 disks
 
 // Calculate peg positions based on maxWidth
 pegA := Int(maxWidth / 4)
@@ -18,10 +18,12 @@ pegB := Int(maxWidth / 2)
 pegC := Int(maxWidth * 3 / 4)
 
 // Title screen
-SetColor(12)  // Red color
+SetColor(12) // Red color
 SetPos(1, leftMargin)
 OutStd("TOWERS OF HANOI")
-SetColor(7)   // Reset to default color
+SetColor(7) // Reset to default color
+
+// ...existing code...
 
 // Get number of disks from user
 SetPos(4, leftMargin)
@@ -33,11 +35,11 @@ local diskCount := 0
 local validInput := .F.
 while !validInput
     SetPos(4, leftMargin + 24)
-    OutStd("   ")  // Clear previous input
+    OutStd("   ") // Clear previous input
     SetPos(4, leftMargin + 24)
     numInput := GetInput(numInput)
     diskCount := Val(Trim(numInput))
-    
+
     // Check if input is valid
     if diskCount >= 1 && diskCount <= 13
         validInput := .T.
@@ -55,7 +57,7 @@ enddo
 // Display confirmation
 SetPos(6, leftMargin)
 OutStd("Solving Tower of Hanoi with ")
-OutStd(diskCount) 
+OutStd(diskCount)
 OutStd(" disks...")
 
 // Global variables for disk tracking (no LOCAL so they're accessible in functions)
@@ -123,7 +125,7 @@ return nil
 // Move a disk from one peg to another
 function MoveDisk(fromPeg, toPeg)
     local disk
-    
+
     // Get disk from source peg
     if fromPeg == 1
         len1 := len1 - 1
@@ -140,7 +142,7 @@ function MoveDisk(fromPeg, toPeg)
             peg3[len3] := 0
         endif
     endif
-    
+
     // Place disk on destination peg
     if toPeg == 1
         peg1[len1] := disk
@@ -154,7 +156,7 @@ function MoveDisk(fromPeg, toPeg)
             len3 := len3 + 1
         endif
     endif
-    
+
     moveCount := moveCount + 1
     DrawTowers()
     // Sleep(100)
@@ -162,14 +164,14 @@ return nil
 
 // Draw all three towers with disks
 function DrawTowers()
-    // Clear the tower area (wider for modern screens)
-    local clearRow := baseRow - poleHeight - 1
-    while clearRow <= baseRow + 2
-        SetPos(clearRow, 0)
+    // Clear only disk rows to minimize flicker
+    local diskRow := baseRow - poleHeight
+    while diskRow < baseRow
+        SetPos(diskRow, 0)
         OutStd(Replicate(" ", maxWidth))
-        clearRow := clearRow + 1
+        diskRow := diskRow + 1
     enddo
-    
+
     // Draw vertical poles
     local poleRow := baseRow - poleHeight
     while poleRow < baseRow
@@ -181,7 +183,7 @@ function DrawTowers()
         OutStd("│")
         poleRow := poleRow + 1
     enddo
-    
+
     // Draw peg labels
     SetPos(baseRow + 1, pegA)
     OutStd("A")
@@ -189,12 +191,12 @@ function DrawTowers()
     OutStd("B")
     SetPos(baseRow + 1, pegC)
     OutStd("C")
-    
+
     // Draw move counter
     SetPos(7, leftMargin)
     OutStd("Moves: ")
     OutStd(moveCount)
-    
+
     // Draw base platforms
     SetPos(baseRow, pegA - 7)
     OutStd("═══════════════")
@@ -202,16 +204,14 @@ function DrawTowers()
     OutStd("═══════════════")
     SetPos(baseRow, pegC - 7)
     OutStd("═══════════════")
-    
+
     // Draw disks on peg A
     DrawPeg(peg1, pegA)
-    
     // Draw disks on peg B
     DrawPeg(peg2, pegB)
-    
     // Draw disks on peg C
     DrawPeg(peg3, pegC)
-    
+
 return nil
 
 // Draw disks on a specific peg
@@ -226,18 +226,18 @@ function DrawPeg(pegArray, column)
             arrayLen := len3
         endif
     endif
-    
+
     if arrayLen == 0
         return nil
     endif
-    
+
     local diskNum := 0
     while diskNum < arrayLen
         local diskSize := pegArray[diskNum]
         if diskSize > 0
             local diskWidth := Max(diskSize * 2 - 1, 3)
             local leftPos := column - Int(diskWidth / 2)
-            
+
             SetDiskColor(diskSize % 14 + 1)
             SetPos(baseRow - diskNum - 1, leftPos)
             OutStd(Replicate("█", diskWidth))

@@ -66,7 +66,7 @@ return nil
 // Move a disk from one peg to another
 function MoveDisk(fromPeg, toPeg)
     local disk
-    
+
     // Get disk from source peg and update length
     if fromPeg == 1
         len1 := len1 - 1
@@ -83,7 +83,7 @@ function MoveDisk(fromPeg, toPeg)
             peg3[len3] := 0
         endif
     endif
-    
+
     // Place disk on destination peg and update length
     if toPeg == 1
         peg1[len1] := disk
@@ -97,17 +97,17 @@ function MoveDisk(fromPeg, toPeg)
             len3 := len3 + 1
         endif
     endif
-    
+
     // Update move counter and display
     moveCount := moveCount + 1
     DrawTowers()
-    
+
     // Animation delay
     local pause := 0
     while pause < 50000
         pause := pause + 1
     enddo
-    
+
 return nil
 
 // Draw all three towers with disks
@@ -116,7 +116,7 @@ function DrawTowers()
     local pegA := 15
     local pegB := 35
     local pegC := 55
-    
+
     // Clear the tower area
     local clearRow := 7
     while clearRow <= 19
@@ -124,7 +124,7 @@ function DrawTowers()
         OutStd(Replicate(" ", 80))
         clearRow := clearRow + 1
     enddo
-    
+
     // Draw peg labels
     SetPos(baseRow + 1, pegA)
     OutStd("A")
@@ -132,12 +132,12 @@ function DrawTowers()
     OutStd("B")
     SetPos(baseRow + 1, pegC)
     OutStd("C")
-    
+
     // Draw move counter
     SetPos(7, 10)
     OutStd("Move: ")
     OutStd(IntToStr(moveCount))
-    
+
     // Draw base platforms
     SetPos(baseRow, pegA - 7)
     OutStd("═══════════════")
@@ -145,23 +145,23 @@ function DrawTowers()
     OutStd("═══════════════")
     SetPos(baseRow, pegC - 7)
     OutStd("═══════════════")
-    
+
     // Draw disks on peg A
     DrawPeg(peg1, pegA, baseRow)
-    
+
     // Draw disks on peg B
     DrawPeg(peg2, pegB, baseRow)
-    
+
     // Draw disks on peg C
     DrawPeg(peg3, pegC, baseRow)
-    
+
 return nil
 
 // Draw disks on a specific peg
 function DrawPeg(pegArray, column, baseRow)
     local diskNum := 0
     local arrayLen := 0
-    
+
     // Determine which peg to get length for
     if column == 15
         arrayLen := len1
@@ -172,15 +172,15 @@ function DrawPeg(pegArray, column, baseRow)
             arrayLen := len3
         endif
     endif
-    
+
     // Only draw if there are disks on this peg
     if arrayLen == 0
         return nil
     endif
-    
+
     while diskNum < arrayLen
         local diskSize := 0
-        
+
         // Get disk size based on index
         if diskNum == 0
             diskSize := pegArray[0]
@@ -207,11 +207,11 @@ function DrawPeg(pegArray, column, baseRow)
                 endif
             endif
         endif
-        
+
         // Skip empty slots (disks with value 0)
         if diskSize > 0
             local diskRow := baseRow - diskNum - 1
-        
+
             // Draw disk based on size
             if diskSize == 1
                 SetPos(diskRow, column - 1)
@@ -246,10 +246,10 @@ function DrawPeg(pegArray, column, baseRow)
                 endif
             endif
         endif
-        
+
         diskNum := diskNum + 1
     enddo
-    
+
 return nil
 
 // Integer to string conversion
@@ -257,17 +257,17 @@ function IntToStr(num)
     if num == 0
         return "0"
     endif
-    
+
     if num < 0
         return "-"
     endif
-    
+
     local result := ""
     local temp := num
-    
+
     while temp > 0
         local digit := temp % 10
-        
+
         if digit == 0
             result := "0" + result
         else
@@ -305,8 +305,8 @@ function IntToStr(num)
                 endif
             endif
         endif
-        
+
         temp := temp / 10
     enddo
-    
+
 return result

@@ -22,10 +22,10 @@ for i := 1 to 12
     width := i * 2 - 1
     spaces := 40 - (width + 1) / 2
     SetPos(row, spaces)
-    
+
     // Use Replicate to draw stars for this row
     OutStd(Replicate("*", width))
-    
+
     row := row + 1
 next
 

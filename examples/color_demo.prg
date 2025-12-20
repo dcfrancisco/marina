@@ -24,7 +24,7 @@ while color < 8
     OutStd(" Color ")
     OutStd(color)
     OutStd(" - ")
-    
+
     // Color names
     if color == 0
         OutStd("Black")
@@ -55,7 +55,7 @@ while color < 8
             endif
         endif
     endif
-    
+
     row := row + 1
     color := color + 1
 enddo
@@ -76,7 +76,7 @@ while color < 16
     OutStd(" Color ")
     OutStd(color)
     OutStd(" - Bright ")
-    
+
     // Bright color names
     local baseColor := color - 8
     if baseColor == 0
@@ -108,7 +108,7 @@ while color < 16
             endif
         endif
     endif
-    
+
     row := row + 1
     color := color + 1
 enddo

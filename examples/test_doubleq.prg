@@ -6,7 +6,7 @@
 ?? "This is "
 ?? "on the "
 ?? "same line"
-? ""  // Just a newline
+? "" // Just a newline
 
 ?? "Numbers: "
 ?? 1

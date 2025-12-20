@@ -83,40 +83,40 @@ local n
 n := 1
 ? "  Powers of 2:"
 do
-? "    2^", n, "=", 2 ^ n
-n := n + 1
+    ? "    2^", n, "=", 2 ^ n
+    n := n + 1
 while n <= 5
-? ""
+    ? ""
 
-// Logical operators
-? "8. Logical Operators"
-local a, b
-a := TRUE
-b := FALSE
-? "  a = TRUE, b = FALSE"
-? "  a AND b =", a AND b
-? "  a OR b =", a OR b
-? "  NOT b =", NOT b
-? ""
+    // Logical operators
+    ? "8. Logical Operators"
+    local a, b
+    a := true
+    b := false
+    ? "  a = TRUE, b = FALSE"
+    ? "  a AND b =", a and b
+    ? "  a OR b =", a or b
+    ? "  NOT b =", not b
+    ? ""
 
-// Comparisons
-? "9. Comparisons"
-local num1, num2
-num1 := 10
-num2 := 20
-? "  ", num1, "==", num2, ":", num1 = num2
-? "  ", num1, "!=", num2, ":", num1 != num2
-? "  ", num1, "<", num2, ":", num1 < num2
-? "  ", num1, ">", num2, ":", num1 > num2
-? ""
+    // Comparisons
+    ? "9. Comparisons"
+    local num1, num2
+    num1 := 10
+    num2 := 20
+    ? "  ", num1, "==", num2, ":", num1 = num2
+    ? "  ", num1, "!=", num2, ":", num1 != num2
+    ? "  ", num1, "<", num2, ":", num1 < num2
+    ? "  ", num1, ">", num2, ":", num1 > num2
+    ? ""
 
-// Complex expression
-? "10. Complex Expression"
-local formula
-formula := (5 + 3) * 2 - 10 / 2
-? "  (5 + 3) * 2 - 10 / 2 =", formula
-? ""
+    // Complex expression
+    ? "10. Complex Expression"
+    local formula
+    formula := (5 + 3) * 2 - 10 / 2
+    ? "  (5 + 3) * 2 - 10 / 2 =", formula
+    ? ""
 
-? "================================="
-? "  Demo Complete!"
-? "================================="
+    ? "================================="
+    ? "  Demo Complete!"
+    ? "================================="

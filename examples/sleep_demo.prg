@@ -6,7 +6,7 @@ Print("Starting countdown...")
 local i := 3
 while i > 0
     Print(i)
-    Sleep(1000)  // Sleep for 1 second (1000 milliseconds)
+    Sleep(1000) // Sleep for 1 second (1000 milliseconds)
     i := i - 1
 enddo
 
@@ -19,7 +19,7 @@ OutStd("Loading")
 local dots := 0
 while dots < 10
     OutStd(".")
-    Sleep(200)  // 200ms between dots
+    Sleep(200) // 200ms between dots
     dots := dots + 1
 enddo
 Print(" Done!")

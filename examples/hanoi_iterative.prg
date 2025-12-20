@@ -28,7 +28,7 @@ while !validInput
     SetPos(4, 54)
     numInput := GetInput(numInput)
     diskCount := Val(Trim(numInput))
-    
+
     if diskCount >= 1 && diskCount <= 13
         validInput := .T.
     else
@@ -44,7 +44,7 @@ enddo
 
 SetPos(6, 30)
 OutStd("Solving Tower of Hanoi with ")
-OutStd(diskCount) 
+OutStd(diskCount)
 OutStd(" disks...")
 SetPos(7, 30)
 OutStd("(Using iterative algorithm)")
@@ -86,11 +86,11 @@ totalMoves := totalMoves - 1
 // For even disk count: smallest cycles 1→2→3→1 to reach peg 3
 local isOdd := (diskCount % 2) == 1
 local move := 0
-local smallDiskPeg := 1  // Track where smallest disk is
+local smallDiskPeg := 1 // Track where smallest disk is
 
 while move < totalMoves
     move := move + 1
-    
+
     if (move % 2) == 1
         // ODD moves: move smallest disk in its cycle
         local nextPeg := 0
@@ -182,12 +182,12 @@ return nil
 function CanMove(fromPeg, toPeg)
     local fromLen := GetPegLength(fromPeg)
     local toLen := GetPegLength(toPeg)
-    
+
     // Can't move from empty peg
     if fromLen == 0
         return .F.
     endif
-    
+
     // Can't move disk 1 (smallest) - handled separately
     // Check global arrays directly
     local fromDisk := 0
@@ -200,16 +200,16 @@ function CanMove(fromPeg, toPeg)
             fromDisk := peg3[fromLen - 1]
         endif
     endif
-    
+
     if fromDisk == 1
         return .F.
     endif
-    
+
     // Can always move to empty peg
     if toLen == 0
         return .T.
     endif
-    
+
     // Can only move smaller disk onto larger disk
     local toDisk := 0
     if toPeg == 1
@@ -221,13 +221,13 @@ function CanMove(fromPeg, toPeg)
             toDisk := peg3[toLen - 1]
         endif
     endif
-    
-    return fromDisk < toDisk
+
+return fromDisk < toDisk
 
 // Move disk between pegs
 function MoveDiskBetween(fromPeg, toPeg)
     local disk := 0
-    
+
     // Get disk from source
     if fromPeg == 1
         len1 := len1 - 1
@@ -244,7 +244,7 @@ function MoveDiskBetween(fromPeg, toPeg)
             peg3[len3] := 0
         endif
     endif
-    
+
     // Place on destination
     if toPeg == 1
         peg1[len1] := disk
@@ -258,7 +258,7 @@ function MoveDiskBetween(fromPeg, toPeg)
             len3 := len3 + 1
         endif
     endif
-    
+
     moveCount := moveCount + 1
     DrawTowers()
     Sleep(100)
@@ -271,7 +271,7 @@ function DrawTowers()
     local pegB := 55
     local pegC := 85
     local poleHeight := 14
-    
+
     // Clear the tower area
     local clearRow := 21
     while clearRow <= 36
@@ -279,7 +279,7 @@ function DrawTowers()
         OutStd(Replicate(" ", 120))
         clearRow := clearRow + 1
     enddo
-    
+
     // Draw vertical poles
     local poleRow := baseRow - poleHeight
     while poleRow < baseRow
@@ -291,7 +291,7 @@ function DrawTowers()
         OutStd("│")
         poleRow := poleRow + 1
     enddo
-    
+
     // Draw peg labels
     SetPos(baseRow + 1, pegA)
     OutStd("A")
@@ -299,12 +299,12 @@ function DrawTowers()
     OutStd("B")
     SetPos(baseRow + 1, pegC)
     OutStd("C")
-    
+
     // Draw move counter
     SetPos(10, 30)
     OutStd("Moves: ")
     OutStd(moveCount)
-    
+
     // Draw base platforms
     SetPos(baseRow, pegA - 7)
     OutStd("═══════════════")
@@ -312,12 +312,12 @@ function DrawTowers()
     OutStd("═══════════════")
     SetPos(baseRow, pegC - 7)
     OutStd("═══════════════")
-    
+
     // Draw disks on all pegs
     DrawPeg(peg1, pegA, baseRow, len1)
     DrawPeg(peg2, pegB, baseRow, len2)
     DrawPeg(peg3, pegC, baseRow, len3)
-    
+
 return nil
 
 // Draw disks on a specific peg
@@ -325,14 +325,14 @@ function DrawPeg(pegArray, column, baseRow, arrayLen)
     if arrayLen == 0
         return nil
     endif
-    
+
     local diskNum := 0
     while diskNum < arrayLen
         local diskSize := pegArray[diskNum]
         if diskSize > 0
             local diskWidth := Max(diskSize * 2 - 1, 3)
             local leftPos := column - Int(diskWidth / 2)
-            
+
             SetDiskColor(diskSize % 6 + 1)
             SetPos(baseRow - diskNum - 1, leftPos)
             OutStd(Replicate("█", diskWidth))
