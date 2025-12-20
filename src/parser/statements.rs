@@ -1,5 +1,5 @@
 use crate::ast::*;
-use crate::token::TokenType;
+use crate::token::{Token, TokenType};
 use super::Parser;
 
 impl Parser {
@@ -154,6 +154,7 @@ impl Parser {
     }
     
     fn if_statement(&mut self) -> Result<Stmt, String> {
+        let start_token: Token = self.previous().clone();
         let condition = self.expression()?;
         
         let mut then_branch = Vec::new();
@@ -173,10 +174,11 @@ impl Parser {
         } else {
             None
         };
-        
-        if self.match_token(&[TokenType::EndIf]) {
-            // EndIf consumed
+
+        if self.is_at_end() {
+            return Err(self.error_at(&start_token, "Unterminated IF (missing ENDIF)"));
         }
+        self.consume(&TokenType::EndIf, "Expected ENDIF")?;
         
         Ok(Stmt::If {
             condition,
@@ -186,27 +188,33 @@ impl Parser {
     }
     
     fn while_statement(&mut self) -> Result<Stmt, String> {
+        let start_token: Token = self.previous().clone();
         let condition = self.expression()?;
         
         let mut body = Vec::new();
         while !self.check(&TokenType::EndDo) && !self.is_at_end() {
             body.push(self.declaration()?);
         }
-        
-        if self.match_token(&[TokenType::EndDo]) {
-            // EndDo consumed
+
+        if self.is_at_end() {
+            return Err(self.error_at(&start_token, "Unterminated WHILE (missing ENDDO)"));
         }
+        self.consume(&TokenType::EndDo, "Expected ENDDO")?;
         
         Ok(Stmt::While { condition, body })
     }
     
     fn do_while_statement(&mut self) -> Result<Stmt, String> {
+        let start_token: Token = self.previous().clone();
         let mut body = Vec::new();
         
         while !self.check(&TokenType::While) && !self.is_at_end() {
             body.push(self.declaration()?);
         }
-        
+
+        if self.is_at_end() {
+            return Err(self.error_at(&start_token, "Unterminated DO block (missing WHILE)"));
+        }
         self.consume(&TokenType::While, "Expected WHILE after DO block")?;
         let condition = self.expression()?;
         
@@ -214,6 +222,7 @@ impl Parser {
     }
     
     fn for_statement(&mut self) -> Result<Stmt, String> {
+        let start_token: Token = self.previous().clone();
         let variable = self.consume_identifier("Expected loop variable")?;
         self.consume(&TokenType::Assign, "Expected '=' or ':=' after loop variable")?;
         let start = self.expression()?;
@@ -230,10 +239,11 @@ impl Parser {
         while !self.check(&TokenType::Next) && !self.is_at_end() {
             body.push(self.declaration()?);
         }
-        
-        if self.match_token(&[TokenType::Next]) {
-            // NEXT consumed
+
+        if self.is_at_end() {
+            return Err(self.error_at(&start_token, "Unterminated FOR (missing NEXT)"));
         }
+        self.consume(&TokenType::Next, "Expected NEXT")?;
         
         Ok(Stmt::For {
             variable,
@@ -245,6 +255,7 @@ impl Parser {
     }
     
     fn loop_statement(&mut self) -> Result<Stmt, String> {
+        let start_token: Token = self.previous().clone();
         let mut body = Vec::new();
         
         // LOOP without condition - infinite loop until EXIT
@@ -252,15 +263,16 @@ impl Parser {
             // Check for end of loop (implementation-specific)
             if self.peek().lexeme.to_uppercase() == "ENDLOOP" {
                 self.advance();
-                break;
+                return Ok(Stmt::Loop { body });
             }
             body.push(self.declaration()?);
         }
-        
-        Ok(Stmt::Loop { body })
+
+        Err(self.error_at(&start_token, "Unterminated LOOP (missing ENDLOOP)"))
     }
     
     fn case_statement(&mut self) -> Result<Stmt, String> {
+        let start_token: Token = self.previous().clone();
         // CASE expr
         let expr = self.expression()?;
         self.skip_newlines();
@@ -293,7 +305,10 @@ impl Parser {
             }
             otherwise = Some(statements);
         }
-        
+
+        if self.is_at_end() {
+            return Err(self.error_at(&start_token, "Unterminated CASE (missing ENDCASE)"));
+        }
         self.consume(&TokenType::EndCase, "Expected ENDCASE")?;
         
         Ok(Stmt::Case { expr, cases, otherwise })

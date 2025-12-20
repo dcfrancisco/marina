@@ -12,6 +12,13 @@ fn parse_source(source: &str) -> Result<Vec<Stmt>, String> {
     Ok(program.statements)
 }
 
+fn parse_source_err(source: &str) -> String {
+    match parse_source(source) {
+        Ok(stmts) => panic!("Expected parse to fail, but succeeded with {} statements", stmts.len()),
+        Err(e) => e,
+    }
+}
+
 #[test]
 fn test_variable_declaration() {
     let stmts = parse_source("LOCAL x := 10").expect("Parse should succeed");
@@ -193,4 +200,44 @@ fn test_print_shorthand() {
         }
         _ => panic!("Expected print call"),
     }
+}
+
+#[test]
+fn test_unterminated_if_errors_with_location() {
+    let err = parse_source_err("IF x > 10\n? \"Big\"");
+    assert!(err.contains("Unterminated IF"), "{err}");
+    assert!(err.contains("line 1"), "{err}");
+    assert!(err.contains("column 1"), "{err}");
+}
+
+#[test]
+fn test_unterminated_while_errors_with_location() {
+    let err = parse_source_err("WHILE x < 10\nx := x + 1");
+    assert!(err.contains("Unterminated WHILE"), "{err}");
+    assert!(err.contains("line 1"), "{err}");
+    assert!(err.contains("column 1"), "{err}");
+}
+
+#[test]
+fn test_unterminated_for_errors_with_location() {
+    let err = parse_source_err("FOR i := 1 TO 10\n? i");
+    assert!(err.contains("Unterminated FOR"), "{err}");
+    assert!(err.contains("line 1"), "{err}");
+    assert!(err.contains("column 1"), "{err}");
+}
+
+#[test]
+fn test_unterminated_loop_errors_with_location() {
+    let err = parse_source_err("LOOP\n? 1");
+    assert!(err.contains("Unterminated LOOP"), "{err}");
+    assert!(err.contains("line 1"), "{err}");
+    assert!(err.contains("column 1"), "{err}");
+}
+
+#[test]
+fn test_unterminated_case_errors_with_location() {
+    let err = parse_source_err("CASE x\nCASE 1\n? \"one\"");
+    assert!(err.contains("Unterminated CASE"), "{err}");
+    assert!(err.contains("line 1"), "{err}");
+    assert!(err.contains("column 1"), "{err}");
 }
