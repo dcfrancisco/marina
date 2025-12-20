@@ -1,4 +1,4 @@
-use marina::run;
+use marina::{formatter, run, Lexer, Parser};
 use std::env;
 use std::fs;
 use std::io::{self, Write};
@@ -14,11 +14,17 @@ fn main() {
         println!("  -t, --tokens        Show tokens");
         println!("  -a, --ast           Show AST");
         println!("  repl                Start REPL mode");
+        println!("  fmt                 Format .prg files (see: {} fmt --help)", args[0]);
         std::process::exit(1);
     }
     
     if args[1] == "repl" {
         run_repl();
+        return;
+    }
+
+    if args[1] == "fmt" {
+        run_fmt(&args);
         return;
     }
     
@@ -48,6 +54,95 @@ fn main() {
         eprintln!("Error: {}", e);
         std::process::exit(1);
     }
+}
+
+fn run_fmt(args: &[String]) {
+    let program = args.first().map(|s| s.as_str()).unwrap_or("clipper");
+
+    if args.len() < 3 {
+        print_fmt_usage(program);
+        std::process::exit(1);
+    }
+
+    let mut check_only = false;
+    let mut files: Vec<String> = Vec::new();
+
+    for arg in &args[2..] {
+        match arg.as_str() {
+            "--check" => check_only = true,
+            "--help" | "-h" => {
+                print_fmt_usage(program);
+                return;
+            }
+            file if file.ends_with(".prg") => files.push(file.to_string()),
+            _ => {
+                eprintln!("Error: Unknown option or invalid file: {}", arg);
+                print_fmt_usage(program);
+                std::process::exit(1);
+            }
+        }
+    }
+
+    if files.is_empty() {
+        eprintln!("Error: No .prg files specified");
+        print_fmt_usage(program);
+        std::process::exit(1);
+    }
+
+    for file in files {
+        if let Err(e) = format_file(&file, check_only) {
+            eprintln!("Error formatting {}: {}", file, e);
+            std::process::exit(1);
+        }
+    }
+}
+
+fn print_fmt_usage(program: &str) {
+    println!("Clipper Formatter (clipper fmt)");
+    println!("Version: {}", env!("CARGO_PKG_VERSION"));
+    println!();
+    println!("Usage: {} fmt [options] <file.prg>...", program);
+    println!();
+    println!("Options:");
+    println!("  --check        Check if files are formatted without modifying them");
+    println!("  --help, -h     Show this help message");
+    println!();
+    println!("Examples:");
+    println!("  {} fmt program.prg", program);
+    println!("  {} fmt --check program.prg", program);
+    println!("  {} fmt examples/*.prg", program);
+}
+
+fn format_file(filename: &str, check_only: bool) -> Result<(), String> {
+    let source = fs::read_to_string(filename).map_err(|e| format!("Failed to read file: {}", e))?;
+
+    // Parse the file first so formatting can't hide syntax errors.
+    let mut lexer = Lexer::new(source.clone());
+    let tokens = lexer.scan_tokens()?;
+    let mut parser = Parser::new(tokens);
+    let _program = parser.parse()?;
+
+    let formatted = formatter::format_source(&source, formatter::FormatOptions::default());
+
+    // Normalize before comparing to avoid \r\n differences.
+    let original_norm = source.replace("\r\n", "\n").replace('\r', "\n");
+
+    if check_only {
+        if formatted != original_norm {
+            return Err("needs formatting".to_string());
+        }
+        println!("✓ {} is formatted", filename);
+        return Ok(());
+    }
+
+    if formatted != original_norm {
+        fs::write(filename, formatted).map_err(|e| format!("Failed to write file: {}", e))?;
+        println!("Formatted {}", filename);
+    } else {
+        println!("Already formatted {}", filename);
+    }
+
+    Ok(())
 }
 
 fn run_repl() {

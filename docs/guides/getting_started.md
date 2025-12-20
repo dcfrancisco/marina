@@ -228,13 +228,17 @@ local x := 10
 local y = 10
 ```
 
-## Formatting (`marina-fmt`)
+## Formatting (`clipper fmt`)
 
 ```bash
 # Check formatting
-cargo run --bin marina-fmt -- --check examples/simple.prg
+cargo run --bin clipper -- fmt --check examples/simple.prg
 
 # Apply formatting
+cargo run --bin clipper -- fmt examples/simple.prg
+
+# Direct formatter binary (same behavior)
+cargo run --bin marina-fmt -- --check examples/simple.prg
 cargo run --bin marina-fmt -- examples/simple.prg
 ```
 
