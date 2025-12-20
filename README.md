@@ -161,6 +161,23 @@ See the `examples/` directory for sample Clipper programs:
 - `password_demo.prg` - Password/PIN entry using GetSecret() for hidden input
 - `login_demo.prg` - Secure login system with GetSecret() and attempt limiting
 
+### Running non-interactive examples
+
+Some programs in `examples/` are interactive and will prompt for input (e.g. via `GetInput`, `GetSecret`, or `Inkey`).
+To avoid running interactive examples by accident, you can run only the non-interactive ones:
+
+```bash
+cargo build --release
+./scripts/run_examples_noninteractive.sh
+```
+
+Useful options:
+
+```bash
+./scripts/run_examples_noninteractive.sh --dry-run
+./scripts/run_examples_noninteractive.sh --verbose
+```
+
 ## Project Structure
 
 ```
