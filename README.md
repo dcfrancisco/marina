@@ -119,10 +119,12 @@ cargo run repl
 ### Code Formatter (`marina-fmt`)
 
 ```bash
-# Check if a file is valid syntax
-cargo run --bin marina-fmt -- --check examples/simple.prg
+# Preferred (integrated with the main CLI)
+cargo run --bin clipper -- fmt --check examples/simple.prg
+cargo run --bin clipper -- fmt examples/simple.prg
 
-# Format a file (MVP: indentation + keyword casing; preserves comments)
+# Direct formatter binary (same behavior)
+cargo run --bin marina-fmt -- --check examples/simple.prg
 cargo run --bin marina-fmt -- examples/simple.prg
 ```
 

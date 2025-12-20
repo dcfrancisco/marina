@@ -43,7 +43,7 @@ Concise technical references:
 
 - **Current Status**: Phase 2.5 Complete (Modular structure, CASE statements, augmented operators)
 - **Next Phase**: Phase 3 - Tooling & Developer Experience (LSP, DAP, formatter)
-- **Formatter**: `marina-fmt` MVP available (indentation + keyword casing)
+- **Formatter**: `clipper fmt` (MVP: indentation + keyword casing)
 - **See**: [Project README](../README.md) for implementation status
 - **See**: [Instructions](../.github/copilot/INSTRUCTIONS.md) for development guidelines
 
