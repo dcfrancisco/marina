@@ -29,7 +29,7 @@ impl Parser {
                     });
                 }
                 _ => {
-                    return Err("Invalid assignment target".to_string());
+                    return Err(self.error_at_previous("Invalid assignment target"));
                 }
             }
         } else if self.match_token(&[TokenType::PlusAssign, TokenType::MinusAssign, 
@@ -57,7 +57,7 @@ impl Parser {
                     });
                 }
                 _ => {
-                    return Err("Invalid augmented assignment target".to_string());
+                    return Err(self.error_at_previous("Invalid augmented assignment target"));
                 }
             }
         } else if self.match_token(&[TokenType::Increment, TokenType::Decrement]) {
@@ -82,7 +82,7 @@ impl Parser {
                     });
                 }
                 _ => {
-                    return Err("Invalid increment/decrement target".to_string());
+                    return Err(self.error_at_previous("Invalid increment/decrement target"));
                 }
             }
         }
@@ -244,7 +244,7 @@ impl Parser {
     fn finish_call(&mut self, callee: Expr) -> Result<Expr, String> {
         let name = match callee {
             Expr::Variable(n) => n,
-            _ => return Err("Invalid function call".to_string()),
+            _ => return Err(self.error_at_previous("Invalid function call")),
         };
         
         let mut args = Vec::new();
@@ -278,7 +278,7 @@ impl Parser {
         
         if self.match_token(&[TokenType::Number]) {
             let value = self.previous().lexeme.parse::<f64>()
-                .map_err(|_| "Invalid number")?;
+                .map_err(|_| self.error_at_previous("Invalid number"))?;
             return Ok(Expr::Number(value));
         }
         
@@ -310,7 +310,10 @@ impl Parser {
             return Ok(Expr::Array(elements));
         }
         
-        Err(format!("Unexpected token: {:?}", self.peek()))
+        {
+            let message = format!("Unexpected token: {:?}", self.peek());
+            Err(self.error_at_current(&message))
+        }
     }
     
     pub(crate) fn match_binary_op(&mut self, types: &[TokenType]) -> Option<BinaryOp> {
