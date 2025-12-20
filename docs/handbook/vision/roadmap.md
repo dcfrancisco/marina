@@ -1,5 +1,27 @@
 # Roadmap (2025–2027)
 
+## 🚦 Project Phase Monitoring Dashboard
+
+| Phase    | Goal                                  | Status        | Progress |
+|----------|---------------------------------------|---------------|----------|
+| Phase 1  | Core language + VM                    | In Progress   | 80%      |
+| Phase 2  | Arrays, lists, maps                   | Planned       | 0%       |
+| Phase 3  | Tooling (LSP, DAP, formatter)         | In Progress   | 40%      |
+| Phase 4  | DBF/CDX engine                        | Planned       | 0%       |
+| Phase 5  | Standard library expansion            | Planned       | 0%       |
+| Phase 6  | Macro system (.ch files)              | Planned       | 0%       |
+| Phase 7  | SQL engines (Postgres, SQLite)        | Planned       | 0%       |
+| Phase 8  | Native OOP (classes, methods)         | Planned       | 0%       |
+| Phase 9  | NoSQL engines (MongoDB, Redis)        | Planned       | 0%       |
+| Phase 10 | Async/await & concurrency             | Future        | 0%       |
+| Phase 11 | Cross-platform GUI framework          | Future        | 0%       |
+| Phase 12 | Package ecosystem & registry          | Future        | 0%       |
+| Phase 13 | JIT compiler & optimizations          | Future        | 0%       |
+| Phase 14 | WASM & embedded targets               | Future        | 0%       |
+| Phase 15 | Tooling Extensions Ecosystem          | Future        | 0%       |
+
+---
+
 Clipper-2025 (Marina) is not a toy experiment.
 It is a **multi-year language renaissance**, paced to bring Clipper into its rightful modern position.
 
