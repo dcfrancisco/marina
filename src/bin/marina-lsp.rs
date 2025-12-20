@@ -161,7 +161,7 @@ impl MarinaLanguageServer {
             Err(e) => {
                 let (line, col) = extract_line_col(&e).unwrap_or((1, 1));
                 diagnostics.push(Diagnostic {
-                    range: single_char_range(line, col),
+                    range: diagnostic_range(line, col, &e),
                     severity: Some(DiagnosticSeverity::ERROR),
                     source: Some("marina-lsp".to_string()),
                     message: format!("Lexer error: {}", e),
@@ -176,7 +176,7 @@ impl MarinaLanguageServer {
         if let Err(e) = parser.parse() {
             let (line, col) = extract_line_col(&e).unwrap_or((1, 1));
             diagnostics.push(Diagnostic {
-                range: single_char_range(line, col),
+                range: diagnostic_range(line, col, &e),
                 severity: Some(DiagnosticSeverity::ERROR),
                 source: Some("marina-lsp".to_string()),
                 message: format!("Parser error: {}", e),
@@ -212,10 +212,82 @@ fn extract_number_after(message: &str, needle: &str) -> Option<u32> {
 }
 
 #[cfg(feature = "lsp")]
-fn single_char_range(line_1_based: u32, col_1_based: u32) -> Range {
+fn diagnostic_range(line_1_based: u32, col_1_based: u32, message: &str) -> Range {
     let line0 = line_1_based.saturating_sub(1);
     let col0 = col_1_based.saturating_sub(1);
-    Range::new(Position::new(line0, col0), Position::new(line0, col0.saturating_add(1)))
+
+    let len = infer_highlight_len(message).max(1);
+    Range::new(
+        Position::new(line0, col0),
+        Position::new(line0, col0.saturating_add(len.saturating_sub(1))),
+    )
+}
+
+#[cfg(feature = "lsp")]
+fn infer_highlight_len(message: &str) -> u32 {
+    // Best-effort heuristics from existing error strings.
+    // We keep this conservative: fall back to 1 char if we can't infer a token.
+
+    // Example: "Unexpected token: Token { token_type: Identifier, lexeme: \"Print\", line: 1, column: 1 } at line 1, column 1"
+    if let Some(lexeme) = extract_lexeme_from_debug_token(message) {
+        return lexeme.chars().count().max(1) as u32;
+    }
+
+    // Example: "Unexpected character '&' at line 1, column 3 ..."
+    if message.contains("Unexpected character '") {
+        return 1;
+    }
+
+    // Example: "Unterminated IF (missing ENDIF) at line 1, column 1"
+    if let Some(word) = extract_word_after(message, "Unterminated ") {
+        return word.chars().count().max(1) as u32;
+    }
+
+    // Example: "Expected ENDIF at line 3, column 1"
+    if let Some(word) = extract_word_after(message, "Expected ") {
+        // Skip punctuation-heavy expectations like "')'" and just highlight 1.
+        if word.chars().all(|c| c.is_ascii_alphabetic() || c == '_') {
+            return word.chars().count().max(1) as u32;
+        }
+    }
+
+    1
+}
+
+#[cfg(feature = "lsp")]
+fn extract_word_after(message: &str, needle: &str) -> Option<String> {
+    let start = message.find(needle)? + needle.len();
+    let tail = &message[start..];
+    let word: String = tail
+        .chars()
+        .take_while(|c| !c.is_whitespace() && *c != '(')
+        .collect();
+    if word.is_empty() { None } else { Some(word) }
+}
+
+#[cfg(feature = "lsp")]
+fn extract_lexeme_from_debug_token(message: &str) -> Option<String> {
+    // Looks for debug formatting that includes: lexeme: "..."
+    let needle = "lexeme: \"";
+    let start = message.find(needle)? + needle.len();
+    let mut out = String::new();
+    let mut escaped = false;
+    for ch in message[start..].chars() {
+        if escaped {
+            out.push(ch);
+            escaped = false;
+            continue;
+        }
+        if ch == '\\' {
+            escaped = true;
+            continue;
+        }
+        if ch == '"' {
+            break;
+        }
+        out.push(ch);
+    }
+    if out.is_empty() { None } else { Some(out) }
 }
 
 #[cfg(feature = "lsp")]
