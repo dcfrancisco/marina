@@ -8,6 +8,7 @@ pub mod parser;
 pub mod bytecode;
 pub mod compiler;
 pub mod vm;
+pub mod formatter;
 
 // Re-export commonly used types for convenience
 pub use lexer::Lexer;

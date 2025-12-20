@@ -26,9 +26,10 @@ cargo build --release
 Create a file `hello.prg`:
 
 ```clipper
-function main()
-    Print("Hello, Clipper-2025!")
-return nil
+ClearScreen()
+
+local name := "Clipper-2025"
+? "Hello,", name
 ```
 
 Run it:
@@ -47,15 +48,15 @@ Hello, Clipper-2025!
 ### Variables
 
 ```clipper
-function main()
-    local name := "Marina"
-    local version := 1.0
-    local ready := true
-    
-    Print("Language:", name)
-    Print("Version:", version)
-    Print("Ready:", ready)
-return nil
+ClearScreen()
+
+local name := "Marina"
+local version := 1.0
+local ready := TRUE
+
+? "Language:", name
+? "Version:", version
+? "Ready:", ready
 ```
 
 ### Functions
@@ -64,77 +65,59 @@ return nil
 function add(a, b)
     return a + b
 
-function main()
-    local result := add(10, 20)
-    Print("Result:", result)
-return nil
+local result := add(10, 20)
+? "Result:", result
 ```
 
 ### Conditionals
 
 ```clipper
-function main()
-    local age := 25
-    
-    if age >= 21
-        Print("Adult")
-    else
-        Print("Minor")
-    endif
-return nil
+local age := 25
+
+if age >= 21
+    ? "Adult"
+else
+    ? "Minor"
+endif
 ```
 
 ### Loops
 
 ```clipper
-function main()
-    local i := 1
-    
-    while i <= 5
-        Print("Count:", i)
-        i := i + 1
-    endwhile
-return nil
+local i := 1
+
+while i <= 5
+    ? "Count:", i
+    i := i + 1
+enddo
 ```
 
-### Arrays (Future)
-
-Arrays are planned for Phase 2:
+### Arrays
 
 ```clipper
-function main()
-    local numbers := [1, 2, 3, 4, 5]
-    Print("First:", numbers[1])
-return nil
+local numbers := {1, 2, 3, 4, 5}
+? "First:", numbers[0]
 ```
 
 ## Codeblocks
 
-Clipper's most powerful feature:
-
-```clipper
-function main()
-    local double := {|n| n * 2}
-    local result := Eval(double, 5)
-    Print("Result:", result)  // 10
-return nil
-```
+Codeblocks / lambdas (`{|x| x + 1}`) are planned but not implemented yet.
 
 ## REPL Mode
 
-Run the compiler without arguments for interactive mode:
+Run REPL mode:
 
 ```bash
-./target/release/clipper
+./target/release/clipper repl
 ```
 
 Try commands:
 
 ```
->>> Print("Hello")
+>>> ? "Hello"
 Hello
 >>> local x := 42
->>> Print(x * 2)
+>>> ? x * 2
 84
 >>> exit
 ```
@@ -178,12 +161,10 @@ Marina supports console colors using the `SetColor()` function. Here are the ava
 ### Color Example
 
 ```clipper
-function main()
-    SetColor(12)  // Bright Red
-    OutStd("This is red!")
-    SetColor(7)   // Reset to default
-    OutStd("Back to normal")
-return nil
+SetColor(12)  // Bright Red
+OutStd("This is red!")
+SetColor(7)   // Reset to default
+OutStd("Back to normal")
 ```
 
 See [color_demo.prg](../../examples/color_demo.prg) for more examples.
@@ -234,14 +215,27 @@ Print("hello")
 
 ### "Unexpected token"
 
-Remember to use `:=` for assignment:
+Assignment supports both `:=` and `=` (prefer `:=`):
 
 ```clipper
 // ❌ Wrong
-local x = 10
+local x :=
 
 // ✅ Correct
 local x := 10
+
+// ✅ Also supported
+local y = 10
+```
+
+## Formatting (`marina-fmt`)
+
+```bash
+# Check formatting
+cargo run --bin marina-fmt -- --check examples/simple.prg
+
+# Apply formatting
+cargo run --bin marina-fmt -- examples/simple.prg
 ```
 
 ## Getting Help

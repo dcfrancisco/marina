@@ -85,10 +85,10 @@ A Rust-based compiler and virtual machine for the Clipper programming language.
 - Modular structure: parser/, compiler/, vm/
 - Bug fixes: Dup opcode, CASE compilation, Halt loop
 
-**Phase 3 (Tooling & Developer Experience):** 📋 Planning
-- Language Server Protocol (LSP) - `marina-lsp`
-- Debug Adapter Protocol (DAP) - `marina-dap`
-- Code formatter - `clipper fmt`
+**Phase 3 (Tooling & Developer Experience):** 🔄 In Progress
+- Code formatter - `marina-fmt` (MVP: indentation + keyword casing)
+- Language Server Protocol (LSP) - `marina-lsp` (feature-gated)
+- Debug Adapter Protocol (DAP) - `marina-dap` (stub)
 
 **Phase 5 (Ecosystem & IDE):** 📋 Future
 - VSCode extension (when language is mature)
@@ -122,7 +122,7 @@ cargo run repl
 # Check if a file is valid syntax
 cargo run --bin marina-fmt -- --check examples/simple.prg
 
-# Format a file (not yet implemented)
+# Format a file (MVP: indentation + keyword casing; preserves comments)
 cargo run --bin marina-fmt -- examples/simple.prg
 ```
 
@@ -168,7 +168,7 @@ src/
 │   ├── clipper.rs    - Main compiler/interpreter (CLI, REPL)
 │   ├── marina-lsp.rs - Language Server Protocol
 │   ├── marina-dap.rs - Debug Adapter Protocol (stub)
-│   └── marina-fmt.rs - Code formatter (stub)
+│   └── marina-fmt.rs - Code formatter (MVP)
 ├── token.rs          - Token types and definitions
 ├── lexer.rs          - Lexical analyzer
 ├── ast.rs            - Abstract Syntax Tree nodes
