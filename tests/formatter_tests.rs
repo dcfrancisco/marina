@@ -16,16 +16,16 @@ return result
 "#;
 
     let expected = r#"// header
-FUNCTION Factorial(n)
-    LOCAL result
+function Factorial(n)
+    local result
 
-    IF n <= 1
+    if n <= 1
         result := 1
-    ELSE
+    else
         result := n * Factorial(n - 1)
-    ENDIF
+    endif
 
-RETURN result
+return result
 "#;
 
     let formatted = format_source(input, FormatOptions { indent_size: 4 });
@@ -42,12 +42,12 @@ otherwise
 endcase
 "#;
 
-    let expected = r#"CASE grade
-    CASE 90
+    let expected = r#"case grade
+    case 90
         ? "A"
-    OTHERWISE
+    otherwise
         ? "F"
-ENDCASE
+endcase
 "#;
 
     let formatted = format_source(input, FormatOptions { indent_size: 4 });
@@ -62,9 +62,9 @@ while .t.
 "#;
 
     // This project doesn't currently tokenize .t. as TRUE; we only normalize indentation/keywords.
-    let expected = r#"DO
+    let expected = r#"do
     ? "x"
-WHILE .t.
+while .t.
 "#;
 
     let formatted = format_source(input, FormatOptions { indent_size: 4 });
