@@ -35,6 +35,7 @@ No unstable nightly builds are expected — the project progresses cleanly.
 | Phase 12 | Package ecosystem & registry          | 2028+     | Future      |
 | Phase 13 | JIT compiler & optimizations          | 2029+     | Future      |
 | Phase 14 | WASM & embedded targets               | 2029+     | Future      |
+| Phase 15 | Tooling Extensions Ecosystem             | 2030+     | Future      |
 
 ## PHASE 1 — Core Language + VM (2025)
 
@@ -128,6 +129,7 @@ Arrays/maps are essential for real applications. Needed before DBF engine (for r
 * ⏳ LSP: rename refactoring
 * ✅ marina-fmt (syntax validation)
 * ⏳ Formatter: actual code formatting
+    * Consider Prettier-style formatting or integration for consistent code style (future goal)
 * ⏳ marina-dap (debugger protocol)
 * ⏳ DAP: breakpoints
 * ⏳ DAP: step execution
@@ -741,6 +743,26 @@ Central package repository (like npm, crates.io, PyPI)
 ---
 
 ## PHASE 14 — WASM & Embedded Targets (2029+)
+
+## PHASE 15 — Tooling Extensions Ecosystem (2030+)
+
+**Status: FUTURE**
+
+### Vision:
+Build a robust ecosystem of official and community-driven tooling extensions for Marina, including:
+
+* Advanced formatters and linters
+* Refactoring tools
+* Static analysis and code quality extensions
+* IDE integrations (VS Code, JetBrains, etc.)
+* Project scaffolding and code generators
+* Testing and coverage tools
+* Documentation generators
+* Language packs and internationalization
+* Community extension registry and marketplace
+
+### Why Important:
+Tooling extensions will drive developer productivity, adoption, and ecosystem growth, making Marina a first-class modern language platform.
 
 **Status: FUTURE**
 

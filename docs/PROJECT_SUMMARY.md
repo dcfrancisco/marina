@@ -203,6 +203,8 @@ cargo run repl
 6. **Debugging:** Integrated debugger with breakpoints
 7. **JIT Compilation:** Optional JIT for performance-critical code
 
+8. **Prettier-style Formatting:** Integrate or develop a Prettier-like code formatter for Marina to ensure consistent code style across projects (planned for post-v1.0).
+
 ## Conclusion
 
 This project successfully implements a working compiler and VM for a substantial subset of the Clipper language. The architecture is clean, extensible, and ready for future enhancements. All basic language features work correctly, providing a solid foundation for further development.
