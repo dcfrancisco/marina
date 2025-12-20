@@ -93,4 +93,19 @@ impl Parser {
             // Skip all newlines
         }
     }
+
+    pub(crate) fn error_at(&self, token: &Token, message: &str) -> String {
+        format!("{} at line {}, column {}", message, token.line, token.column)
+    }
+
+    pub(crate) fn error_at_current(&self, message: &str) -> String {
+        self.error_at(self.peek(), message)
+    }
+
+    pub(crate) fn error_at_previous(&self, message: &str) -> String {
+        if self.current == 0 {
+            return self.error_at_current(message);
+        }
+        self.error_at(self.previous(), message)
+    }
 }
