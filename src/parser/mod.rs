@@ -66,7 +66,12 @@ impl Parser {
         if self.check(token_type) {
             Ok(self.advance())
         } else {
-            Err(format!("{} at line {}", message, self.peek().line))
+            Err(format!(
+                "{} at line {}, column {}",
+                message,
+                self.peek().line,
+                self.peek().column
+            ))
         }
     }
     
@@ -74,7 +79,12 @@ impl Parser {
         if self.check(&TokenType::Identifier) {
             Ok(self.advance().lexeme.clone())
         } else {
-            Err(format!("{} at line {}", message, self.peek().line))
+            Err(format!(
+                "{} at line {}, column {}",
+                message,
+                self.peek().line,
+                self.peek().column
+            ))
         }
     }
     
