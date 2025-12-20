@@ -31,9 +31,11 @@ impl LanguageServer for MarinaLanguageServer {
                 version: Some(env!("CARGO_PKG_VERSION").to_string()),
             }),
             capabilities: ServerCapabilities {
-                text_document_sync: Some(TextDocumentSyncCapability::Kind(
-                    TextDocumentSyncKind::FULL,
-                )),
+                text_document_sync: Some(TextDocumentSyncCapability::Options(TextDocumentSyncOptions {
+                    open_close: Some(true),
+                    change: Some(TextDocumentSyncKind::INCREMENTAL),
+                    ..Default::default()
+                })),
                 completion_provider: Some(CompletionOptions {
                     trigger_characters: Some(vec![".".to_string(), ":".to_string()]),
                     ..Default::default()
@@ -69,14 +71,18 @@ impl LanguageServer for MarinaLanguageServer {
     }
 
     async fn did_change(&self, params: DidChangeTextDocumentParams) {
-        if let Some(change) = params.content_changes.first() {
-            {
-                let mut docs = self.documents.write().await;
-                docs.insert(params.text_document.uri.clone(), change.text.clone());
+        let uri = params.text_document.uri;
+
+        let updated_text = {
+            let mut docs = self.documents.write().await;
+            let doc = docs.entry(uri.clone()).or_insert_with(String::new);
+            for change in &params.content_changes {
+                apply_change(doc, change);
             }
-            self.diagnose_document(&params.text_document.uri, &change.text)
-                .await;
-        }
+            doc.clone()
+        };
+
+        self.diagnose_document(&uri, &updated_text).await;
     }
 
     async fn did_close(&self, params: DidCloseTextDocumentParams) {
@@ -139,6 +145,77 @@ impl LanguageServer for MarinaLanguageServer {
             range: None,
         }))
     }
+}
+
+#[cfg(feature = "lsp")]
+fn apply_change(text: &mut String, change: &TextDocumentContentChangeEvent) {
+    match change.range {
+        None => {
+            *text = change.text.clone();
+        }
+        Some(range) => {
+            let start = position_to_offset_utf16(text, range.start);
+            let end = position_to_offset_utf16(text, range.end);
+            let (start, end) = if start <= end { (start, end) } else { (end, start) };
+            if start <= text.len() && end <= text.len() {
+                text.replace_range(start..end, &change.text);
+            } else {
+                // If the client gives us an out-of-range edit, fall back to replacing all text.
+                *text = change.text.clone();
+            }
+        }
+    }
+}
+
+#[cfg(feature = "lsp")]
+fn position_to_offset_utf16(text: &str, position: Position) -> usize {
+    let target_line = position.line as usize;
+    let target_col_utf16 = position.character as usize;
+
+    // Find the start byte offset of the requested line.
+    let mut current_line = 0usize;
+    let mut line_start = 0usize;
+    for (idx, b) in text.as_bytes().iter().enumerate() {
+        if current_line == target_line {
+            break;
+        }
+        if *b == b'\n' {
+            current_line += 1;
+            line_start = idx + 1;
+        }
+    }
+
+    // If the requested line is past EOF, clamp to end.
+    if current_line < target_line {
+        return text.len();
+    }
+
+    // Find line end.
+    let mut line_end = text.len();
+    for (idx, b) in text.as_bytes()[line_start..].iter().enumerate() {
+        if *b == b'\n' {
+            line_end = line_start + idx;
+            break;
+        }
+    }
+
+    let line = &text[line_start..line_end];
+    let mut utf16_units = 0usize;
+    let mut byte_in_line = 0usize;
+    for ch in line.chars() {
+        if utf16_units >= target_col_utf16 {
+            break;
+        }
+        let next = utf16_units + ch.len_utf16();
+        if next > target_col_utf16 {
+            // Position points into the middle of a surrogate pair; clamp to char start.
+            break;
+        }
+        utf16_units = next;
+        byte_in_line += ch.len_utf8();
+    }
+
+    (line_start + byte_in_line).min(text.len())
 }
 
 #[cfg(feature = "lsp")]
