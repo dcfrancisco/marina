@@ -213,6 +213,23 @@ tests/
 └── vm_tests.rs       - 19 tests
 ```
 
+
+## Development Install
+
+To build Marina from source, you need the Rust toolchain installed (https://rustup.rs). This is only required for development and building binaries.
+
+To install the development binaries to your user directory, run:
+
+```bash
+./scripts/install-dev.sh
+```
+
+This will build and symlink the binaries to `$HOME/.marina/bin`.
+
+**Note:** Once built, you do NOT need Rust installed to run the binaries on other machines. The binaries are self-contained native executables.
+
+---
+
 ## Building
 
 ```bash
