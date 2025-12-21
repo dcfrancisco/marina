@@ -1,9 +1,32 @@
 use marina::{formatter, run, Lexer, Parser};
+#[cfg(windows)]
+fn enable_vt_mode() {
+    use windows::Win32::System::Console::{GetConsoleMode, SetConsoleMode, ENABLE_VIRTUAL_TERMINAL_PROCESSING};
+    use windows::Win32::System::Console::GetStdHandle;
+    use windows::Win32::System::Console::STD_OUTPUT_HANDLE;
+    use windows::core::Result as WinResult;
+    unsafe {
+        let handle = GetStdHandle(STD_OUTPUT_HANDLE);
+        if handle.0 == 0 {
+            return;
+        }
+        let mut mode = 0u32;
+        if GetConsoleMode(handle, &mut mode).is_err() {
+            return;
+        }
+        if mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING == 0 {
+            let new_mode = mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+            let _ = SetConsoleMode(handle, new_mode);
+        }
+    }
+}
 use std::env;
 use std::fs;
 use std::io::{self, Write};
 
 fn main() {
+        #[cfg(windows)]
+        enable_vt_mode();
     let args: Vec<String> = env::args().collect();
     
     if args.len() < 2 {
