@@ -101,19 +101,19 @@ A Rust-based compiler and virtual machine for the Clipper programming language.
 
 ```bash
 # Compile and run a program
-cargo run examples/simple.prg
+cargo run --bin clipper -- examples/simple.prg
 
 # Show tokens
-cargo run -- -t examples/simple.prg
+cargo run --bin clipper -- -t examples/simple.prg
 
 # Show AST
-cargo run -- -a examples/simple.prg
+cargo run --bin clipper -- -a examples/simple.prg
 
 # Show disassembled bytecode
-cargo run -- -d examples/simple.prg
+cargo run --bin clipper -- -d examples/simple.prg
 
 # REPL mode
-cargo run repl
+cargo run --bin clipper -- repl
 ```
 
 ### Code Formatter (`marina-fmt`)
