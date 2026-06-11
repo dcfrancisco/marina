@@ -18,6 +18,7 @@ impl Lexer {
         keywords.insert("FUNCTION".to_string(), TokenType::Function);
         keywords.insert("PROCEDURE".to_string(), TokenType::Procedure);
         keywords.insert("RETURN".to_string(), TokenType::Return);
+        keywords.insert("IMPORT".to_string(), TokenType::Import);
         keywords.insert("LOCAL".to_string(), TokenType::Local);
         keywords.insert("STATIC".to_string(), TokenType::Static);
         keywords.insert("PRIVATE".to_string(), TokenType::Private);

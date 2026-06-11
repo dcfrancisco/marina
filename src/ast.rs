@@ -11,6 +11,12 @@ pub enum Expr {
     // Variables and identifiers
     Variable(String),
 
+    // Member access for namespaced calls (for example string.len)
+    Member {
+        object: Box<Expr>,
+        property: String,
+    },
+
     // Binary operations
     Binary {
         left: Box<Expr>,
@@ -92,6 +98,11 @@ pub enum Stmt {
 
     // Return statement
     Return(Option<Expr>),
+
+    // Minimal import statement
+    Import {
+        module: String,
+    },
 
     // If statement
     If {

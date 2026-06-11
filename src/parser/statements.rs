@@ -12,6 +12,8 @@ impl Parser {
             self.var_declaration(VarScope::Private)
         } else if self.match_token(&[TokenType::Public]) {
             self.var_declaration(VarScope::Public)
+        } else if self.match_token(&[TokenType::Import]) {
+            self.import_statement()
         } else if self.match_token(&[TokenType::Function]) {
             self.function_declaration(false)
         } else if self.match_token(&[TokenType::Procedure]) {
@@ -19,6 +21,15 @@ impl Parser {
         } else {
             self.statement()
         }
+    }
+
+    fn import_statement(&mut self) -> Result<Stmt, String> {
+        if !self.check(&TokenType::String) {
+            return Err(self.error_at_current("Expected module name string after IMPORT"));
+        }
+
+        let module = self.advance().lexeme.clone();
+        Ok(Stmt::Import { module })
     }
 
     fn var_declaration(&mut self, scope: VarScope) -> Result<Stmt, String> {
@@ -169,7 +180,9 @@ impl Parser {
             then_branch.push(self.declaration()?);
         }
 
-        let else_branch = if self.match_token(&[TokenType::Else]) {
+        let else_branch = if self.match_token(&[TokenType::ElseIf]) {
+            Some(vec![self.elseif_branch()?])
+        } else if self.match_token(&[TokenType::Else]) {
             let mut else_stmts = Vec::new();
             while !self.check(&TokenType::EndIf) && !self.is_at_end() {
                 else_stmts.push(self.declaration()?);
@@ -183,6 +196,37 @@ impl Parser {
             return Err(self.error_at(&start_token, "Unterminated IF (missing ENDIF)"));
         }
         self.consume(&TokenType::EndIf, "Expected ENDIF")?;
+
+        Ok(Stmt::If {
+            condition,
+            then_branch,
+            else_branch,
+        })
+    }
+
+    fn elseif_branch(&mut self) -> Result<Stmt, String> {
+        let condition = self.expression()?;
+
+        let mut then_branch = Vec::new();
+        while !self.check(&TokenType::EndIf)
+            && !self.check(&TokenType::Else)
+            && !self.check(&TokenType::ElseIf)
+            && !self.is_at_end()
+        {
+            then_branch.push(self.declaration()?);
+        }
+
+        let else_branch = if self.match_token(&[TokenType::ElseIf]) {
+            Some(vec![self.elseif_branch()?])
+        } else if self.match_token(&[TokenType::Else]) {
+            let mut else_stmts = Vec::new();
+            while !self.check(&TokenType::EndIf) && !self.is_at_end() {
+                else_stmts.push(self.declaration()?);
+            }
+            Some(else_stmts)
+        } else {
+            None
+        };
 
         Ok(Stmt::If {
             condition,
@@ -280,23 +324,34 @@ impl Parser {
 
     fn case_statement(&mut self) -> Result<Stmt, String> {
         let start_token: Token = self.previous().clone();
+        let case_column = start_token.column;
         // CASE expr
         let expr = self.expression()?;
         self.skip_newlines();
 
         let mut cases = Vec::new();
         let mut otherwise = None;
+        let mut clause_column = None;
 
         // Parse CASE value clauses
-        while self.match_token(&[TokenType::Case]) {
+        while self.check(&TokenType::Case) {
+            let case_token = self.peek().clone();
+            let current_clause_column = match clause_column {
+                Some(column) if case_token.column == column => column,
+                Some(_) => break,
+                None => {
+                    clause_column = Some(case_token.column);
+                    case_token.column
+                }
+            };
+
+            self.advance();
             let value = self.expression()?;
             self.skip_newlines();
 
             let mut statements = Vec::new();
             while !self.is_at_end()
-                && !self.check(&TokenType::Case)
-                && !self.check(&TokenType::Otherwise)
-                && !self.check(&TokenType::EndCase)
+                && !self.is_case_clause_terminator(case_column, current_clause_column)
             {
                 statements.push(self.declaration()?);
             }
@@ -305,10 +360,13 @@ impl Parser {
         }
 
         // Parse optional OTHERWISE clause
-        if self.match_token(&[TokenType::Otherwise]) {
+        if self.check(&TokenType::Otherwise)
+            && clause_column.is_some_and(|column| self.peek().column == column)
+        {
+            self.advance();
             self.skip_newlines();
             let mut statements = Vec::new();
-            while !self.is_at_end() && !self.check(&TokenType::EndCase) {
+            while !self.is_at_end() && !self.is_case_end_for_column(case_column) {
                 statements.push(self.declaration()?);
             }
             otherwise = Some(statements);
@@ -367,6 +425,24 @@ impl Parser {
         let value = self.expression()?;
 
         Ok(Stmt::Replace { field, value })
+    }
+
+    fn is_case_clause_terminator(&self, case_column: usize, clause_column: usize) -> bool {
+        if self.is_at_end() {
+            return true;
+        }
+
+        match self.peek().token_type {
+            TokenType::Case | TokenType::Otherwise => self.peek().column == clause_column,
+            TokenType::EndCase => self.peek().column == case_column,
+            _ => false,
+        }
+    }
+
+    fn is_case_end_for_column(&self, case_column: usize) -> bool {
+        !self.is_at_end()
+            && self.check(&TokenType::EndCase)
+            && self.peek().column == case_column
     }
 
     fn print_statement(&mut self, with_newline: bool) -> Result<Stmt, String> {

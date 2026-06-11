@@ -72,6 +72,51 @@ fn test_variable_declaration() {
 }
 
 #[test]
+fn test_static_private_public_declarations() {
+    let stmts = parse_source("STATIC s := 1\nPRIVATE p := 2\nPUBLIC g := 3")
+        .expect("Parse should succeed");
+
+    assert_eq!(stmts.len(), 3);
+
+    match &stmts[0] {
+        Stmt::VarDecl { scope, .. } => assert_eq!(scope, &VarScope::Static),
+        _ => panic!("Expected STATIC declaration"),
+    }
+
+    match &stmts[1] {
+        Stmt::VarDecl { scope, .. } => assert_eq!(scope, &VarScope::Private),
+        _ => panic!("Expected PRIVATE declaration"),
+    }
+
+    match &stmts[2] {
+        Stmt::VarDecl { scope, .. } => assert_eq!(scope, &VarScope::Public),
+        _ => panic!("Expected PUBLIC declaration"),
+    }
+}
+
+#[test]
+fn test_import_statement_and_namespaced_call() {
+    let stmts = parse_source("IMPORT \"string\"\nLOCAL n := string.len(\"abc\")")
+        .expect("Parse should succeed");
+
+    match &stmts[0] {
+        Stmt::Import { module } => assert_eq!(module, "string"),
+        _ => panic!("Expected import statement"),
+    }
+
+    match &stmts[1] {
+        Stmt::VarDecl {
+            initializer: Some(Expr::Call { name, args }),
+            ..
+        } => {
+            assert_eq!(name, "string.len");
+            assert_eq!(args.len(), 1);
+        }
+        _ => panic!("Expected namespaced call in initializer"),
+    }
+}
+
+#[test]
 fn test_multiple_declarations() {
     let stmts = parse_source("LOCAL x, y, z").expect("Parse should succeed");
 
@@ -128,6 +173,39 @@ fn test_if_else_statement() {
 }
 
 #[test]
+fn test_if_elseif_else_statement() {
+    let stmts = parse_source("IF x > 10\n? \"Big\"\nELSEIF x > 5\n? \"Mid\"\nELSE\n? \"Small\"\nENDIF")
+        .expect("Parse should succeed");
+
+    match &stmts[0] {
+        Stmt::If {
+            condition,
+            then_branch,
+            else_branch,
+        } => {
+            assert!(matches!(condition, Expr::Binary { .. }));
+            assert_eq!(then_branch.len(), 1);
+            let nested = else_branch.as_ref().expect("Expected ELSEIF chain");
+            assert_eq!(nested.len(), 1);
+            match &nested[0] {
+                Stmt::If {
+                    condition,
+                    then_branch,
+                    else_branch,
+                } => {
+                    assert!(matches!(condition, Expr::Binary { .. }));
+                    assert_eq!(then_branch.len(), 1);
+                    assert!(else_branch.is_some());
+                    assert_eq!(else_branch.as_ref().unwrap().len(), 1);
+                }
+                _ => panic!("Expected nested If for ELSEIF"),
+            }
+        }
+        _ => panic!("Expected If statement"),
+    }
+}
+
+#[test]
 fn test_while_loop() {
     let stmts = parse_source("WHILE x < 10\nx := x + 1\nENDDO").expect("Parse should succeed");
 
@@ -169,10 +247,10 @@ fn test_for_loop_with_step() {
     match &stmts[0] {
         Stmt::For {
             variable,
-            start,
-            end,
+            start: _,
+            end: _,
             step,
-            body,
+            body: _,
         } => {
             assert_eq!(variable, "i");
             assert!(step.is_some());
@@ -296,4 +374,27 @@ fn test_unterminated_case_errors_with_location() {
     assert!(err.contains("Unterminated CASE"), "{err}");
     assert!(err.contains("line 1"), "{err}");
     assert!(err.contains("column 1"), "{err}");
+}
+
+#[test]
+fn test_nested_case_statement() {
+    let stmts = parse_source(
+        "CASE x\n    CASE 1\n        CASE y\n            CASE 2\n                ? \"match\"\n        ENDCASE\n    OTHERWISE\n        ? \"fallback\"\nENDCASE",
+    )
+    .expect("Parse should succeed");
+
+    match &stmts[0] {
+        Stmt::Case {
+            expr: _,
+            cases,
+            otherwise,
+        } => {
+            assert_eq!(cases.len(), 1);
+            assert!(otherwise.is_some());
+            let inner_statements = &cases[0].1;
+            assert_eq!(inner_statements.len(), 1);
+            assert!(matches!(inner_statements[0], Stmt::Case { .. }));
+        }
+        _ => panic!("Expected Case statement"),
+    }
 }

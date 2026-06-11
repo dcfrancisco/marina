@@ -232,6 +232,8 @@ impl Parser {
         loop {
             if self.match_token(&[TokenType::LeftParen]) {
                 expr = self.finish_call(expr)?;
+            } else if self.match_token(&[TokenType::Dot]) {
+                expr = self.finish_member_access(expr)?;
             } else if self.match_token(&[TokenType::LeftBracket]) {
                 let index = self.expression()?;
                 self.consume(&TokenType::RightBracket, "Expected ']' after index")?;
@@ -248,10 +250,7 @@ impl Parser {
     }
 
     fn finish_call(&mut self, callee: Expr) -> Result<Expr, String> {
-        let name = match callee {
-            Expr::Variable(n) => n,
-            _ => return Err(self.error_at_previous("Invalid function call")),
-        };
+        let name = self.flatten_call_target(callee)?;
 
         let mut args = Vec::new();
 
@@ -267,6 +266,25 @@ impl Parser {
         self.consume(&TokenType::RightParen, "Expected ')' after arguments")?;
 
         Ok(Expr::Call { name, args })
+    }
+
+    fn finish_member_access(&mut self, object: Expr) -> Result<Expr, String> {
+        let property = self.consume_identifier("Expected identifier after '.'")?;
+        Ok(Expr::Member {
+            object: Box::new(object),
+            property,
+        })
+    }
+
+    fn flatten_call_target(&self, callee: Expr) -> Result<String, String> {
+        match callee {
+            Expr::Variable(name) => Ok(name),
+            Expr::Member { object, property } => {
+                let base = self.flatten_call_target(*object)?;
+                Ok(format!("{base}.{property}"))
+            }
+            _ => Err(self.error_at_previous("Invalid function call")),
+        }
     }
 
     fn primary(&mut self) -> Result<Expr, String> {

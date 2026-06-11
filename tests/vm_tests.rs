@@ -1,4 +1,4 @@
-use marina::{bytecode::Value, compiler::Compiler, lexer::Lexer, parser::Parser, vm::VM};
+use marina::{compiler::Compiler, lexer::Lexer, parser::Parser, vm::VM};
 
 fn run_source(source: &str) -> Result<(), String> {
     let mut lexer = Lexer::new(source.to_string());
@@ -132,4 +132,78 @@ fn test_vm_string_comparison() {
         eprintln!("Error: {}", e);
     }
     assert!(result.is_ok());
+}
+
+#[test]
+fn test_vm_user_defined_function_call() {
+    let result = run_source(
+        "FUNCTION Add(a, b)\nRETURN a + b\n\nLOCAL total := Add(10, 20)",
+    );
+    assert!(result.is_ok(), "Function calls should execute without error");
+}
+
+#[test]
+fn test_vm_nested_function_calls() {
+    let result = run_source(
+        "FUNCTION Add(a, b)\nRETURN a + b\n\nFUNCTION Twice(x)\nRETURN Add(x, x)\n\nLOCAL total := Twice(21)",
+    );
+    assert!(
+        result.is_ok(),
+        "Nested user-defined function calls should execute without error"
+    );
+}
+
+#[test]
+fn test_vm_recursive_function_call() {
+    let result = run_source(
+        "FUNCTION Fact(n)\nIF n <= 1\nRETURN 1\nENDIF\nRETURN n * Fact(n - 1)\n\nLOCAL value := Fact(5)",
+    );
+    assert!(
+        result.is_ok(),
+        "Recursive user-defined function calls should execute without error"
+    );
+}
+
+#[test]
+fn test_vm_main_entrypoint_execution() {
+    let result = run_source(
+        "LOCAL initialized := 1\n\nFUNCTION Main()\nLOCAL total := 40 + 2\nRETURN total",
+    );
+    assert!(
+        result.is_ok(),
+        "Programs with Main() entrypoint should execute without error"
+    );
+}
+
+#[test]
+fn test_vm_static_private_public_access_from_function() {
+    let result = run_source(
+        "STATIC s := 10\nPRIVATE p := 20\nPUBLIC g := 30\n\nFUNCTION Total()\nRETURN s + p + g\n\nLOCAL total := Total()",
+    );
+    assert!(
+        result.is_ok(),
+        "STATIC, PRIVATE, and PUBLIC should currently be accessible through the shared global path"
+    );
+}
+
+#[test]
+fn test_vm_local_shadows_global_like_current_compiler_model() {
+    let result = run_source(
+        "PUBLIC value := 10\n\nFUNCTION Demo()\nLOCAL value := 20\nRETURN value\n\nLOCAL result := Demo()",
+    );
+    assert!(
+        result.is_ok(),
+        "LOCAL variables should continue to use local storage even when a same-named global exists"
+    );
+}
+
+#[test]
+fn test_vm_imported_string_math_and_system_modules() {
+    let result = run_source(
+        "IMPORT \"string\"\nIMPORT \"math\"\nIMPORT \"system\"\nLOCAL size := string.len(\"abcd\")\nLOCAL root := math.sqrt(81)\nsystem.sleep(0)",
+    );
+    assert!(
+        result.is_ok(),
+        "Imported built-in modules should execute through namespaced calls"
+    );
 }

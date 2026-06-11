@@ -41,6 +41,10 @@ A Rust-based compiler and virtual machine for the Clipper programming language.
 - PRIVATE - Private variables
 - PUBLIC - Public variables
 
+Current runtime model:
+- `LOCAL` uses local storage
+- `STATIC`, `PRIVATE`, and `PUBLIC` currently compile through the shared global storage path
+
 ### Control Structures
 - IF/ELSE/ENDIF
 - WHILE/ENDDO
@@ -63,13 +67,21 @@ A Rust-based compiler and virtual machine for the Clipper programming language.
 - Indexed assignment: `arr[1] := 99`
 
 ### Functions
-- User-defined functions with FUNCTION/PROCEDURE keyword (partial support)
+- User-defined functions with FUNCTION/PROCEDURE keyword
 - Built-in functions:
   - **Output**: Print/?, OutStd
   - **Console**: SetPos, GotoXY, ClearScreen, SavePos, RestorePos
   - **String**: Val, Space, Len, SubStr, Trim, RTrim, LTrim, AllTrim, Replicate, Chr, Asc
   - **Input**: Inkey, GetInput, GetSecret
 - RETURN statement
+
+### Minimal Imports
+- `IMPORT "string"`
+- `IMPORT "math"`
+- `IMPORT "console"`
+- `IMPORT "input"`
+- `IMPORT "system"`
+- Namespaced built-in calls such as `string.len("abc")` and `math.sqrt(81)`
 
 ### Database Operations (stubs only)
 - USE, DBSKIP, DBGOTOP, DBGOBOTTOM, DBSEEK, REPLACE
@@ -78,18 +90,20 @@ A Rust-based compiler and virtual machine for the Clipper programming language.
 ## Project Status
 
 **Phase 1 (Core Stability):** ✅ Complete  
-**Phase 2 (Language Expansion):** ✅ Complete  
+**Phase 2 (Language Expansion):** ✅ Complete
+- CASE statements, augmented operators, increment/decrement, indexed assignment
+- Nested `CASE` and `ELSEIF` carryovers closed
 **Phase 2.5 (Refactoring):** ✅ Complete  
-- 62 integration tests passing, 1 ignored
-- CASE statements, augmented operators, indexed assignment
 - Modular structure: parser/, compiler/, vm/
 - Bug fixes: Dup opcode, CASE compilation, Halt loop
 
-**Phase 3 (Tooling & Developer Experience):** 🔄 In Progress
-- Code formatter - `marina-fmt` (MVP: indentation + keyword casing)
-- Language Server Protocol (LSP) - `marina-lsp` (feature-gated)
-- Debug Adapter Protocol (DAP) - `marina-dap` (stub)
-- Documentation pipeline - `marina-docs` (Markdown to HTML/PDF)
+**Phase 3 (Runtime & Module Stabilization):** 🔄 In Progress
+- Freeze bytecode/runtime behavior for the current language surface
+- Finalize function call and VM execution semantics
+- Expand runtime validation around function calls, returns, and entrypoints
+- Keep module/import work minimal and honest
+- Minimal built-in import namespaces are now supported; dynamic/lazy modules are not
+- Tooling present but not phase-defining: `marina-fmt`, `marina-docs`, experimental `marina-lsp`, stub `marina-dap`
 
 **Phase 5 (Ecosystem & IDE):** 📋 Future
 - VSCode extension (when language is mature)
@@ -174,6 +188,7 @@ See the `examples/` directory for sample Clipper programs:
 - `input_demo.prg` - Customer registration form demonstrating field input
 - `password_demo.prg` - Password/PIN entry using GetSecret() for hidden input
 - `login_demo.prg` - Secure login system with GetSecret() and attempt limiting
+- `phase3_runtime_validation.prg` - Runtime validation for `ELSEIF`, nested `CASE`, recursion, `Main()`, and minimal imports
 
 ### Running non-interactive examples
 

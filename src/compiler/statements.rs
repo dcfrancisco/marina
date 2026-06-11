@@ -5,6 +5,8 @@ use crate::bytecode::*;
 impl Compiler {
     pub(crate) fn compile_statement(&mut self, stmt: &Stmt) -> Result<(), String> {
         match stmt {
+            Stmt::Import { .. } => {}
+
             Stmt::VarDecl {
                 name,
                 initializer,

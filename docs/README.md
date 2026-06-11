@@ -41,8 +41,8 @@ Concise technical references:
 
 ## 🚀 **Quick Links**
 
-- **Current Status**: Phase 2.5 Complete (Modular structure, CASE statements, augmented operators)
-- **Next Phase**: Phase 3 - Tooling & Developer Experience (LSP, DAP, formatter)
+- **Current Status**: Phase 2 and Phase 2.5 delivered; Phase 3 stabilization in progress
+- **Next Phase**: Phase 3 - Runtime & Module Stabilization
 - **Formatter**: `clipper fmt` (MVP: indentation + keyword casing)
 - **See**: [Project README](../README.md) for implementation status
 - **See**: [Instructions](../.github/copilot/INSTRUCTIONS.md) for development guidelines
