@@ -27,6 +27,11 @@ path = "src/bin/marina-dap.rs"
 name = "marina-fmt"
 path = "src/bin/marina-fmt.rs"
 
+# Documentation tooling binary
+[[bin]]
+name = "marina-docs"
+path = "src/bin/marina-docs.rs"
+
 [dependencies]
 # For Windows API (VT mode)
 windows = { version = "0.52.0", features = ["Win32_System_Console"] }

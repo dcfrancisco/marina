@@ -1,9 +1,4 @@
-use marina::{
-    lexer::Lexer,
-    parser::Parser,
-    compiler::Compiler,
-    vm::VM,
-};
+use marina::{compiler::Compiler, lexer::Lexer, parser::Parser, vm::VM};
 
 fn run_source(source: &str) -> Result<(), String> {
     let mut lexer = Lexer::new(source.to_string());
@@ -12,7 +7,7 @@ fn run_source(source: &str) -> Result<(), String> {
     let program = parser.parse()?;
     let compiler = Compiler::new();
     let (chunk, functions) = compiler.compile(program)?;
-    
+
     let mut vm = VM::new();
     vm.run(&chunk, functions)?;
     Ok(())

@@ -1,4 +1,4 @@
-use marina::formatter::{format_source, FormatOptions};
+use marina::formatter::{FormatOptions, format_source};
 
 #[test]
 fn formats_indentation_and_keywords_preserving_comments() {

@@ -7,10 +7,10 @@ pub enum TokenType {
     True,
     False,
     Nil,
-    
+
     // Identifiers and keywords
     Identifier,
-    
+
     // Keywords
     Function,
     Procedure,
@@ -35,7 +35,7 @@ pub enum TokenType {
     Case,
     EndCase,
     Otherwise,
-    
+
     // Database keywords (Clipper-specific)
     Use,
     Select,
@@ -50,7 +50,7 @@ pub enum TokenType {
     Replace,
     Delete,
     Recall,
-    
+
     // Operators
     Plus,
     Minus,
@@ -74,7 +74,7 @@ pub enum TokenType {
     DivideAssign,
     Increment,
     Decrement,
-    
+
     // Delimiters
     LeftParen,
     RightParen,
@@ -87,10 +87,10 @@ pub enum TokenType {
     Semicolon,
     Colon,
     Arrow,
-    
+
     // Special
-    QuestionMark,        // ? (print with newline in Clipper)
-    DoubleQuestionMark,  // ?? (print without newline in Clipper)
+    QuestionMark,       // ? (print with newline in Clipper)
+    DoubleQuestionMark, // ?? (print without newline in Clipper)
     Eof,
     Newline,
 }

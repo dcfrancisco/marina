@@ -2,19 +2,21 @@
 // Provides IntelliSense, go-to-definition, diagnostics, and other editor features
 
 #[cfg(feature = "lsp")]
+use marina::diagnostics::{
+    Diagnostic as MarinaDiagnostic, Severity as MarinaSeverity, Span as MarinaSpan,
+};
+#[cfg(feature = "lsp")]
+use marina::{Lexer, Parser};
+#[cfg(feature = "lsp")]
+use std::collections::HashMap;
+#[cfg(feature = "lsp")]
+use tokio::sync::RwLock;
+#[cfg(feature = "lsp")]
 use tower_lsp::jsonrpc::Result;
 #[cfg(feature = "lsp")]
 use tower_lsp::lsp_types::*;
 #[cfg(feature = "lsp")]
 use tower_lsp::{Client, LanguageServer, LspService, Server};
-#[cfg(feature = "lsp")]
-use marina::{Lexer, Parser};
-#[cfg(feature = "lsp")]
-use marina::diagnostics::{Diagnostic as MarinaDiagnostic, Severity as MarinaSeverity, Span as MarinaSpan};
-#[cfg(feature = "lsp")]
-use std::collections::HashMap;
-#[cfg(feature = "lsp")]
-use tokio::sync::RwLock;
 
 #[cfg(feature = "lsp")]
 #[derive(Debug)]
@@ -33,11 +35,13 @@ impl LanguageServer for MarinaLanguageServer {
                 version: Some(env!("CARGO_PKG_VERSION").to_string()),
             }),
             capabilities: ServerCapabilities {
-                text_document_sync: Some(TextDocumentSyncCapability::Options(TextDocumentSyncOptions {
-                    open_close: Some(true),
-                    change: Some(TextDocumentSyncKind::INCREMENTAL),
-                    ..Default::default()
-                })),
+                text_document_sync: Some(TextDocumentSyncCapability::Options(
+                    TextDocumentSyncOptions {
+                        open_close: Some(true),
+                        change: Some(TextDocumentSyncKind::INCREMENTAL),
+                        ..Default::default()
+                    },
+                )),
                 completion_provider: Some(CompletionOptions {
                     trigger_characters: Some(vec![".".to_string(), ":".to_string()]),
                     ..Default::default()
@@ -65,7 +69,10 @@ impl LanguageServer for MarinaLanguageServer {
 
         {
             let mut docs = self.documents.write().await;
-            docs.insert(params.text_document.uri.clone(), params.text_document.text.clone());
+            docs.insert(
+                params.text_document.uri.clone(),
+                params.text_document.text.clone(),
+            );
         }
 
         self.diagnose_document(&params.text_document.uri, &params.text_document.text)
@@ -107,29 +114,23 @@ impl LanguageServer for MarinaLanguageServer {
             ("static", "Declare static variable"),
             ("private", "Declare private variable"),
             ("public", "Declare public variable"),
-
             ("if", "Conditional statement"),
             ("elseif", "Conditional branch"),
             ("else", "Conditional branch"),
             ("endif", "End IF block"),
-
             ("do", "Begin DO block"),
             ("while", "While loop / DO..WHILE terminator"),
             ("enddo", "End WHILE block"),
-
             ("for", "For loop"),
             ("to", "For loop range"),
             ("step", "For loop step"),
             ("next", "End FOR block"),
             ("exit", "Exit loop"),
-
             ("loop", "Begin LOOP block"),
             ("endloop", "End LOOP block"),
-
             ("case", "Begin CASE block / CASE clause"),
             ("otherwise", "Default CASE clause"),
             ("endcase", "End CASE block"),
-
             ("use", "Open database/file"),
             ("select", "Select work area"),
             ("dbcreate", "Create DBF"),
@@ -143,7 +144,6 @@ impl LanguageServer for MarinaLanguageServer {
             ("replace", "Replace field"),
             ("delete", "Mark record deleted"),
             ("recall", "Recall record"),
-
             ("and", "Logical AND"),
             ("or", "Logical OR"),
             ("not", "Logical NOT"),
@@ -229,7 +229,11 @@ fn apply_change(text: &mut String, change: &TextDocumentContentChangeEvent) {
         Some(range) => {
             let start = position_to_offset_utf16(text, range.start);
             let end = position_to_offset_utf16(text, range.end);
-            let (start, end) = if start <= end { (start, end) } else { (end, start) };
+            let (start, end) = if start <= end {
+                (start, end)
+            } else {
+                (end, start)
+            };
             if start <= text.len() && end <= text.len() {
                 text.replace_range(start..end, &change.text);
             } else {
@@ -295,7 +299,7 @@ fn position_to_offset_utf16(text: &str, position: Position) -> usize {
 impl MarinaLanguageServer {
     async fn diagnose_document(&self, uri: &Url, text: &str) {
         let diagnostics = self.get_diagnostics(text);
-        
+
         self.client
             .publish_diagnostics(uri.clone(), diagnostics, None)
             .await;
@@ -360,7 +364,7 @@ async fn main() {
         client,
         documents: RwLock::new(HashMap::new()),
     });
-    
+
     Server::new(stdin, stdout, socket).serve(service).await;
 }
 

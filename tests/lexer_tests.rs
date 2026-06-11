@@ -5,7 +5,7 @@ fn test_basic_tokens() {
     let source = "LOCAL x := 10".to_string();
     let mut lexer = Lexer::new(source);
     let tokens = lexer.scan_tokens().expect("Lexer should succeed");
-    
+
     assert_eq!(tokens.len(), 5); // LOCAL, x, :=, 10, EOF
     assert_eq!(tokens[0].token_type, TokenType::Local);
     assert_eq!(tokens[1].token_type, TokenType::Identifier);
@@ -21,7 +21,7 @@ fn test_operators() {
     let source = "+ - * / % ^ := ==".to_string();
     let mut lexer = Lexer::new(source);
     let tokens = lexer.scan_tokens().expect("Lexer should succeed");
-    
+
     assert_eq!(tokens[0].token_type, TokenType::Plus);
     assert_eq!(tokens[1].token_type, TokenType::Minus);
     assert_eq!(tokens[2].token_type, TokenType::Star);
@@ -37,7 +37,7 @@ fn test_keywords() {
     let source = "IF ELSE ENDIF WHILE ENDDO FOR TO NEXT FUNCTION RETURN".to_string();
     let mut lexer = Lexer::new(source);
     let tokens = lexer.scan_tokens().expect("Lexer should succeed");
-    
+
     assert_eq!(tokens[0].token_type, TokenType::If);
     assert_eq!(tokens[1].token_type, TokenType::Else);
     assert_eq!(tokens[2].token_type, TokenType::EndIf);
@@ -55,7 +55,7 @@ fn test_string_literals() {
     let source = r#""Hello, World!""#.to_string();
     let mut lexer = Lexer::new(source);
     let tokens = lexer.scan_tokens().expect("Lexer should succeed");
-    
+
     assert_eq!(tokens[0].token_type, TokenType::String);
     assert_eq!(tokens[0].lexeme, "Hello, World!");
 }
@@ -65,7 +65,7 @@ fn test_numbers() {
     let source = "42 3.14 0.5".to_string();
     let mut lexer = Lexer::new(source);
     let tokens = lexer.scan_tokens().expect("Lexer should succeed");
-    
+
     assert_eq!(tokens[0].token_type, TokenType::Number);
     assert_eq!(tokens[0].lexeme, "42");
     assert_eq!(tokens[1].token_type, TokenType::Number);
@@ -79,7 +79,7 @@ fn test_comments() {
     let source = "// This is a comment\nLOCAL x".to_string();
     let mut lexer = Lexer::new(source);
     let tokens = lexer.scan_tokens().expect("Lexer should succeed");
-    
+
     // Comment should be skipped
     assert_eq!(tokens[0].token_type, TokenType::Local);
     assert_eq!(tokens[1].token_type, TokenType::Identifier);
@@ -90,7 +90,7 @@ fn test_multiline_comment() {
     let source = "/* Multi\nline\ncomment */LOCAL x".to_string();
     let mut lexer = Lexer::new(source);
     let tokens = lexer.scan_tokens().expect("Lexer should succeed");
-    
+
     assert_eq!(tokens[0].token_type, TokenType::Local);
     assert_eq!(tokens[1].token_type, TokenType::Identifier);
 }

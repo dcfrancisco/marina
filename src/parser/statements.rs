@@ -1,6 +1,6 @@
+use super::Parser;
 use crate::ast::*;
 use crate::token::{Token, TokenType};
-use super::Parser;
 
 impl Parser {
     pub(crate) fn declaration(&mut self) -> Result<Stmt, String> {
@@ -20,42 +20,42 @@ impl Parser {
             self.statement()
         }
     }
-    
+
     fn var_declaration(&mut self, scope: VarScope) -> Result<Stmt, String> {
         let mut declarations = Vec::new();
-        
+
         loop {
             let name = self.consume_identifier("Expected variable name")?;
-            
+
             let initializer = if self.match_token(&[TokenType::Assign, TokenType::Colon]) {
                 Some(self.expression()?)
             } else {
                 None
             };
-            
+
             declarations.push(Stmt::VarDecl {
                 name,
                 initializer,
                 scope: scope.clone(),
             });
-            
+
             if !self.match_token(&[TokenType::Comma]) {
                 break;
             }
         }
-        
+
         if declarations.len() == 1 {
             Ok(declarations.into_iter().next().unwrap())
         } else {
             Ok(Stmt::Block(declarations))
         }
     }
-    
+
     fn function_declaration(&mut self, is_procedure: bool) -> Result<Stmt, String> {
         let name = self.consume_identifier("Expected function name")?;
-        
+
         self.consume(&TokenType::LeftParen, "Expected '(' after function name")?;
-        
+
         let mut params = Vec::new();
         if !self.check(&TokenType::RightParen) {
             loop {
@@ -65,26 +65,29 @@ impl Parser {
                 }
             }
         }
-        
+
         self.consume(&TokenType::RightParen, "Expected ')' after parameters")?;
-        
+
         let mut body = Vec::new();
         while !self.is_at_end() {
             let current_lexeme = self.peek().lexeme.to_uppercase();
-            
+
             // Stop at RETURN or ENDFUNC/ENDPROC
-            if current_lexeme == "RETURN" || current_lexeme == "ENDFUNC" || current_lexeme == "ENDPROC" {
+            if current_lexeme == "RETURN"
+                || current_lexeme == "ENDFUNC"
+                || current_lexeme == "ENDPROC"
+            {
                 break;
             }
-            
+
             // Stop at next function
             if self.check(&TokenType::Function) || self.check(&TokenType::Procedure) {
                 break;
             }
-            
+
             body.push(self.statement()?);
         }
-        
+
         // Handle RETURN if present
         if !self.is_at_end() && self.peek().lexeme.to_uppercase() == "RETURN" {
             self.advance();
@@ -95,7 +98,7 @@ impl Parser {
                 body.push(Stmt::Return(None));
             }
         }
-        
+
         Ok(Stmt::Function {
             name,
             params,
@@ -103,7 +106,7 @@ impl Parser {
             is_procedure,
         })
     }
-    
+
     pub(crate) fn statement(&mut self) -> Result<Stmt, String> {
         if self.match_token(&[TokenType::Local]) {
             self.var_declaration(VarScope::Local)
@@ -136,14 +139,14 @@ impl Parser {
         } else if self.match_token(&[TokenType::Replace]) {
             self.replace_statement()
         } else if self.match_token(&[TokenType::QuestionMark]) {
-            self.print_statement(true)  // true = with newline
+            self.print_statement(true) // true = with newline
         } else if self.match_token(&[TokenType::DoubleQuestionMark]) {
-            self.print_statement(false)  // false = without newline
+            self.print_statement(false) // false = without newline
         } else {
             self.expression_statement()
         }
     }
-    
+
     fn return_statement(&mut self) -> Result<Stmt, String> {
         let value = if !self.is_at_end() && !self.check(&TokenType::Newline) {
             Some(self.expression()?)
@@ -152,19 +155,20 @@ impl Parser {
         };
         Ok(Stmt::Return(value))
     }
-    
+
     fn if_statement(&mut self) -> Result<Stmt, String> {
         let start_token: Token = self.previous().clone();
         let condition = self.expression()?;
-        
+
         let mut then_branch = Vec::new();
-        while !self.check(&TokenType::EndIf) 
-            && !self.check(&TokenType::Else) 
-            && !self.check(&TokenType::ElseIf) 
-            && !self.is_at_end() {
+        while !self.check(&TokenType::EndIf)
+            && !self.check(&TokenType::Else)
+            && !self.check(&TokenType::ElseIf)
+            && !self.is_at_end()
+        {
             then_branch.push(self.declaration()?);
         }
-        
+
         let else_branch = if self.match_token(&[TokenType::Else]) {
             let mut else_stmts = Vec::new();
             while !self.check(&TokenType::EndIf) && !self.is_at_end() {
@@ -179,18 +183,18 @@ impl Parser {
             return Err(self.error_at(&start_token, "Unterminated IF (missing ENDIF)"));
         }
         self.consume(&TokenType::EndIf, "Expected ENDIF")?;
-        
+
         Ok(Stmt::If {
             condition,
             then_branch,
             else_branch,
         })
     }
-    
+
     fn while_statement(&mut self) -> Result<Stmt, String> {
         let start_token: Token = self.previous().clone();
         let condition = self.expression()?;
-        
+
         let mut body = Vec::new();
         while !self.check(&TokenType::EndDo) && !self.is_at_end() {
             body.push(self.declaration()?);
@@ -200,14 +204,14 @@ impl Parser {
             return Err(self.error_at(&start_token, "Unterminated WHILE (missing ENDDO)"));
         }
         self.consume(&TokenType::EndDo, "Expected ENDDO")?;
-        
+
         Ok(Stmt::While { condition, body })
     }
-    
+
     fn do_while_statement(&mut self) -> Result<Stmt, String> {
         let start_token: Token = self.previous().clone();
         let mut body = Vec::new();
-        
+
         while !self.check(&TokenType::While) && !self.is_at_end() {
             body.push(self.declaration()?);
         }
@@ -217,24 +221,27 @@ impl Parser {
         }
         self.consume(&TokenType::While, "Expected WHILE after DO block")?;
         let condition = self.expression()?;
-        
+
         Ok(Stmt::DoWhile { body, condition })
     }
-    
+
     fn for_statement(&mut self) -> Result<Stmt, String> {
         let start_token: Token = self.previous().clone();
         let variable = self.consume_identifier("Expected loop variable")?;
-        self.consume(&TokenType::Assign, "Expected '=' or ':=' after loop variable")?;
+        self.consume(
+            &TokenType::Assign,
+            "Expected '=' or ':=' after loop variable",
+        )?;
         let start = self.expression()?;
         self.consume(&TokenType::To, "Expected TO in FOR loop")?;
         let end = self.expression()?;
-        
+
         let step = if self.match_token(&[TokenType::Step]) {
             Some(self.expression()?)
         } else {
             None
         };
-        
+
         let mut body = Vec::new();
         while !self.check(&TokenType::Next) && !self.is_at_end() {
             body.push(self.declaration()?);
@@ -244,7 +251,7 @@ impl Parser {
             return Err(self.error_at(&start_token, "Unterminated FOR (missing NEXT)"));
         }
         self.consume(&TokenType::Next, "Expected NEXT")?;
-        
+
         Ok(Stmt::For {
             variable,
             start,
@@ -253,11 +260,11 @@ impl Parser {
             body,
         })
     }
-    
+
     fn loop_statement(&mut self) -> Result<Stmt, String> {
         let start_token: Token = self.previous().clone();
         let mut body = Vec::new();
-        
+
         // LOOP without condition - infinite loop until EXIT
         while !self.is_at_end() {
             // Check for end of loop (implementation-specific)
@@ -270,32 +277,33 @@ impl Parser {
 
         Err(self.error_at(&start_token, "Unterminated LOOP (missing ENDLOOP)"))
     }
-    
+
     fn case_statement(&mut self) -> Result<Stmt, String> {
         let start_token: Token = self.previous().clone();
         // CASE expr
         let expr = self.expression()?;
         self.skip_newlines();
-        
+
         let mut cases = Vec::new();
         let mut otherwise = None;
-        
+
         // Parse CASE value clauses
         while self.match_token(&[TokenType::Case]) {
             let value = self.expression()?;
             self.skip_newlines();
-            
+
             let mut statements = Vec::new();
-            while !self.is_at_end() && 
-                  !self.check(&TokenType::Case) && 
-                  !self.check(&TokenType::Otherwise) &&
-                  !self.check(&TokenType::EndCase) {
+            while !self.is_at_end()
+                && !self.check(&TokenType::Case)
+                && !self.check(&TokenType::Otherwise)
+                && !self.check(&TokenType::EndCase)
+            {
                 statements.push(self.declaration()?);
             }
-            
+
             cases.push((value, statements));
         }
-        
+
         // Parse optional OTHERWISE clause
         if self.match_token(&[TokenType::Otherwise]) {
             self.skip_newlines();
@@ -310,27 +318,31 @@ impl Parser {
             return Err(self.error_at(&start_token, "Unterminated CASE (missing ENDCASE)"));
         }
         self.consume(&TokenType::EndCase, "Expected ENDCASE")?;
-        
-        Ok(Stmt::Case { expr, cases, otherwise })
+
+        Ok(Stmt::Case {
+            expr,
+            cases,
+            otherwise,
+        })
     }
-    
+
     fn db_use_statement(&mut self) -> Result<Stmt, String> {
         let filename = if self.check(&TokenType::String) {
             self.advance().lexeme.clone()
         } else {
             self.consume_identifier("Expected database filename")?
         };
-        
+
         let alias = if self.peek().lexeme.to_uppercase() == "ALIAS" {
             self.advance();
             Some(self.consume_identifier("Expected alias name")?)
         } else {
             None
         };
-        
+
         Ok(Stmt::DbUse { filename, alias })
     }
-    
+
     fn db_skip_statement(&mut self) -> Result<Stmt, String> {
         let count = if !self.is_at_end() && !self.check(&TokenType::Newline) {
             Some(self.expression()?)
@@ -339,28 +351,28 @@ impl Parser {
         };
         Ok(Stmt::DbSkip(count))
     }
-    
+
     fn db_seek_statement(&mut self) -> Result<Stmt, String> {
         let key = self.expression()?;
         Ok(Stmt::DbSeek { key })
     }
-    
+
     fn replace_statement(&mut self) -> Result<Stmt, String> {
         let field = self.consume_identifier("Expected field name")?;
-        
+
         if self.peek().lexeme.to_uppercase() == "WITH" {
             self.advance();
         }
-        
+
         let value = self.expression()?;
-        
+
         Ok(Stmt::Replace { field, value })
     }
-    
+
     fn print_statement(&mut self, with_newline: bool) -> Result<Stmt, String> {
         // ? or ?? can print multiple expressions separated by commas
         let mut args = Vec::new();
-        
+
         if !self.is_at_end() && !self.check(&TokenType::Newline) {
             loop {
                 args.push(self.expression()?);
@@ -369,7 +381,7 @@ impl Parser {
                 }
             }
         }
-        
+
         // Convert to a PRINT or PRINTNL function call
         let function_name = if with_newline { "?" } else { "??" };
         Ok(Stmt::Expression(Expr::Call {
@@ -377,7 +389,7 @@ impl Parser {
             args,
         }))
     }
-    
+
     fn expression_statement(&mut self) -> Result<Stmt, String> {
         let expr = self.expression()?;
         Ok(Stmt::Expression(expr))
