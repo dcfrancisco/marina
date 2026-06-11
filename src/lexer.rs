@@ -1,5 +1,5 @@
-use crate::token::{Token, TokenType};
 use crate::diagnostics::{Diagnostic, Span};
+use crate::token::{Token, TokenType};
 use std::collections::HashMap;
 
 pub struct Lexer {
@@ -13,7 +13,7 @@ pub struct Lexer {
 impl Lexer {
     pub fn new(source: String) -> Self {
         let mut keywords = HashMap::new();
-        
+
         // Keywords
         keywords.insert("FUNCTION".to_string(), TokenType::Function);
         keywords.insert("PROCEDURE".to_string(), TokenType::Procedure);
@@ -41,7 +41,7 @@ impl Lexer {
         keywords.insert("TRUE".to_string(), TokenType::True);
         keywords.insert("FALSE".to_string(), TokenType::False);
         keywords.insert("NIL".to_string(), TokenType::Nil);
-        
+
         // Database keywords
         keywords.insert("USE".to_string(), TokenType::Use);
         keywords.insert("SELECT".to_string(), TokenType::Select);
@@ -56,12 +56,12 @@ impl Lexer {
         keywords.insert("REPLACE".to_string(), TokenType::Replace);
         keywords.insert("DELETE".to_string(), TokenType::Delete);
         keywords.insert("RECALL".to_string(), TokenType::Recall);
-        
+
         // Logical operators
         keywords.insert("AND".to_string(), TokenType::And);
         keywords.insert("OR".to_string(), TokenType::Or);
         keywords.insert("NOT".to_string(), TokenType::Not);
-        
+
         Lexer {
             source: source.chars().collect(),
             current: 0,
@@ -70,11 +70,15 @@ impl Lexer {
             keywords,
         }
     }
-    
+
     pub fn scan_tokens(&mut self) -> Result<Vec<Token>, String> {
         let result = self.scan_tokens_with_diagnostics();
 
-        if let Some(first_error) = result.diagnostics.into_iter().find(|d| d.severity == crate::diagnostics::Severity::Error) {
+        if let Some(first_error) = result
+            .diagnostics
+            .into_iter()
+            .find(|d| d.severity == crate::diagnostics::Severity::Error)
+        {
             return Err(first_error.message);
         }
 
@@ -114,14 +118,22 @@ impl Lexer {
             }
         }
 
-        tokens.push(Token::new(TokenType::Eof, String::new(), self.line, self.column));
-        LexResult { tokens, diagnostics }
+        tokens.push(Token::new(
+            TokenType::Eof,
+            String::new(),
+            self.line,
+            self.column,
+        ));
+        LexResult {
+            tokens,
+            diagnostics,
+        }
     }
-    
+
     fn scan_token(&mut self) -> Result<Token, String> {
         let start_column = self.column;
         let c = self.advance();
-        
+
         let token_type = match c {
             '+' => {
                 if self.match_char('+') {
@@ -168,7 +180,9 @@ impl Lexer {
             ',' => TokenType::Comma,
             '.' => {
                 // Check for .T. or .F. (Clipper boolean literals)
-                if self.peek().to_ascii_uppercase() == 'T' || self.peek().to_ascii_uppercase() == 'F' {
+                if self.peek().to_ascii_uppercase() == 'T'
+                    || self.peek().to_ascii_uppercase() == 'F'
+                {
                     return self.scan_clipper_boolean();
                 } else {
                     TokenType::Dot
@@ -200,14 +214,20 @@ impl Lexer {
                 if self.match_char('&') {
                     TokenType::And
                 } else {
-                    return Err(format!("Unexpected character '&' at line {}, column {}. Use '&&' for logical AND", self.line, start_column));
+                    return Err(format!(
+                        "Unexpected character '&' at line {}, column {}. Use '&&' for logical AND",
+                        self.line, start_column
+                    ));
                 }
             }
             '|' => {
                 if self.match_char('|') {
                     TokenType::Or
                 } else {
-                    return Err(format!("Unexpected character '|' at line {}, column {}. Use '||' for logical OR", self.line, start_column));
+                    return Err(format!(
+                        "Unexpected character '|' at line {}, column {}. Use '||' for logical OR",
+                        self.line, start_column
+                    ));
                 }
             }
             '<' => {
@@ -245,19 +265,27 @@ impl Lexer {
                 } else if c.is_alphabetic() || c == '_' {
                     return self.scan_identifier(c);
                 } else {
-                    return Err(format!("Unexpected character '{}' at line {}, column {}", c, self.line, start_column));
+                    return Err(format!(
+                        "Unexpected character '{}' at line {}, column {}",
+                        c, self.line, start_column
+                    ));
                 }
             }
         };
-        
-        Ok(Token::new(token_type, c.to_string(), self.line, start_column))
+
+        Ok(Token::new(
+            token_type,
+            c.to_string(),
+            self.line,
+            start_column,
+        ))
     }
-    
+
     fn scan_string(&mut self, quote: char) -> Result<Token, String> {
         let start_line = self.line;
         let start_column = self.column - 1;
         let mut value = String::new();
-        
+
         while !self.is_at_end() && self.peek() != quote {
             if self.peek() == '\n' {
                 self.line += 1;
@@ -265,62 +293,77 @@ impl Lexer {
             }
             value.push(self.advance());
         }
-        
+
         if self.is_at_end() {
-            return Err(format!("Unterminated string at line {}, column {}", start_line, start_column));
+            return Err(format!(
+                "Unterminated string at line {}, column {}",
+                start_line, start_column
+            ));
         }
-        
+
         self.advance(); // Closing quote
-        Ok(Token::new(TokenType::String, value, start_line, start_column))
+        Ok(Token::new(
+            TokenType::String,
+            value,
+            start_line,
+            start_column,
+        ))
     }
-    
+
     fn scan_number(&mut self, first: char) -> Result<Token, String> {
         let start_column = self.column - 1;
         let mut value = String::from(first);
-        
+
         while !self.is_at_end() && self.peek().is_ascii_digit() {
             value.push(self.advance());
         }
-        
+
         if !self.is_at_end() && self.peek() == '.' && self.peek_next().is_ascii_digit() {
             value.push(self.advance()); // '.'
             while !self.is_at_end() && self.peek().is_ascii_digit() {
                 value.push(self.advance());
             }
         }
-        
-        Ok(Token::new(TokenType::Number, value, self.line, start_column))
+
+        Ok(Token::new(
+            TokenType::Number,
+            value,
+            self.line,
+            start_column,
+        ))
     }
-    
+
     fn scan_identifier(&mut self, first: char) -> Result<Token, String> {
         let start_column = self.column - 1;
         let mut value = String::from(first);
-        
+
         while !self.is_at_end() && (self.peek().is_alphanumeric() || self.peek() == '_') {
             value.push(self.advance());
         }
-        
+
         let upper_value = value.to_uppercase();
-        let token_type = self.keywords.get(&upper_value)
+        let token_type = self
+            .keywords
+            .get(&upper_value)
             .cloned()
             .unwrap_or(TokenType::Identifier);
-        
+
         Ok(Token::new(token_type, value, self.line, start_column))
     }
-    
+
     fn scan_clipper_boolean(&mut self) -> Result<Token, String> {
         let start_column = self.column - 1;
         // We already consumed the first '.'
-        
+
         let bool_char = self.advance().to_ascii_uppercase();
-        
+
         if !self.match_char('.') {
             return Err(format!(
                 "Invalid boolean literal at line {}, column {}. Expected '.T.' or '.F.'",
                 self.line, start_column
             ));
         }
-        
+
         let token_type = if bool_char == 'T' {
             TokenType::True
         } else if bool_char == 'F' {
@@ -331,10 +374,15 @@ impl Lexer {
                 self.line, start_column
             ));
         };
-        
-        Ok(Token::new(token_type, format!(".{}.", bool_char), self.line, start_column))
+
+        Ok(Token::new(
+            token_type,
+            format!(".{}.", bool_char),
+            self.line,
+            start_column,
+        ))
     }
-    
+
     fn skip_whitespace_and_comments(&mut self) {
         while !self.is_at_end() {
             match self.peek() {
@@ -371,14 +419,14 @@ impl Lexer {
             }
         }
     }
-    
+
     fn advance(&mut self) -> char {
         let c = self.source[self.current];
         self.current += 1;
         self.column += 1;
         c
     }
-    
+
     fn peek(&self) -> char {
         if self.is_at_end() {
             '\0'
@@ -386,7 +434,7 @@ impl Lexer {
             self.source[self.current]
         }
     }
-    
+
     fn peek_next(&self) -> char {
         if self.current + 1 >= self.source.len() {
             '\0'
@@ -394,7 +442,7 @@ impl Lexer {
             self.source[self.current + 1]
         }
     }
-    
+
     fn match_char(&mut self, expected: char) -> bool {
         if self.is_at_end() || self.source[self.current] != expected {
             false
@@ -404,7 +452,7 @@ impl Lexer {
             true
         }
     }
-    
+
     fn is_at_end(&self) -> bool {
         self.current >= self.source.len()
     }

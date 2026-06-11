@@ -17,6 +17,6 @@ fn main() {
     eprintln!("  - Expression evaluation");
     eprintln!();
     eprintln!("This will be implemented in Phase 3 after marina-lsp.");
-    
+
     std::process::exit(0);
 }

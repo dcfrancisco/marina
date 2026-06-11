@@ -89,6 +89,7 @@ A Rust-based compiler and virtual machine for the Clipper programming language.
 - Code formatter - `marina-fmt` (MVP: indentation + keyword casing)
 - Language Server Protocol (LSP) - `marina-lsp` (feature-gated)
 - Debug Adapter Protocol (DAP) - `marina-dap` (stub)
+- Documentation pipeline - `marina-docs` (Markdown to HTML/PDF)
 
 **Phase 5 (Ecosystem & IDE):** 📋 Future
 - VSCode extension (when language is mature)
@@ -136,6 +137,19 @@ cargo build --bin marina-lsp --features lsp
 
 # The LSP communicates via stdio and is invoked by editors
 ./target/debug/marina-lsp
+```
+
+### Documentation Tools (`marina-docs`)
+
+```bash
+# Render markdown to HTML
+cargo run --bin marina-docs -- html README.md
+
+# Render markdown to PDF
+cargo run --bin marina-docs -- pdf README.md
+
+# Build a combined PDF from a docs/ directory
+cargo run --bin marina-docs -- pdf docs/
 ```
 
 ## Example Programs
@@ -187,7 +201,15 @@ src/
 │   ├── clipper.rs    - Main compiler/interpreter (CLI, REPL)
 │   ├── marina-lsp.rs - Language Server Protocol
 │   ├── marina-dap.rs - Debug Adapter Protocol (stub)
-│   └── marina-fmt.rs - Code formatter (MVP)
+│   ├── marina-fmt.rs - Code formatter (MVP)
+│   └── marina-docs.rs - Documentation renderer
+├── docs/             - Documentation rendering subsystem
+│   ├── mod.rs        - Shared entry points for docs output
+│   ├── markdown.rs   - Lightweight markdown parser
+│   ├── html.rs       - HTML renderer
+│   ├── pdf.rs        - Standalone PDF renderer
+│   ├── themes.rs     - HTML theme definitions
+│   └── config.rs     - CLI and renderer configuration
 ├── token.rs          - Token types and definitions
 ├── lexer.rs          - Lexical analyzer
 ├── ast.rs            - Abstract Syntax Tree nodes
@@ -224,7 +246,7 @@ To install the development binaries to your user directory, run:
 ./scripts/install-dev.sh
 ```
 
-This will build and symlink the binaries to `$HOME/.marina/bin`.
+This will build and symlink the binaries to `$HOME/.marina/bin`, including `marina-docs`.
 
 **Note:** Once built, you do NOT need Rust installed to run the binaries on other machines. The binaries are self-contained native executables.
 
@@ -241,6 +263,7 @@ cargo build --bin clipper --release
 cargo build --bin marina-fmt --release
 cargo build --bin marina-dap --release
 cargo build --bin marina-lsp --features lsp --release
+cargo build --bin marina-docs --release
 ```
 
 ## Running Tests
@@ -294,6 +317,7 @@ The VM executes instructions using:
 - **`marina-lsp`** - Language Server Protocol for editor integration
 - **`marina-dap`** - Debug Adapter Protocol for debugging support
 - **`clipper fmt`** - Code formatter
+- **`marina-docs`** - Documentation rendering for Markdown to HTML/PDF
 
 **Phase 5 (IDE Integration - when language is mature):**
 - **VSCode Extension** - Separate TypeScript project with syntax highlighting

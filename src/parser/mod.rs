@@ -2,8 +2,8 @@ use crate::ast::*;
 use crate::diagnostics::{Diagnostic, Span};
 use crate::token::{Token, TokenType};
 
-mod statements;
 mod expressions;
+mod statements;
 
 pub struct Parser {
     tokens: Vec<Token>,
@@ -14,14 +14,14 @@ impl Parser {
     pub fn new(tokens: Vec<Token>) -> Self {
         Parser { tokens, current: 0 }
     }
-    
+
     pub fn parse(&mut self) -> Result<Program, String> {
         let mut program = Program::new();
-        
+
         while !self.is_at_end() {
             program.statements.push(self.declaration()?);
         }
-        
+
         Ok(program)
     }
 
@@ -35,18 +35,18 @@ impl Parser {
                 Err(message) => {
                     let token = self.peek().clone();
                     let span = span_from_message_or_token(&message, &token);
-                    diagnostics.push(Diagnostic::error(
-                        message,
-                        span,
-                    ));
+                    diagnostics.push(Diagnostic::error(message, span));
                     self.synchronize();
                 }
             }
         }
 
-        ParseResult { program, diagnostics }
+        ParseResult {
+            program,
+            diagnostics,
+        }
     }
-    
+
     // Utility methods
     pub(crate) fn match_token(&mut self, types: &[TokenType]) -> bool {
         for token_type in types {
@@ -57,7 +57,7 @@ impl Parser {
         }
         false
     }
-    
+
     pub(crate) fn check(&self, token_type: &TokenType) -> bool {
         if self.is_at_end() {
             false
@@ -65,27 +65,31 @@ impl Parser {
             &self.peek().token_type == token_type
         }
     }
-    
+
     pub(crate) fn advance(&mut self) -> &Token {
         if !self.is_at_end() {
             self.current += 1;
         }
         self.previous()
     }
-    
+
     pub(crate) fn is_at_end(&self) -> bool {
         self.peek().token_type == TokenType::Eof
     }
-    
+
     pub(crate) fn peek(&self) -> &Token {
         &self.tokens[self.current]
     }
-    
+
     pub(crate) fn previous(&self) -> &Token {
         &self.tokens[self.current - 1]
     }
-    
-    pub(crate) fn consume(&mut self, token_type: &TokenType, message: &str) -> Result<&Token, String> {
+
+    pub(crate) fn consume(
+        &mut self,
+        token_type: &TokenType,
+        message: &str,
+    ) -> Result<&Token, String> {
         if self.check(token_type) {
             Ok(self.advance())
         } else {
@@ -97,7 +101,7 @@ impl Parser {
             ))
         }
     }
-    
+
     pub(crate) fn consume_identifier(&mut self, message: &str) -> Result<String, String> {
         if self.check(&TokenType::Identifier) {
             Ok(self.advance().lexeme.clone())
@@ -110,7 +114,7 @@ impl Parser {
             ))
         }
     }
-    
+
     pub(crate) fn skip_newlines(&mut self) {
         while self.match_token(&[TokenType::Newline]) {
             // Skip all newlines
@@ -118,7 +122,10 @@ impl Parser {
     }
 
     pub(crate) fn error_at(&self, token: &Token, message: &str) -> String {
-        format!("{} at line {}, column {}", message, token.line, token.column)
+        format!(
+            "{} at line {}, column {}",
+            message, token.line, token.column
+        )
     }
 
     pub(crate) fn error_at_current(&self, message: &str) -> String {

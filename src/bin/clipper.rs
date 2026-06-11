@@ -1,9 +1,11 @@
-use marina::{formatter, run, Lexer, Parser};
+use marina::{Lexer, Parser, formatter, run};
 #[cfg(windows)]
 fn enable_vt_mode() {
-    use windows::Win32::System::Console::{GetConsoleMode, SetConsoleMode, ENABLE_VIRTUAL_TERMINAL_PROCESSING};
     use windows::Win32::System::Console::GetStdHandle;
     use windows::Win32::System::Console::STD_OUTPUT_HANDLE;
+    use windows::Win32::System::Console::{
+        ENABLE_VIRTUAL_TERMINAL_PROCESSING, GetConsoleMode, SetConsoleMode,
+    };
     use windows::core::Result as WinResult;
     unsafe {
         let handle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -25,10 +27,10 @@ use std::fs;
 use std::io::{self, Write};
 
 fn main() {
-        #[cfg(windows)]
-        enable_vt_mode();
+    #[cfg(windows)]
+    enable_vt_mode();
     let args: Vec<String> = env::args().collect();
-    
+
     if args.len() < 2 {
         println!("Clipper Compiler & VM");
         println!("Usage: {} [options] <file.prg>", args[0]);
@@ -37,10 +39,13 @@ fn main() {
         println!("  -t, --tokens        Show tokens");
         println!("  -a, --ast           Show AST");
         println!("  repl                Start REPL mode");
-        println!("  fmt                 Format .prg files (see: {} fmt --help)", args[0]);
+        println!(
+            "  fmt                 Format .prg files (see: {} fmt --help)",
+            args[0]
+        );
         std::process::exit(1);
     }
-    
+
     if args[1] == "repl" {
         run_repl();
         return;
@@ -50,12 +55,12 @@ fn main() {
         run_fmt(&args);
         return;
     }
-    
+
     let mut show_tokens = false;
     let mut show_ast = false;
     let mut show_disassembly = false;
     let mut filename = None;
-    
+
     for arg in &args[1..] {
         match arg.as_str() {
             "-t" | "--tokens" => show_tokens = true,
@@ -64,15 +69,14 @@ fn main() {
             _ => filename = Some(arg.clone()),
         }
     }
-    
+
     let filename = filename.expect("No input file specified");
-    
-    let source = fs::read_to_string(&filename)
-        .unwrap_or_else(|err| {
-            eprintln!("Error reading file '{}': {}", filename, err);
-            std::process::exit(1);
-        });
-    
+
+    let source = fs::read_to_string(&filename).unwrap_or_else(|err| {
+        eprintln!("Error reading file '{}': {}", filename, err);
+        std::process::exit(1);
+    });
+
     if let Err(e) = run(&source, show_tokens, show_ast, show_disassembly) {
         eprintln!("Error: {}", e);
         std::process::exit(1);
@@ -170,23 +174,23 @@ fn format_file(filename: &str, check_only: bool) -> Result<(), String> {
 
 fn run_repl() {
     println!("Clipper REPL - Type 'exit' to quit");
-    
+
     loop {
         print!("> ");
         io::stdout().flush().unwrap();
-        
+
         let mut input = String::new();
         io::stdin().read_line(&mut input).unwrap();
-        
+
         let input = input.trim();
         if input == "exit" || input == "quit" {
             break;
         }
-        
+
         if input.is_empty() {
             continue;
         }
-        
+
         match run(input, false, false, false) {
             Ok(_) => {}
             Err(e) => eprintln!("Error: {}", e),

@@ -1,15 +1,15 @@
+use super::Parser;
 use crate::ast::*;
 use crate::token::TokenType;
-use super::Parser;
 
 impl Parser {
     pub(crate) fn expression(&mut self) -> Result<Expr, String> {
         self.assignment()
     }
-    
+
     pub(crate) fn assignment(&mut self) -> Result<Expr, String> {
         let expr = self.logical_or()?;
-        
+
         if self.match_token(&[TokenType::Assign]) {
             match expr {
                 Expr::Variable(name) => {
@@ -32,8 +32,12 @@ impl Parser {
                     return Err(self.error_at_previous("Invalid assignment target"));
                 }
             }
-        } else if self.match_token(&[TokenType::PlusAssign, TokenType::MinusAssign, 
-                                      TokenType::MultiplyAssign, TokenType::DivideAssign]) {
+        } else if self.match_token(&[
+            TokenType::PlusAssign,
+            TokenType::MinusAssign,
+            TokenType::MultiplyAssign,
+            TokenType::DivideAssign,
+        ]) {
             let op_type = self.previous().token_type.clone();
             match expr {
                 Expr::Variable(name) => {
@@ -86,13 +90,13 @@ impl Parser {
                 }
             }
         }
-        
+
         Ok(expr)
     }
-    
+
     fn logical_or(&mut self) -> Result<Expr, String> {
         let mut expr = self.logical_and()?;
-        
+
         while self.match_token(&[TokenType::Or]) {
             let right = self.logical_and()?;
             expr = Expr::Binary {
@@ -101,13 +105,13 @@ impl Parser {
                 right: Box::new(right),
             };
         }
-        
+
         Ok(expr)
     }
-    
+
     fn logical_and(&mut self) -> Result<Expr, String> {
         let mut expr = self.equality()?;
-        
+
         while self.match_token(&[TokenType::And]) {
             let right = self.equality()?;
             expr = Expr::Binary {
@@ -116,13 +120,13 @@ impl Parser {
                 right: Box::new(right),
             };
         }
-        
+
         Ok(expr)
     }
-    
+
     fn equality(&mut self) -> Result<Expr, String> {
         let mut expr = self.comparison()?;
-        
+
         while let Some(op) = self.match_binary_op(&[TokenType::Equal, TokenType::NotEqual]) {
             let right = self.comparison()?;
             expr = Expr::Binary {
@@ -131,13 +135,13 @@ impl Parser {
                 right: Box::new(right),
             };
         }
-        
+
         Ok(expr)
     }
-    
+
     fn comparison(&mut self) -> Result<Expr, String> {
         let mut expr = self.term()?;
-        
+
         while let Some(op) = self.match_binary_op(&[
             TokenType::Greater,
             TokenType::GreaterEqual,
@@ -151,13 +155,13 @@ impl Parser {
                 right: Box::new(right),
             };
         }
-        
+
         Ok(expr)
     }
-    
+
     fn term(&mut self) -> Result<Expr, String> {
         let mut expr = self.factor()?;
-        
+
         while let Some(op) = self.match_binary_op(&[TokenType::Plus, TokenType::Minus]) {
             let right = self.factor()?;
             expr = Expr::Binary {
@@ -166,14 +170,16 @@ impl Parser {
                 right: Box::new(right),
             };
         }
-        
+
         Ok(expr)
     }
-    
+
     fn factor(&mut self) -> Result<Expr, String> {
         let mut expr = self.power()?;
-        
-        while let Some(op) = self.match_binary_op(&[TokenType::Star, TokenType::Slash, TokenType::Percent]) {
+
+        while let Some(op) =
+            self.match_binary_op(&[TokenType::Star, TokenType::Slash, TokenType::Percent])
+        {
             let right = self.power()?;
             expr = Expr::Binary {
                 left: Box::new(expr),
@@ -181,13 +187,13 @@ impl Parser {
                 right: Box::new(right),
             };
         }
-        
+
         Ok(expr)
     }
-    
+
     fn power(&mut self) -> Result<Expr, String> {
         let mut expr = self.unary()?;
-        
+
         while let Some(op) = self.match_binary_op(&[TokenType::Power]) {
             let right = self.unary()?;
             expr = Expr::Binary {
@@ -196,10 +202,10 @@ impl Parser {
                 right: Box::new(right),
             };
         }
-        
+
         Ok(expr)
     }
-    
+
     fn unary(&mut self) -> Result<Expr, String> {
         if self.match_token(&[TokenType::Not]) {
             let operand = self.unary()?;
@@ -208,7 +214,7 @@ impl Parser {
                 operand: Box::new(operand),
             });
         }
-        
+
         if self.match_token(&[TokenType::Minus]) {
             let operand = self.unary()?;
             return Ok(Expr::Unary {
@@ -216,13 +222,13 @@ impl Parser {
                 operand: Box::new(operand),
             });
         }
-        
+
         self.call()
     }
-    
+
     fn call(&mut self) -> Result<Expr, String> {
         let mut expr = self.primary()?;
-        
+
         loop {
             if self.match_token(&[TokenType::LeftParen]) {
                 expr = self.finish_call(expr)?;
@@ -237,18 +243,18 @@ impl Parser {
                 break;
             }
         }
-        
+
         Ok(expr)
     }
-    
+
     fn finish_call(&mut self, callee: Expr) -> Result<Expr, String> {
         let name = match callee {
             Expr::Variable(n) => n,
             _ => return Err(self.error_at_previous("Invalid function call")),
         };
-        
+
         let mut args = Vec::new();
-        
+
         if !self.check(&TokenType::RightParen) {
             loop {
                 args.push(self.expression()?);
@@ -257,45 +263,48 @@ impl Parser {
                 }
             }
         }
-        
+
         self.consume(&TokenType::RightParen, "Expected ')' after arguments")?;
-        
+
         Ok(Expr::Call { name, args })
     }
-    
+
     fn primary(&mut self) -> Result<Expr, String> {
         if self.match_token(&[TokenType::True]) {
             return Ok(Expr::Boolean(true));
         }
-        
+
         if self.match_token(&[TokenType::False]) {
             return Ok(Expr::Boolean(false));
         }
-        
+
         if self.match_token(&[TokenType::Nil]) {
             return Ok(Expr::Nil);
         }
-        
+
         if self.match_token(&[TokenType::Number]) {
-            let value = self.previous().lexeme.parse::<f64>()
+            let value = self
+                .previous()
+                .lexeme
+                .parse::<f64>()
                 .map_err(|_| self.error_at_previous("Invalid number"))?;
             return Ok(Expr::Number(value));
         }
-        
+
         if self.match_token(&[TokenType::String]) {
             return Ok(Expr::String(self.previous().lexeme.clone()));
         }
-        
+
         if self.match_token(&[TokenType::Identifier]) {
             return Ok(Expr::Variable(self.previous().lexeme.clone()));
         }
-        
+
         if self.match_token(&[TokenType::LeftParen]) {
             let expr = self.expression()?;
             self.consume(&TokenType::RightParen, "Expected ')' after expression")?;
             return Ok(expr);
         }
-        
+
         if self.match_token(&[TokenType::LeftBrace]) {
             let mut elements = Vec::new();
             if !self.check(&TokenType::RightBrace) {
@@ -309,13 +318,13 @@ impl Parser {
             self.consume(&TokenType::RightBrace, "Expected '}' after array elements")?;
             return Ok(Expr::Array(elements));
         }
-        
+
         {
             let message = format!("Unexpected token: {:?}", self.peek());
             Err(self.error_at_current(&message))
         }
     }
-    
+
     pub(crate) fn match_binary_op(&mut self, types: &[TokenType]) -> Option<BinaryOp> {
         for token_type in types {
             if self.check(token_type) {

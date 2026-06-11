@@ -1,10 +1,4 @@
-use marina::{
-    lexer::Lexer,
-    parser::Parser,
-    compiler::Compiler,
-    vm::VM,
-    bytecode::Value,
-};
+use marina::{bytecode::Value, compiler::Compiler, lexer::Lexer, parser::Parser, vm::VM};
 
 fn run_source(source: &str) -> Result<(), String> {
     let mut lexer = Lexer::new(source.to_string());
@@ -13,7 +7,7 @@ fn run_source(source: &str) -> Result<(), String> {
     let program = parser.parse()?;
     let compiler = Compiler::new();
     let (chunk, functions) = compiler.compile(program)?;
-    
+
     let mut vm = VM::new();
     vm.run(&chunk, functions)?;
     Ok(())
@@ -65,7 +59,10 @@ fn test_vm_array_indexing() {
 #[test]
 fn test_vm_indexed_assignment() {
     let result = run_source("LOCAL arr := {1, 2, 3}\narr[1] := 99");
-    assert!(result.is_ok(), "Indexed assignment should execute without error");
+    assert!(
+        result.is_ok(),
+        "Indexed assignment should execute without error"
+    );
 }
 
 #[test]
@@ -100,9 +97,7 @@ fn test_vm_comparison() {
 
 #[test]
 fn test_vm_nested_loops() {
-    let result = run_source(
-        "FOR i := 1 TO 3\nFOR j := 1 TO 3\nLOCAL x := i * j\nNEXT\nNEXT"
-    );
+    let result = run_source("FOR i := 1 TO 3\nFOR j := 1 TO 3\nLOCAL x := i * j\nNEXT\nNEXT");
     assert!(result.is_ok());
 }
 

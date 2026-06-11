@@ -1,21 +1,21 @@
 // Marina Code Formatter (marina-fmt)
 // Formats Clipper-2025 (.prg) files with consistent style
 
-use marina::{formatter, Lexer, Parser};
+use marina::{Lexer, Parser, formatter};
 use std::env;
 use std::fs;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    
+
     if args.len() < 2 {
         print_usage(&args[0]);
         std::process::exit(1);
     }
-    
+
     let mut check_only = false;
     let mut files = Vec::new();
-    
+
     for arg in &args[1..] {
         match arg.as_str() {
             "--check" => check_only = true,
@@ -30,13 +30,13 @@ fn main() {
             }
         }
     }
-    
+
     if files.is_empty() {
         eprintln!("Error: No .prg files specified");
         print_usage(&args[0]);
         std::process::exit(1);
     }
-    
+
     for file in files {
         if let Err(e) = format_file(&file, check_only) {
             eprintln!("Error formatting {}: {}", file, e);
@@ -57,20 +57,25 @@ fn print_usage(program: &str) {
     println!();
     println!("Examples:");
     println!("  {} program.prg              Format program.prg", program);
-    println!("  {} --check program.prg      Check if program.prg is formatted", program);
-    println!("  {} examples/*.prg           Format all .prg files in examples/", program);
+    println!(
+        "  {} --check program.prg      Check if program.prg is formatted",
+        program
+    );
+    println!(
+        "  {} examples/*.prg           Format all .prg files in examples/",
+        program
+    );
 }
 
 fn format_file(filename: &str, check_only: bool) -> Result<(), String> {
-    let source = fs::read_to_string(filename)
-        .map_err(|e| format!("Failed to read file: {}", e))?;
-    
+    let source = fs::read_to_string(filename).map_err(|e| format!("Failed to read file: {}", e))?;
+
     // Parse the file to ensure it's valid
     let mut lexer = Lexer::new(source.clone());
     let tokens = lexer.scan_tokens()?;
     let mut parser = Parser::new(tokens);
     let _program = parser.parse()?;
-    
+
     let formatted = formatter::format_source(&source, formatter::FormatOptions::default());
 
     // Normalize before comparing to avoid \r\n differences.
@@ -90,6 +95,6 @@ fn format_file(filename: &str, check_only: bool) -> Result<(), String> {
     } else {
         println!("Already formatted {}", filename);
     }
-    
+
     Ok(())
 }

@@ -3,10 +3,10 @@
 #[derive(Debug, Clone, PartialEq)]
 pub enum OpCode {
     // Stack operations
-    Push,           // Push constant onto stack
-    Pop,            // Pop value from stack
-    Dup,            // Duplicate top of stack
-    
+    Push, // Push constant onto stack
+    Pop,  // Pop value from stack
+    Dup,  // Duplicate top of stack
+
     // Arithmetic operations
     Add,
     Subtract,
@@ -15,7 +15,7 @@ pub enum OpCode {
     Modulo,
     Power,
     Negate,
-    
+
     // Comparison operations
     Equal,
     NotEqual,
@@ -23,30 +23,30 @@ pub enum OpCode {
     GreaterEqual,
     Less,
     LessEqual,
-    
+
     // Logical operations
     And,
     Or,
     Not,
-    
+
     // Variable operations
-    GetLocal,       // Get local variable
-    SetLocal,       // Set local variable
-    GetGlobal,      // Get global variable
-    SetGlobal,      // Set global variable
-    
+    GetLocal,  // Get local variable
+    SetLocal,  // Set local variable
+    GetGlobal, // Get global variable
+    SetGlobal, // Set global variable
+
     // Control flow
-    Jump,           // Unconditional jump
-    JumpIfFalse,    // Jump if top of stack is false
-    JumpIfTrue,     // Jump if top of stack is true
-    Call,           // Call function
-    Return,         // Return from function
-    
+    Jump,        // Unconditional jump
+    JumpIfFalse, // Jump if top of stack is false
+    JumpIfTrue,  // Jump if top of stack is true
+    Call,        // Call function
+    Return,      // Return from function
+
     // Array operations
-    MakeArray,      // Create array from stack values
-    GetIndex,       // Get array element
-    SetIndex,       // Set array element
-    
+    MakeArray, // Create array from stack values
+    GetIndex,  // Get array element
+    SetIndex,  // Set array element
+
     // Database operations
     DbUse,
     DbSkip,
@@ -54,12 +54,12 @@ pub enum OpCode {
     DbGoBottom,
     DbSeek,
     DbReplace,
-    
+
     // Built-in functions
-    Print,          // Print value
-    
+    Print, // Print value
+
     // Special
-    Halt,           // Stop execution
+    Halt, // Stop execution
 }
 
 #[derive(Debug, Clone)]
@@ -87,7 +87,7 @@ impl Value {
             Value::Function { .. } => true,
         }
     }
-    
+
     pub fn to_string(&self) -> String {
         match self {
             Value::Number(n) => {
@@ -136,32 +136,34 @@ impl Chunk {
             constants: Vec::new(),
         }
     }
-    
+
     pub fn write(&mut self, opcode: OpCode, operand: Option<usize>) {
         self.code.push(Instruction::new(opcode, operand));
     }
-    
+
     pub fn add_constant(&mut self, value: Value) -> usize {
         self.constants.push(value);
         self.constants.len() - 1
     }
-    
+
     pub fn disassemble(&self, name: &str) {
         println!("== {} ==", name);
         for (offset, instruction) in self.code.iter().enumerate() {
             self.disassemble_instruction(offset, instruction);
         }
     }
-    
+
     fn disassemble_instruction(&self, offset: usize, instruction: &Instruction) {
         print!("{:04} ", offset);
-        
+
         match &instruction.opcode {
             OpCode::Push => {
                 if let Some(constant_idx) = instruction.operand {
-                    println!("PUSH           {} '{}'", 
-                        constant_idx, 
-                        self.constants[constant_idx].to_string());
+                    println!(
+                        "PUSH           {} '{}'",
+                        constant_idx,
+                        self.constants[constant_idx].to_string()
+                    );
                 } else {
                     println!("PUSH");
                 }

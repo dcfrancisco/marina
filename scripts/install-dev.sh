@@ -1,34 +1,37 @@
-# Install binaries to ~/.marina/bin by default, or to a custom location if specified
-INSTALL_DIR="${INSTALL_DIR:-$HOME/.marina/bin}"
+#!/usr/bin/env bash
 
-# Ensure the install directory exists
+set -e
+
+INSTALL_DIR="${INSTALL_DIR:-$HOME/.marina/bin}"
+BINS=(
+  clipper
+  marina-lsp
+  marina-fmt
+  marina-dap
+  marina-docs
+)
+
 mkdir -p "$INSTALL_DIR"
-echo "Installing binaries to $INSTALL_DIR..."
-for bin in clipper marina-lsp marina-fmt marina-dap; do
+
+echo "Installing Marina (development mode)"
+echo "Building Marina..."
+cargo build
+
+echo "Linking binaries to $INSTALL_DIR..."
+for bin in "${BINS[@]}"; do
   if [ -f "target/debug/$bin" ]; then
     ln -sf "$(pwd)/target/debug/$bin" "$INSTALL_DIR/$bin"
-    echo "Linked $bin to $INSTALL_DIR."
+    echo "Linked $bin to $INSTALL_DIR/$bin"
   else
     echo "Warning: target/debug/$bin not found, skipping."
   fi
 done
-echo "Installing Marina (development mode)"
-set -e
 
-echo "Installing Marina (development mode)"
-
-# Build
-echo "Building Marina..."
-cargo build
-
-echo "Marina installed to $MARINA_BIN/marina"
 echo
-
-# PATH reminder
-if [[ ":$PATH:" != *":$MARINA_BIN:"* ]]; then
+if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
   echo "Add this to your shell config if needed:"
-  echo "  export PATH=\"\$PATH:$MARINA_BIN\""
+  echo "  export PATH=\"\$PATH:$INSTALL_DIR\""
 fi
 
 echo
-echo "Done. Try: marina --help"
+echo "Done. Try: clipper --help"

@@ -7,41 +7,41 @@ pub enum Expr {
     String(String),
     Boolean(bool),
     Nil,
-    
+
     // Variables and identifiers
     Variable(String),
-    
+
     // Binary operations
     Binary {
         left: Box<Expr>,
         operator: BinaryOp,
         right: Box<Expr>,
     },
-    
+
     // Unary operations
     Unary {
         operator: UnaryOp,
         operand: Box<Expr>,
     },
-    
+
     // Function call
     Call {
         name: String,
         args: Vec<Expr>,
     },
-    
+
     // Array/field access
     Index {
         object: Box<Expr>,
         index: Box<Expr>,
     },
-    
+
     // Assignment
     Assign {
         name: String,
         value: Box<Expr>,
     },
-    
+
     // Array literal
     Array(Vec<Expr>),
 }
@@ -78,10 +78,10 @@ pub enum Stmt {
         initializer: Option<Expr>,
         scope: VarScope,
     },
-    
+
     // Expression statement
     Expression(Expr),
-    
+
     // Function/Procedure definition
     Function {
         name: String,
@@ -89,23 +89,23 @@ pub enum Stmt {
         body: Vec<Stmt>,
         is_procedure: bool,
     },
-    
+
     // Return statement
     Return(Option<Expr>),
-    
+
     // If statement
     If {
         condition: Expr,
         then_branch: Vec<Stmt>,
         else_branch: Option<Vec<Stmt>>,
     },
-    
+
     // While loop
     While {
         condition: Expr,
         body: Vec<Stmt>,
     },
-    
+
     // For loop
     For {
         variable: String,
@@ -114,47 +114,47 @@ pub enum Stmt {
         step: Option<Expr>,
         body: Vec<Stmt>,
     },
-    
+
     // Do-While loop
     DoWhile {
         body: Vec<Stmt>,
         condition: Expr,
     },
-    
+
     // Exit loop
     Exit,
-    
+
     // Loop (infinite loop with Exit)
     Loop {
         body: Vec<Stmt>,
     },
-    
+
     // Case statement
     Case {
         expr: Expr,
         cases: Vec<(Expr, Vec<Stmt>)>, // (value, statements)
         otherwise: Option<Vec<Stmt>>,
     },
-    
+
     // Database operations
     DbUse {
         filename: String,
         alias: Option<String>,
     },
-    
+
     DbSkip(Option<Expr>),
     DbGoTop,
     DbGoBottom,
-    
+
     DbSeek {
         key: Expr,
     },
-    
+
     Replace {
         field: String,
         value: Expr,
     },
-    
+
     // Block of statements
     Block(Vec<Stmt>),
 }
