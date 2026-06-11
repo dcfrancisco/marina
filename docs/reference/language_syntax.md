@@ -61,6 +61,14 @@ This language manual describes:
 * modern data types
 * deeper extensibility
 
+### Compatibility Note
+
+`.ch` files, `#command`, `#translate`, `#include`, and `@ SAY/GET`-style syntax are **not implemented in the current runtime/compiler**.
+
+If and when Marina adds a future macro/preprocessor phase, the intended compatibility target should be **closest to Clipper 5.2 first**, with Clipper 5.3 used as a secondary reference.
+
+The `include/` headers already checked into this repository are being used as **Clipper 5.2 reference material** for that future compatibility layer.
+
 ---
 
 # **3. Lexical Structure**

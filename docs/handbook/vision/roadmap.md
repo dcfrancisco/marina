@@ -134,7 +134,13 @@ These are important, but they are not current release-gating work.
 - HTTP/web work
 - Async/concurrency model
 - Macro system rollout
+- `.ch` preprocessing and legacy compatibility macros
+- `@ SAY/GET` compatibility
 - Ecosystem/package registry
+
+For future macro/preprocessor work, the preferred compatibility target is **Clipper 5.2 behavior first**, with Clipper 5.3 treated as secondary compatibility guidance.
+
+The `include/` headers already present in the repository should serve as the primary Clipper 5.2 reference set for `.ch` compatibility, especially `STD.CH` for `@ SAY`, `@ GET`, and related command forms.
 
 ---
 

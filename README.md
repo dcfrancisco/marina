@@ -103,12 +103,19 @@ Current runtime model:
 - Expand runtime validation around function calls, returns, and entrypoints
 - Keep module/import work minimal and honest
 - Minimal built-in import namespaces are now supported; dynamic/lazy modules are not
+- `.ch` preprocessing and `@ SAY/GET` compatibility are explicitly deferred until the future macro/preprocessor phase
 - Tooling present but not phase-defining: `marina-fmt`, `marina-docs`, experimental `marina-lsp`, stub `marina-dap`
 
 **Phase 5 (Ecosystem & IDE):** 📋 Future
 - VSCode extension (when language is mature)
 - Package system (.cpkg/.cjar)
 - Comprehensive standard library
+
+**Future Macro/Preprocessor Direction:** 📋 Post-Phase-3
+- `.ch` files, `#command`, `#translate`, and `#include`
+- `@ SAY/GET`-style compatibility
+- Compatibility target should prefer Clipper 5.2 behavior first, with 5.3 considered secondary
+- The `include/` header files in this repository are being used as Clipper 5.2 reference material for that future compatibility work
 
 ## Usage
 

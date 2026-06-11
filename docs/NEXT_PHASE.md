@@ -77,7 +77,13 @@ The following remain explicitly deferred until after core stability:
 - HTTP and web services
 - Async runtime or concurrency model
 - Macro system rollout
+- `.ch` preprocessing, `#command`, `#translate`, and `#include`
+- `@ SAY/GET` compatibility
 - Rich standard library expansion beyond current builtins
 - LSP expansion beyond the current experimental binary
 - DAP implementation
 - Package ecosystem work
+
+When macro/preprocessor work is scheduled, the compatibility target should be **Clipper 5.2 first**, with Clipper 5.3 as a secondary reference rather than the primary behavioral target.
+
+The `include/` headers currently in the repository should be treated as **Clipper 5.2 reference material** for that future work, especially `STD.CH` and related compatibility headers.
