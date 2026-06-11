@@ -151,7 +151,6 @@ fn test_case_multiple_statements() {
 }
 
 #[test]
-#[ignore] // TODO: Nested CASE not yet supported - parser needs lookahead improvement
 fn test_nested_case() {
     let source = r#"
         LOCAL x := 1
@@ -169,4 +168,19 @@ fn test_nested_case() {
         eprintln!("Error: {}", e);
     }
     assert!(result.is_ok());
+}
+
+#[test]
+fn test_elseif_executes() {
+    let source = r#"
+        LOCAL x := 7
+        IF x > 10
+            LOCAL y := 1
+        ELSEIF x > 5
+            LOCAL y := 2
+        ELSE
+            LOCAL y := 3
+        ENDIF
+    "#;
+    assert!(run_source(source).is_ok());
 }

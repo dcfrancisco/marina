@@ -1,44 +1,83 @@
-# Next Phase — Focused Phase 3 Completion
+# Next Phase — Phase 3 Runtime & Module Stabilization
 
-**This document describes the immediate work required to complete Phase 3 of the Marina project.**  
-The goal of Phase 3 is to **stabilize the language core and runtime boundaries**, not add new ecosystems or feature sets.
+**This document describes the immediate work required after Phase 2 and Phase 2.5.**  
+The goal of Phase 3 is to **stabilize the implemented language core and runtime**, not broaden the feature surface.
 
-> **Phase 3 Done = Marina core language & VM is stable, with minimal module system implemented.**
+> **Phase 3 Done = Marina's current compiler/VM behavior is reliable, documented, and ready for release-candidate use.**
+
+---
+
+## Phase Review
+
+### Phase 2 — Language Expansion
+
+**Status: Complete with carryover fixes**
+
+Delivered:
+
+- `CASE` / `OTHERWISE`
+- Augmented assignment (`+=`, `-=`, `*=`, `/=`)
+- Increment and decrement (`++`, `--`)
+- Indexed assignment
+- Additional examples and tests
+
+Carryover items entering Phase 3:
+
+- Nested `CASE` still has an ignored test and is not fully supported
+- `ELSEIF` is tokenized but not fully implemented in the parser
+
+### Phase 2.5 — Refactoring
+
+**Status: Complete**
+
+Delivered:
+
+- Parser modularization into `src/parser/`
+- Compiler modularization into `src/compiler/`
+- VM modularization into `src/vm/`
+- Follow-up bug fixes around `Dup`, `CASE` compilation, and loop halting
 
 ---
 
 ## Primary Objectives (Phase 3)
 
-1. ❯ **Finalize bytecode instruction set**
-   - Freeze opcodes needed for core language support
-   - No additions that are for post-v1 features
+1. **Finalize the bytecode/runtime baseline**
+   - Freeze core opcodes used by the current language surface
+   - Avoid introducing post-v1 instructions
 
-2. ❯ **Finalize the VM call frame / invocation model**
-   - Consistent function calls
-   - Accurate locals, arguments, and return behavior
+2. **Harden the VM invocation model**
+   - Confirm function calls, locals, arguments, and return behavior
+   - Remove edge-case inconsistencies in top-level versus function execution
 
-3. ❯ **Implement a minimal import + lazy module loader**
-   - Modules load on first use
-   - No wildcard imports or advanced aliasing yet
-   - Simple resolution is enough
+3. **Close Phase 2 carryovers**
+   - Resolve nested `CASE`
+   - Implement or explicitly defer `ELSEIF`
 
-4. ❯ **Ensure core native bindings operate through the VM**
-   - Console and TUI calls must be executed via the VM
-   - Native call contract is stable
+4. **Keep native runtime bindings stable**
+   - Console and TUI builtins continue to execute through the VM
+   - Built-in behavior is documented and release-safe
 
-5. ❯ **One working validation program**
-   - Tower of Hanoi example runs reliably
-   - No new example programs are required for Phase 3 completion
+5. **Define the module boundary honestly**
+   - Document the minimal module/import plan
+   - Minimal built-in import namespaces are now allowed
+   - Do not claim lazy loading until it exists
+
+6. **Prepare release validation**
+   - Keep a small reliable example set
+   - Make docs, tests, and implementation describe the same system
 
 ---
 
 ## Out of Scope for Phase 3
 
-The following are important but **NOT required** for Phase 3 and should be deferred until after v1.0 core stability:
+The following remain explicitly deferred until after core stability:
 
 - Database engines and adapters
-- HTTP/Web services
-- Async modules or runtime
-- Rich standard libraries beyond minimal core
-- Language Server Protocols (LSP)
-- IDE formatter or diagnostics
+- PostgreSQL, SQLite, MongoDB, Redis, and other backends
+- HTTP and web services
+- Async runtime or concurrency model
+- Macro system rollout
+- Rich standard library expansion beyond current builtins
+- LSP expansion beyond the current experimental binary
+- DAP implementation
+- Package ecosystem work

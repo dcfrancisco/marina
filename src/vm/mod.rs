@@ -21,7 +21,6 @@ pub struct VM {
 pub(crate) struct CallFrame {
     pub return_ip: usize,
     pub locals_start: usize, // Where this frame's locals start
-    pub locals_count: usize, // How many locals this frame has
 }
 
 impl VM {
@@ -68,7 +67,6 @@ impl VM {
             self.call_frames.push(CallFrame {
                 return_ip: usize::MAX, // Signal to stop after Main() returns
                 locals_start: self.locals.len(),
-                locals_count: 0,
             });
 
             self.ip = addr;

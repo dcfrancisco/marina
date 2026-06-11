@@ -15,6 +15,7 @@ pub enum TokenType {
     Function,
     Procedure,
     Return,
+    Import,
     Local,
     Static,
     Private,

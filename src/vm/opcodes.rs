@@ -288,7 +288,6 @@ impl VM {
             let frame = CallFrame {
                 return_ip: self.ip + 1,
                 locals_start: self.locals.len(),
-                locals_count: arity,
             };
 
             // Move arguments from stack to locals
@@ -313,7 +312,29 @@ impl VM {
 
     fn execute_builtin_function(&mut self, func_name: &str, arity: usize) -> Result<(), String> {
         let func_upper = func_name.to_ascii_uppercase();
-        match func_upper.as_str() {
+        let canonical_name = match func_upper.split_once('.') {
+            Some((module, function)) => match (module, function) {
+                (
+                    "CONSOLE",
+                    "CLEARSCREEN" | "SETPOS" | "DEVPOS" | "GOTOXY" | "OUTSTD" | "SETCOLOR"
+                    | "SETCURSOR" | "SAVEPOS" | "RESTOREPOS",
+                ) => function,
+                ("INPUT", "INKEY" | "GETINPUT" | "GETSECRET") => function,
+                ("MATH", "ABS" | "SQRT" | "ROUND" | "INT" | "MIN" | "MAX" | "SIN" | "COS"
+                | "TAN") => function,
+                (
+                    "STRING",
+                    "REPLICATE" | "SPACE" | "LEN" | "SUBSTR" | "TRIM" | "ALLTRIM" | "LTRIM"
+                    | "RTRIM" | "CHR" | "ASC" | "VAL" | "STR",
+                ) => function,
+                ("SYSTEM", "SLEEP") => function,
+                _ => {
+                    return Err(format!("Unknown function: {}", func_name));
+                }
+            },
+            None => func_upper.as_str(),
+        };
+        match canonical_name {
             "SETPOS" | "DEVPOS" => {
                 if arity != 2 {
                     return Err(format!("{} requires 2 arguments (row, col)", func_name));

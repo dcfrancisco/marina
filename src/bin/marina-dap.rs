@@ -1,8 +1,6 @@
 // Marina Debug Adapter Protocol (DAP) implementation
 // Provides debugging capabilities: breakpoints, step execution, variable inspection
 
-use std::io::{self, Write};
-
 fn main() {
     eprintln!("Marina Debug Adapter Protocol (DAP)");
     eprintln!("Version: {}", env!("CARGO_PKG_VERSION"));

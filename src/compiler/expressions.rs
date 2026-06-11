@@ -34,6 +34,13 @@ impl Compiler {
                 }
             }
 
+            Expr::Member { .. } => {
+                return Err(
+                    "Member access is only supported as a function call target in the current module model"
+                        .to_string(),
+                );
+            }
+
             Expr::Binary {
                 left,
                 operator,
@@ -135,6 +142,7 @@ impl Compiler {
                         self.chunk.write(OpCode::Print, None);
                     }
                 } else {
+                    self.validate_imported_call(name)?;
                     // All functions (user-defined and built-in) use name-based calling
                     // Push function name as string
                     let name_idx = self.chunk.add_constant(Value::String(name.clone()));

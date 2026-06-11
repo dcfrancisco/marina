@@ -147,7 +147,6 @@ fn test_compile_exit_in_loop() {
     assert!(jump_count >= 2, "Should have jumps for LOOP and EXIT");
 
     // Should NOT have Halt for EXIT
-    let has_halt = chunk.code.iter().any(|inst| inst.opcode == OpCode::Halt);
     // Only final Halt should exist
     assert_eq!(
         chunk
@@ -179,4 +178,39 @@ fn test_compile_function() {
     // Should have Return instruction
     let has_return = chunk.code.iter().any(|inst| inst.opcode == OpCode::Return);
     assert!(has_return);
+}
+
+#[test]
+fn test_compile_static_private_public_as_globals() {
+    let (chunk, _) = compile_source("STATIC s := 1\nPRIVATE p := 2\nPUBLIC g := 3")
+        .expect("Compile should succeed");
+
+    let set_global_count = chunk
+        .code
+        .iter()
+        .filter(|inst| inst.opcode == OpCode::SetGlobal)
+        .count();
+
+    assert_eq!(
+        set_global_count, 3,
+        "STATIC, PRIVATE, and PUBLIC currently compile through the global storage path"
+    );
+}
+
+#[test]
+fn test_compile_imported_namespaced_builtin_call() {
+    let (chunk, _) = compile_source("IMPORT \"string\"\nLOCAL n := string.len(\"abc\")")
+        .expect("Compile should succeed");
+
+    let has_call = chunk.code.iter().any(|inst| inst.opcode == OpCode::Call);
+    assert!(has_call, "Imported namespaced builtin call should compile to CALL");
+}
+
+#[test]
+fn test_compile_namespaced_call_without_import_fails() {
+    let err = compile_source("LOCAL n := string.len(\"abc\")").unwrap_err();
+    assert!(
+        err.contains("must be imported"),
+        "Expected import validation error, got: {err}"
+    );
 }

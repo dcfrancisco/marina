@@ -425,50 +425,32 @@ This document maps essential features of a great modern programming language to 
 
 ## Summary: Phase Mapping
 
-| Phase | Focus | Completion % | Priority Features |
-|-------|-------|--------------|-------------------|
-| **Phase 1** | Core VM & Compiler | 80% | ✅ Basic types, operators, control flow, bytecode |
-| **Phase 2** | Arrays/Maps/Lists | 0% | 🎯 Maps, lists, for-each, ranges, constants |
-| **Phase 3** | Tooling & Dev XP | 20% | 🔄 LSP, DAP, formatter, closures, higher-order fns |
-| **Phase 4** | DBF/CDX Engine | 0% | Clean cursor API, transactions |
-| **Phase 5** | Standard Library | 0% | String, math, array, file I/O, modules |
-| **Phase 6** | Macro System | 0% | Compile-time code generation |
-| **Phase 7** | SQL Engines | 0% | PostgreSQL, SQLite, query builders |
-| **Phase 8** | Native OOP | 0% | Classes, inheritance, methods |
-| **Phase 9** | NoSQL Engines | 0% | MongoDB, Redis |
-| **Phase 10** | Async/Await | 0% | Concurrency model, threads |
-| **Phase 11** | Cross-Platform GUI | 0% | Modern VO concept, declarative DSL |
-| **Phase 12** | Package Ecosystem | 0% | Dockyard registry, marina.toml |
-| **Phase 13** | JIT Compiler | 0% | Performance optimization |
-| **Phase 14** | WASM & Embedded | 0% | Web, IoT targets |
+| Phase | Focus | Status | Priority Features |
+|-------|-------|--------|-------------------|
+| **Phase 1** | Core VM & Compiler | Completed | Lexer, parser, compiler, VM, core control flow |
+| **Phase 2** | Language expansion | Completed with carryovers | `CASE`, augmented ops, increment/decrement, indexed assignment |
+| **Phase 2.5** | Refactoring | Completed | Modular parser/compiler/VM layout |
+| **Phase 3** | Runtime & module stabilization | In Progress | VM correctness, carryover fixes, docs/tests/examples alignment |
+| **Phase 4+** | Libraries, tooling, ecosystem | Planned / Deferred | Databases, modules, packages, advanced tooling |
 
 ---
 
 ## Next Immediate Actions (Priority Order)
 
-### 🎯 Phase 1 Completion (80% → 100%)
-1. Fix user-defined functions (parameters, return values, call frames)
-2. Implement bytecode serialization (.bc files)
-3. Improve error messages with source location
-4. Document bytecode spec in docs/reference/bytecode.md
+### 🎯 Phase 3 - Runtime & Module Stabilization
+1. Resolve nested `CASE`
+2. Implement or explicitly defer `ELSEIF`
+3. Validate function/call-frame behavior and return semantics
+4. Freeze and document the current runtime/bytecode baseline
+5. Make docs and examples match the implemented system
 
-### 🎯 Phase 2 - Essential Foundation (NEXT PRIORITY)
-1. **Maps/Hashes** - `map := {"key" => "value"}`
-2. **Lists** - Dynamic ordered collections
-3. **For-Each** - `FOR EACH item IN collection`
-4. **Constants** - `CONST PI := 3.14159`
-5. **String Interpolation** - `"Hello {name}"`
-6. **ElseIf** - Multi-way conditionals
-7. **Ranges** - `1..10` syntax
-
-### 🎯 Phase 3 - Developer Experience (IN PROGRESS)
-1. Complete LSP features (go-to-def, find refs, rename)
-2. Implement DAP (breakpoints, stepping, inspection)
-3. Code formatter (auto-format, style enforcement)
-4. Closures/lambdas - `{|x| x + 1}`
-5. Higher-order functions (map, filter, reduce)
+### 🎯 Post-Phase-3
+1. Decide the minimal module/import plan
+2. Expand standard-library capabilities carefully
+3. Revisit tooling depth after runtime stabilization
+4. Keep database and ecosystem work deferred until core release quality is reached
 
 ---
 
-**Last Review:** 2025-11-19  
-**Next Review:** After Phase 2 completion
+**Last Review:** 2026-06-12  
+**Next Review:** After Phase 3 stabilization work lands
