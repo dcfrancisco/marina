@@ -6,6 +6,8 @@
 > recursion, returns, and the five built-in import namespaces are implemented
 > and covered by automated tests. The authoritative release scope is
 > [Supported Features](reference/SUPPORTED_FEATURES.md).
+> This is a long-range feature inventory; unchecked Phase 2/3 entries are
+> deferred to post-Phase-3 work unless the release reference says otherwise.
 
 This document maps essential features of a great modern programming language to Marina's implementation roadmap.
 
@@ -19,8 +21,8 @@ This document maps essential features of a great modern programming language to 
 - [x] **Booleans** - TRUE/FALSE ✅ Phase 1
 - [x] **Null/Nil** - NIL keyword ✅ Phase 1
 - [x] **Arrays** - `{1, 2, 3}` syntax ✅ Phase 2
-- [ ] **Lists** - Ordered collections (dynamic) → Phase 2 (PRIORITY)
-- [ ] **Maps/Hashes** - `{"key" => "value"}` → Phase 2 (PRIORITY)
+- [ ] **Lists** - Ordered collections (dynamic) → Post-Phase-3
+- [ ] **Maps/Hashes** - `{"key" => "value"}` → Post-Phase-3
 - [ ] **Tuples** - Immutable fixed-size collections → Phase 5
 - [ ] **Sets** - Unique value collections → Phase 5
 - [ ] **Byte Arrays/Buffers** - Binary data → Phase 5
@@ -51,23 +53,23 @@ This document maps essential features of a great modern programming language to 
 - [x] **Do-While Loops** - Post-test loops ✅ Phase 1
 - [x] **For Loops** - Counted iteration ✅ Phase 1
 - [x] **Loop/Break** - Infinite loops with exit ✅ Phase 2
-- [ ] **For-Each** - Iterator loops → Phase 2 (PRIORITY)
+- [ ] **For-Each** - Iterator loops → Post-Phase-3
 - [ ] **Continue** - Skip iteration → Phase 2
-- [ ] **Return** - Early function exit ✅ Phase 1 (needs fixing)
-- [ ] **Labeled Breaks** - Multi-level exit → Phase 3
-- [ ] **Guard Clauses** - Early returns → Phase 3
+- [x] **Return** - Early function exit ✅ Phase 1
+- [ ] **Labeled Breaks** - Multi-level exit → Post-Phase-3
+- [ ] **Guard Clauses** - Early returns → Post-Phase-3
 
 ### 1.4 Functions & Procedures
 - [x] **Function Definition** - `FUNCTION Name(params)` ✅ Phase 1
 - [x] **Function Calls** - `Name(args)` ✅ Phase 1
 - [x] **Return Values** - `RETURN value` ✅ Phase 1
 - [x] **Multiple Parameters** - `FUNCTION(a, b, c)` ✅ Phase 1
-- [ ] **Default Parameters** - `FUNCTION(x := 10)` → Phase 3
-- [ ] **Optional Parameters** - `FUNCTION(x?)` → Phase 3
-- [ ] **Rest Parameters** - `FUNCTION(...args)` → Phase 3
-- [ ] **Named Arguments** - `Call(name: "value")` → Phase 3
-- [ ] **Closures/Lambdas** - `{|x| x + 1}` → Phase 3
-- [ ] **Higher-Order Functions** - Functions returning functions → Phase 3
+- [ ] **Default Parameters** - `FUNCTION(x := 10)` → Post-Phase-3
+- [ ] **Optional Parameters** - `FUNCTION(x?)` → Post-Phase-3
+- [ ] **Rest Parameters** - `FUNCTION(...args)` → Post-Phase-3
+- [ ] **Named Arguments** - `Call(name: "value")` → Post-Phase-3
+- [ ] **Closures/Lambdas** - `{|x| x + 1}` → Post-Phase-3
+- [ ] **Higher-Order Functions** - Functions returning functions → Post-Phase-3
 - [x] **Recursion** - Functions calling themselves ✅ Phase 1
 - [ ] **Tail Call Optimization** - Stack-safe recursion → Phase 4
 - [ ] **Pure Functions** - No side effects (convention) → Phase 6
@@ -78,8 +80,8 @@ This document maps essential features of a great modern programming language to 
 - [x] **Private Variables** - `PRIVATE x` ✅ Phase 1
 - [x] **Public Variables** - `PUBLIC x` ✅ Phase 1
 - [ ] **Constants** - `CONST PI := 3.14159` → Phase 2
-- [ ] **Immutability** - Read-only bindings → Phase 3
-- [ ] **Shadowing** - Redefining variables → Phase 3
+- [ ] **Immutability** - Read-only bindings → Post-Phase-3
+- [ ] **Shadowing** - Redefining variables → Post-Phase-3
 - [ ] **Destructuring** - `LOCAL {x, y} := point` → Phase 5
 - [ ] **Pattern Matching** - Advanced case statements → Phase 5
 
@@ -118,11 +120,11 @@ This document maps essential features of a great modern programming language to 
 ## 3. Functional Programming
 
 ### 3.1 First-Class Functions
-- [ ] **Functions as Values** - `f := MyFunc` → Phase 3
-- [ ] **Anonymous Functions** - `{|x| x * 2}` → Phase 3
-- [ ] **Closures** - Capture outer scope → Phase 3
-- [ ] **Higher-Order Functions** - map/filter/reduce → Phase 3
-- [ ] **Currying** - Partial application → Phase 3
+- [ ] **Functions as Values** - `f := MyFunc` → Post-Phase-3
+- [ ] **Anonymous Functions** - `{|x| x * 2}` → Post-Phase-3
+- [ ] **Closures** - Capture outer scope → Post-Phase-3
+- [ ] **Higher-Order Functions** - map/filter/reduce → Post-Phase-3
+- [ ] **Currying** - Partial application → Post-Phase-3
 - [ ] **Function Composition** - `f >> g` → Phase 6
 
 ### 3.2 Immutability & Purity
@@ -132,9 +134,9 @@ This document maps essential features of a great modern programming language to 
 - [ ] **Referential Transparency** - Same input = same output → Convention
 
 ### 3.3 Collection Operations
-- [ ] **Map** - Transform elements → Phase 3
-- [ ] **Filter** - Select elements → Phase 3
-- [ ] **Reduce/Fold** - Accumulate values → Phase 3
+- [ ] **Map** - Transform elements → Post-Phase-3
+- [ ] **Filter** - Select elements → Post-Phase-3
+- [ ] **Reduce/Fold** - Accumulate values → Post-Phase-3
 - [ ] **Zip** - Combine collections → Phase 5
 - [ ] **FlatMap** - Map + flatten → Phase 5
 - [ ] **Partition** - Split by predicate → Phase 5
@@ -167,10 +169,10 @@ This document maps essential features of a great modern programming language to 
 ## 5. Error Handling
 
 ### 5.1 Exceptions
-- [ ] **Try/Catch/Finally** - Exception handling → Phase 3
-- [ ] **Throw** - Raise exceptions → Phase 3
-- [ ] **Custom Exceptions** - User-defined errors → Phase 3
-- [ ] **Stack Traces** - Error origin tracking → Phase 3
+- [ ] **Try/Catch/Finally** - Exception handling → Post-Phase-3
+- [ ] **Throw** - Raise exceptions → Post-Phase-3
+- [ ] **Custom Exceptions** - User-defined errors → Post-Phase-3
+- [ ] **Stack Traces** - Error origin tracking → Post-Phase-3
 
 ### 5.2 Result Types (Preferred for Clipper-2025)
 - [ ] **Result<T, E>** - Success or error → Phase 5
@@ -292,25 +294,25 @@ This document maps essential features of a great modern programming language to 
 - [x] **Syntax Diagnostics** - Error highlighting ✅ Phase 3 (basic)
 - [x] **Keyword Completion** - Auto-complete ✅ Phase 3 (basic)
 - [x] **Hover Info** - Type/doc tooltips ✅ Phase 3 (basic)
-- [ ] **Go to Definition** - Jump to source → Phase 3 (in progress)
-- [ ] **Find References** - Usage search → Phase 3 (in progress)
-- [ ] **Rename Symbol** - Refactoring → Phase 3 (in progress)
-- [ ] **Code Actions** - Quick fixes → Phase 3
-- [ ] **Semantic Highlighting** - Better syntax colors → Phase 3
-- [ ] **Inlay Hints** - Type annotations → Phase 3
+- [ ] **Go to Definition** - Jump to source → Post-Phase-3
+- [ ] **Find References** - Usage search → Post-Phase-3
+- [ ] **Rename Symbol** - Refactoring → Post-Phase-3
+- [ ] **Code Actions** - Quick fixes → Post-Phase-3
+- [ ] **Semantic Highlighting** - Better syntax colors → Post-Phase-3
+- [ ] **Inlay Hints** - Type annotations → Post-Phase-3
 
 ### 9.2 Debug Adapter Protocol (DAP)
-- [ ] **Breakpoints** - Pause execution → Phase 3
-- [ ] **Step In/Out/Over** - Code navigation → Phase 3
-- [ ] **Variable Inspection** - Runtime values → Phase 3
-- [ ] **Watch Expressions** - Evaluate on-the-fly → Phase 3
-- [ ] **Call Stack** - Execution history → Phase 3
-- [ ] **Conditional Breakpoints** - Break on condition → Phase 3
+- [ ] **Breakpoints** - Pause execution → Post-Phase-3
+- [ ] **Step In/Out/Over** - Code navigation → Post-Phase-3
+- [ ] **Variable Inspection** - Runtime values → Post-Phase-3
+- [ ] **Watch Expressions** - Evaluate on-the-fly → Post-Phase-3
+- [ ] **Call Stack** - Execution history → Post-Phase-3
+- [ ] **Conditional Breakpoints** - Break on condition → Post-Phase-3
 
 ### 9.3 Code Formatter
-- [ ] **Auto-Format** - Consistent style → Phase 3
-- [ ] **Configuration** - Custom rules → Phase 3
-- [ ] **Editor Integration** - Format on save → Phase 3
+- [ ] **Auto-Format** - Consistent style → Post-Phase-3
+- [ ] **Configuration** - Custom rules → Post-Phase-3
+- [ ] **Editor Integration** - Format on save → Post-Phase-3
 
 ### 9.4 Testing Framework
 - [ ] **Unit Tests** - Function testing → Phase 5
@@ -400,7 +402,7 @@ This document maps essential features of a great modern programming language to 
 - [x] **Basic Output** - `? "Hello"` ✅ Phase 1
 - [x] **ANSI Colors** - Terminal colors ✅ Phase 1 (via lib)
 - [x] **Cursor Control** - SetPos, GotoXY ✅ Phase 1 (via lib)
-- [ ] **Readline** - Input editing → Phase 3
+- [ ] **Readline** - Input editing → Post-Phase-3
 - [ ] **Progress Bars** - Visual feedback → Phase 5
 - [ ] **Tables** - Formatted output → Phase 5
 

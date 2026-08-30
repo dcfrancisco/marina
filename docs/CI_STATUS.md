@@ -3,6 +3,9 @@
 The GitHub Actions workflow is enabled for pushes and pull requests in
 `.github/workflows/ci.yml`.
 
+CI uses the repository-pinned stable toolchain from `rust-toolchain.toml` and
+the Rust dependency/build cache action.
+
 Local verification on 2026-08-31 passed:
 
 - `cargo test --all-targets --no-fail-fast`: 100 passed

@@ -1,6 +1,9 @@
-# **The Lost Visions of Clipper 5.x**
+# **The Lost Visions of Clipper 5.x — Historical and Future Design Notes**
 
-*What CA failed to finish — and how Marina brings Clipper's true future back to life.*
+> This page is historical/aspirational context, not a feature declaration.
+> Current implementation scope is defined by [Supported Features](SUPPORTED_FEATURES.md).
+
+*What CA failed to finish — and possible directions for Marina's future.*
 
 ---
 
@@ -18,11 +21,12 @@ Clipper 5.x was ahead of its time:
 * multi-database potential
 * Windows future (never finished)
 * object-oriented extensions through Class(y)
-* a planned VM (cancelled internally)
+* a planned VM (cancelled internally; historical context)
 
 But Computer Associates **failed to complete the evolution**, killing Clipper before its transformation was done.
 
-Marina and Clipper-2025 pick up where Clipper 5 stopped — completing the original design as *it should have unfolded*.
+Marina draws inspiration from where Clipper 5 stopped; the proposals below
+are not promises of current implementation.
 
 This document captures the unfulfilled vision and details how your project finishes it.
 
