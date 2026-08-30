@@ -1,6 +1,83 @@
 use super::{CallFrame, VM};
 use crate::bytecode::*;
-use std::io::Write;
+use crossterm::event::{self, Event, KeyCode, KeyEventKind};
+use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
+use std::io::{self, IsTerminal, Write};
+
+fn read_line_with_editing(default: &str, width: usize, secret: bool) -> io::Result<String> {
+    let mut value: Vec<char> = default.chars().collect();
+    let mut cursor = value.len();
+
+    enable_raw_mode()?;
+    let result = (|| {
+        loop {
+            match event::read()? {
+                Event::Key(key) if key.kind == KeyEventKind::Press => match key.code {
+                    KeyCode::Enter => break,
+                    KeyCode::Esc => {
+                        value = default.chars().collect();
+                        break;
+                    }
+                    KeyCode::Char(ch) => {
+                        if value.len() < width {
+                            value.insert(cursor, ch);
+                            cursor += 1;
+                        }
+                    }
+                    KeyCode::Backspace if cursor > 0 => {
+                        cursor -= 1;
+                        value.remove(cursor);
+                    }
+                    KeyCode::Delete if cursor < value.len() => {
+                        value.remove(cursor);
+                    }
+                    KeyCode::Left if cursor > 0 => cursor -= 1,
+                    KeyCode::Right if cursor < value.len() => cursor += 1,
+                    KeyCode::Home => cursor = 0,
+                    KeyCode::End => cursor = value.len(),
+                    _ => {}
+                },
+                _ => {}
+            }
+
+            let display: String = if secret {
+                "*".repeat(value.len())
+            } else {
+                value.iter().collect()
+            };
+            let tail_len = display.chars().count().saturating_sub(cursor);
+            print!("\r\x1b[0K{}", display);
+            if tail_len > 0 {
+                print!("\x1b[{}D", tail_len);
+            }
+            io::stdout().flush()?;
+        }
+
+        println!();
+        Ok(value.into_iter().collect())
+    })();
+    disable_raw_mode()?;
+    result
+}
+
+fn read_input(default: &str, secret: bool) -> io::Result<String> {
+    let stdin = io::stdin();
+    let stdout = io::stdout();
+    if stdin.is_terminal() && stdout.is_terminal() {
+        read_line_with_editing(default, default.chars().count(), secret)
+    } else {
+        read_line_fallback()
+    }
+}
+
+fn read_line_fallback() -> io::Result<String> {
+    let mut input = String::new();
+    io::stdin().read_line(&mut input)?;
+    while input.ends_with(['\n', '\r']) {
+        input.pop();
+    }
+    Ok(input)
+}
 
 impl VM {
     pub(crate) fn execute_instruction(
@@ -914,23 +991,8 @@ impl VM {
                     std::io::stdout().flush().unwrap();
                 }
 
-                // Release behavior is line-oriented input. Full terminal editing
-                // is deferred until a portable TTY abstraction exists.
-                use std::io::BufRead;
-                let mut input = String::new();
-                let stdin = std::io::stdin();
-                let mut handle = stdin.lock();
-
-                match handle.read_line(&mut input) {
-                    Ok(_) => {
-                        // Remove trailing newline
-                        if input.ends_with('\n') {
-                            input.pop();
-                            if input.ends_with('\r') {
-                                input.pop();
-                            }
-                        }
-
+                match read_input(&default, false) {
+                    Ok(mut input) => {
                         // Pad or truncate to default length
                         let max_len = default.len();
                         if input.len() < max_len {
@@ -1015,23 +1077,8 @@ impl VM {
                     std::io::stdout().flush().unwrap();
                 }
 
-                // Release behavior is line-oriented hidden input. Character-by-character
-                // masking is deferred until a portable TTY abstraction exists.
-                use std::io::BufRead;
-                let mut input = String::new();
-                let stdin = std::io::stdin();
-                let mut handle = stdin.lock();
-
-                match handle.read_line(&mut input) {
-                    Ok(_) => {
-                        // Remove trailing newline
-                        if input.ends_with('\n') {
-                            input.pop();
-                            if input.ends_with('\r') {
-                                input.pop();
-                            }
-                        }
-
+                match read_input(&default, true) {
+                    Ok(mut input) => {
                         // Pad or truncate to default length
                         let max_len = default.len();
                         let input_len = input.len();
