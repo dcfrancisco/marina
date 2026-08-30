@@ -1,5 +1,10 @@
 # **Clipper-2025 DBF/CDX Engine Design**
 
+> **Current implementation status:** Database support is not implemented in the
+> Phase 3 runtime. The `USE`, `DBSKIP`, `DBGOTOP`, `DBGOBOTTOM`, `DBSEEK`, and
+> `REPLACE` opcodes are diagnostic no-op stubs; the APIs and examples below are
+> design proposals only and do not provide persistence.
+
 *Modernizing Clipper's powerful database engine without xBase commands or workareas.*
 
 This document details:

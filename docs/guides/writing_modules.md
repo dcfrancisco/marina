@@ -1,5 +1,10 @@
 # **Marina Module System Specification**
 
+> **Phase 3 status:** This guide describes the target module architecture. The
+> current compiler supports only the built-in namespaces listed in the [module
+> and scope reference](../reference/modules.md). Filesystem discovery, native
+> loading, Clipper-authored modules, types, and macros are future work.
+
 *Making Clipper-2025 extensible, modern, and future-proof.*
 
 The module system is the backbone of Marina's extensibility — replacing Clipper 5.x's limitations and allowing everything from database engines to math libraries to UI frameworks to be implemented cleanly *outside* the core language.

@@ -4,6 +4,7 @@ use std::collections::HashMap;
 mod opcodes;
 mod stack;
 
+#[derive(Debug)]
 pub struct VM {
     stack: Vec<Value>,
     pub(crate) globals: HashMap<usize, Value>,
@@ -37,6 +38,22 @@ impl VM {
             saved_row: 0,
             saved_col: 0,
         }
+    }
+
+    /// Number of active user-function call frames after execution or on error.
+    pub fn call_depth(&self) -> usize {
+        self.call_frames.len()
+    }
+
+    /// Number of retained local slots. Useful for embedding diagnostics and
+    /// regression tests; normal programs do not need to inspect VM storage.
+    pub fn local_count(&self) -> usize {
+        self.locals.len()
+    }
+
+    /// Snapshot values left on the evaluation stack.
+    pub fn stack_snapshot(&self) -> Vec<Value> {
+        self.stack.clone()
     }
 
     pub fn run(&mut self, chunk: &Chunk, functions: HashMap<String, usize>) -> Result<(), String> {

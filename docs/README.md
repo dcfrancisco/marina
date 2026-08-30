@@ -45,6 +45,21 @@ Concise technical references:
 - **Next Phase**: Phase 3 - Runtime & Module Stabilization
 - **Formatter**: `clipper fmt` (MVP: indentation + keyword casing)
 - **See**: [Project README](../README.md) for implementation status
+- **Architecture decisions**: [ADR-001 — Phase 3 runtime stabilization](adr/ADR-001-phase3-runtime-stabilization.md)
+- **Next-feature decision**: [ADR-002 — Post-Phase 3 feature sequencing](adr/ADR-002-post-phase3-feature-sequencing.md)
+- **Language evolution**: [ADR-003 — Language feature evolution](adr/ADR-003-language-feature-evolution.md)
+- **Database boundary**: [ADR-004 — Database feature boundary](adr/ADR-004-database-feature-boundary.md)
+- **Clipper compatibility**: [ADR-005 — Clipper 5.2/5.3 compatibility boundary](adr/ADR-005-clipper-compatibility-boundary.md)
+- **Current work package**: [WP-001 — Phase 3 runtime stabilization](work-packages/WP-001-phase3-runtime-stabilization.md)
+- **Execution packages**: [WP-002](work-packages/WP-002-function-call-contract.md), [WP-003](work-packages/WP-003-vm-observability-tests.md), [WP-004](work-packages/WP-004-module-and-scope-contract.md), [WP-005](work-packages/WP-005-release-validation-and-stub-boundaries.md)
+- **Next-feature packages**: [WP-006](work-packages/WP-006-language-safety-and-diagnostics.md), [WP-007](work-packages/WP-007-standard-library-expansion.md), [WP-008](work-packages/WP-008-module-package-design.md), [WP-009](work-packages/WP-009-tooling-depth.md)
+- **Language package**: [WP-010 — Language compatibility increments](work-packages/WP-010-language-compatibility-increments.md)
+- **Database package**: [WP-011 — Database extension design](work-packages/WP-011-database-extension-design.md)
+- **Compatibility package**: [WP-012 — Clipper compatibility inventory](work-packages/WP-012-clipper-compatibility-inventory.md)
+- **Compatibility matrix**: [Clipper 5.2/5.3 matrix](compatibility/CLIPPER_COMPATIBILITY_MATRIX.md)
+- **Error behavior**: [Error behavior reference](reference/errors.md)
+- **Module boundary**: [Module and scope reference](reference/modules.md)
+- **Release validation**: [Release validation](RELEASE_VALIDATION.md)
 - **See**: [Instructions](../.github/copilot/INSTRUCTIONS.md) for development guidelines
 
 ---

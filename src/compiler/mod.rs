@@ -11,6 +11,7 @@ pub struct Compiler {
     scope_depth: usize,
     globals: HashMap<String, usize>,
     functions: HashMap<String, usize>, // function name -> bytecode address
+    function_arities: HashMap<String, usize>, // function name -> declared parameter count
     loop_stack: Vec<LoopContext>,      // Track loop contexts for EXIT/BREAK
     imported_modules: HashSet<String>,
 }
@@ -28,6 +29,7 @@ impl Compiler {
             scope_depth: 0,
             globals: HashMap::new(),
             functions: HashMap::new(),
+            function_arities: HashMap::new(),
             loop_stack: Vec::new(),
             imported_modules: HashSet::new(),
         }
@@ -40,9 +42,10 @@ impl Compiler {
 
         for (idx, stmt) in program.statements.iter().enumerate() {
             match stmt {
-                Stmt::Function { name, .. } => {
+                Stmt::Function { name, params, .. } => {
                     // Reserve a placeholder - we'll update this with actual address later
                     func_placeholders.insert(name.clone(), idx);
+                    self.function_arities.insert(name.clone(), params.len());
                 }
                 Stmt::Import { module } => {
                     let module_name = module.to_ascii_lowercase();
@@ -145,5 +148,21 @@ impl Compiler {
                 function, module
             ))
         }
+    }
+
+    pub(crate) fn validate_function_arity(
+        &self,
+        name: &str,
+        received: usize,
+    ) -> Result<(), String> {
+        if let Some(&expected) = self.function_arities.get(name) {
+            if expected != received {
+                return Err(format!(
+                    "Function '{}' expects {} argument(s), received {}",
+                    name, expected, received
+                ));
+            }
+        }
+        Ok(())
     }
 }

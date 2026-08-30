@@ -112,14 +112,14 @@ Virtual Machine (execution)
 - [x] Show AST (-a)
 - [x] Show bytecode disassembly (-d)
 
-## Features Not Yet Implemented ⏳
+## Features Not Yet Implemented or intentionally deferred ⏳
 
-- [ ] Function definitions and calls
-- [ ] User-defined functions with parameters
-- [ ] RETURN statement handling
-- [ ] ELSEIF (can be simulated with nested IF)
+- [x] Function definitions and calls
+- [x] User-defined functions with parameters
+- [x] RETURN statement handling
+- [x] ELSEIF and nested `CASE`
 - [ ] Database operations (USE, DBSKIP, etc.)
-- [ ] String manipulation functions (SUBSTR, LEN, etc.)
+- [x] String manipulation functions (SUBSTR, LEN, etc.)
 - [ ] Date/time functions
 - [ ] File I/O
 - [ ] Error handling (TRY/CATCH)
@@ -135,7 +135,7 @@ All working examples pass successfully:
 | strings.prg | ✅ Pass | String concatenation and comparison work |
 | arrays.prg | ✅ Pass | Array creation and indexing work |
 | conditionals.prg | ✅ Pass | Nested IF/ELSE works correctly |
-| factorial.prg | ❌ Fail | Functions not yet implemented |
+| factorial.prg | ✅ Pass | Recursive function calls and returns execute |
 
 ## Performance Characteristics
 
