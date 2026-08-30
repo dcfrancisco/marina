@@ -1,6 +1,6 @@
 # WP-003: Add value-level VM regression tests
 
-- **Status:** Complete pending hosted CI confirmation
+- **Status:** Complete; CI follow-up is backlog work
 - **Priority:** P0
 - **Related:** [ADR-001](../adr/ADR-001-phase3-runtime-stabilization.md)
 

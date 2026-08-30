@@ -7,8 +7,9 @@ cargo test --all-targets
 ./scripts/run_examples_noninteractive.sh
 ```
 
-The repository CI workflow runs both commands on pushes and pull requests.
-The local command must pass before a release candidate is cut.
+Automatic repository CI is currently disabled and tracked in the backlog.
+Run both commands locally before a release candidate is cut; future CI
+reactivation should run the same commands.
 
 The example runner skips programs containing interactive input primitives and
 fails if any non-interactive example exits unsuccessfully. Use

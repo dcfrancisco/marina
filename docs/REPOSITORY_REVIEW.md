@@ -1,7 +1,7 @@
 # Repository Review
 
 > Updated after local Phase 3 remediation on 2026-08-31. The remaining
-> external release gate is hosted CI confirmation; see [CI status](CI_STATUS.md).
+> CI is currently backlog work; see [CI status](CI_STATUS.md).
 
 This review consolidates the requested deliverables:
 

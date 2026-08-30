@@ -9,7 +9,7 @@ This roadmap reflects the repository state after the Phase 2 / Phase 2.5 review.
 | Phase 1 | Core language and VM | Completed | Lexer, parser, compiler, VM, functions, arrays, control flow |
 | Phase 2 | Language expansion | Completed | `CASE`, `ELSEIF`, augmented ops, increment/decrement, indexed assignment |
 | Phase 2.5 | Refactoring and cleanup | Completed | Parser/compiler/VM modularization landed |
-| Phase 3 | Runtime and module stabilization | RC ready pending hosted CI | Local runtime/docs/example gates pass |
+| Phase 3 | Runtime and module stabilization | RC ready; CI deferred to backlog | Local runtime/docs/example gates pass |
 | Phase 4+ | Libraries, tooling, and ecosystem | Planned / Deferred | Post-v1 work only |
 
 ---
@@ -70,7 +70,7 @@ This phase successfully prepared the project for stabilization work by making th
 
 ## Phase 3 — Runtime & Module Stabilization
 
-**Status: Release-candidate ready pending hosted CI confirmation**
+**Status: Release-candidate ready; CI deferred to backlog**
 
 See [ADR-001](../../adr/ADR-001-phase3-runtime-stabilization.md) for the
 release decision and [WP-001](../../work-packages/WP-001-phase3-runtime-stabilization.md)

@@ -1,6 +1,6 @@
 # WP-004: Document and test module and scope boundaries
 
-- **Status:** Complete pending hosted CI confirmation
+- **Status:** Complete; CI follow-up is backlog work
 - **Priority:** P1
 - **Related:** [ADR-001](../adr/ADR-001-phase3-runtime-stabilization.md)
 

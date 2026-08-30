@@ -1,7 +1,7 @@
 # Next Phase
 
 Phase 3 runtime and module stabilization is complete locally and is
-release-candidate ready. The remaining external gate is hosted CI confirmation.
+release-candidate ready. Automatic CI is intentionally deferred to the backlog.
 
 Phase 3 is complete when Marina has a stable execution core and a narrowly scoped module plan that matches the codebase.
 
@@ -65,7 +65,7 @@ Verified:
 - Full LSP productization
 - DAP implementation
 
-## Remaining release action
+## Backlog action
 
-1. Confirm the first hosted GitHub Actions run after these changes land.
-2. Cut `v1.0-rc1` if hosted CI passes.
+1. Reactivate automatic CI when maintainer ownership and branch protection are ready.
+2. Cut `v1.0-rc1` under the documented release policy.

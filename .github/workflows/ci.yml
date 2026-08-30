@@ -1,8 +1,10 @@
-name: CI
+name: CI (Backlog)
 
 on:
-  push:
-  pull_request:
+  workflow_dispatch:
+
+# Automatic CI is intentionally disabled. The workflow remains available for
+# an explicit manual run while CI is tracked as backlog work.
 
 jobs:
   test-and-examples:

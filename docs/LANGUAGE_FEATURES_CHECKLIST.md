@@ -437,7 +437,7 @@ This document maps essential features of a great modern programming language to 
 | **Phase 1** | Core VM & Compiler | Completed | Lexer, parser, compiler, VM, core control flow |
 | **Phase 2** | Language expansion | Completed | `CASE`, `ELSEIF`, augmented ops, increment/decrement, indexed assignment |
 | **Phase 2.5** | Refactoring | Completed | Modular parser/compiler/VM layout |
-| **Phase 3** | Runtime & module stabilization | RC ready pending hosted CI | VM correctness, arity/value assertions, docs/tests/examples alignment |
+| **Phase 3** | Runtime & module stabilization | RC ready; CI deferred to backlog | VM correctness, arity/value assertions, docs/tests/examples alignment |
 | **Phase 4+** | Libraries, tooling, ecosystem | Planned / Deferred | Databases, modules, packages, advanced tooling |
 
 ---
@@ -445,8 +445,8 @@ This document maps essential features of a great modern programming language to 
 ## Next Immediate Actions (Priority Order)
 
 ### 🎯 Release action
-1. Confirm the first hosted CI run
-2. Cut `v1.0-rc1` if hosted CI passes
+1. Keep local validation green
+2. Cut `v1.0-rc1` under the documented release policy
 
 ### 🎯 Post-Phase-3
 1. Decide the minimal module/import plan
@@ -457,4 +457,4 @@ This document maps essential features of a great modern programming language to 
 ---
 
 **Last Review:** 2026-08-31
-**Next Review:** After hosted CI confirmation
+**Next Review:** When CI backlog reactivation is proposed

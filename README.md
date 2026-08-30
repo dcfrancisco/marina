@@ -98,7 +98,7 @@ Current runtime model:
 - Modular structure: parser/, compiler/, vm/
 - Bug fixes: Dup opcode, CASE compilation, Halt loop
 
-**Phase 3 (Runtime & Module Stabilization):** ✅ Release-candidate ready pending hosted CI confirmation
+**Phase 3 (Runtime & Module Stabilization):** ✅ Release-candidate ready; CI deferred to backlog
 - Freeze bytecode/runtime behavior for the current language surface
 - Finalize function call and VM execution semantics
 - Expand runtime validation around function calls, returns, and entrypoints

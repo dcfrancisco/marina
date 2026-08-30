@@ -53,7 +53,7 @@ Remaining caveats:
 
 ### Phase 3: Runtime and Module Stabilization
 
-**Status: Release-candidate ready pending hosted CI confirmation**
+**Status: Release-candidate ready; CI deferred to backlog**
 
 #### Completed
 
@@ -64,9 +64,9 @@ Remaining caveats:
 - Basic syntax extension for VS Code
 - Test coverage for compiler, parser, VM, formatter, and docs subsystems
 
-#### Release-candidate gate
+#### Backlog
 
-- Hosted CI confirmation for the enabled workflow
+- Reactivate automatic CI when maintainer ownership and branch protection are ready
 
 #### Post-Phase-3 planned
 

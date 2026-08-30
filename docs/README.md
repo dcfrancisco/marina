@@ -42,8 +42,8 @@ Concise technical references:
 
 ## 🚀 **Quick Links**
 
-- **Current Status**: Phase 3 release-candidate ready pending hosted CI confirmation
-- **CI status**: [Local verification and hosted-CI gate](CI_STATUS.md)
+- **Current Status**: Phase 3 release-candidate ready; CI deferred to backlog
+- **CI status**: [Local verification and CI backlog](CI_STATUS.md)
 - **Release notes**: [Unreleased Phase 3 notes](RELEASE_NOTES.md)
 - **Next Phase**: Phase 3 - Runtime & Module Stabilization
 - **Formatter**: `clipper fmt` (MVP: indentation + keyword casing)

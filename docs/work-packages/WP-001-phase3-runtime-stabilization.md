@@ -1,6 +1,6 @@
 # WP-001: Phase 3 runtime and module stabilization
 
-- **Status:** Complete pending hosted CI confirmation
+- **Status:** Complete; CI follow-up is backlog work
 - **Owner:** Marina maintainers
 - **Related ADR:** [ADR-001](../adr/ADR-001-phase3-runtime-stabilization.md)
 
