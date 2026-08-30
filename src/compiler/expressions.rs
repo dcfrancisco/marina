@@ -143,6 +143,7 @@ impl Compiler {
                     }
                 } else {
                     self.validate_imported_call(name)?;
+                    self.validate_function_arity(name, args.len())?;
                     // All functions (user-defined and built-in) use name-based calling
                     // Push function name as string
                     let name_idx = self.chunk.add_constant(Value::String(name.clone()));

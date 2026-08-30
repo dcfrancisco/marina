@@ -7,9 +7,9 @@ This roadmap reflects the repository state after the Phase 2 / Phase 2.5 review.
 | Phase | Goal | Status | Notes |
 | --- | --- | --- | --- |
 | Phase 1 | Core language and VM | Completed | Lexer, parser, compiler, VM, functions, arrays, control flow |
-| Phase 2 | Language expansion | Completed with carryovers | `CASE`, augmented operators, increment/decrement, indexed assignment delivered |
+| Phase 2 | Language expansion | Completed | `CASE`, `ELSEIF`, augmented ops, increment/decrement, indexed assignment |
 | Phase 2.5 | Refactoring and cleanup | Completed | Parser/compiler/VM modularization landed |
-| Phase 3 | Runtime and module stabilization | In Progress | Stabilize current behavior, close carryovers, document boundaries |
+| Phase 3 | Runtime and module stabilization | In Progress | Close runtime gaps and align tests/docs with implementation |
 | Phase 4+ | Libraries, tooling, and ecosystem | Planned / Deferred | Post-v1 work only |
 
 ---
@@ -38,7 +38,7 @@ This phase is functionally complete, although Phase 3 still includes stabilizati
 
 ## Phase 2 — Language Expansion
 
-**Status: Completed with carryovers**
+**Status: Completed**
 
 Delivered:
 
@@ -48,12 +48,8 @@ Delivered:
 - Arrays and indexed assignment examples/tests
 - Additional parser/compiler/VM coverage
 
-Carryover items:
-
-- Nested `CASE` remains an ignored test and needs to be fixed or explicitly deferred
-- `ELSEIF` remains unimplemented as a full branch form
-
-Phase 2 should be treated as delivered, but not perfectly closed until those carryovers are resolved at the Phase 3 stabilization level.
+Carryover items are closed: nested `CASE` and `ELSEIF` are implemented and
+covered by parser/compiler/VM tests.
 
 ---
 
@@ -76,21 +72,24 @@ This phase successfully prepared the project for stabilization work by making th
 
 **Status: In Progress**
 
+See [ADR-001](../../adr/ADR-001-phase3-runtime-stabilization.md) for the
+release decision and [WP-001](../../work-packages/WP-001-phase3-runtime-stabilization.md)
+for tracked gap-closure work.
+
 Phase 3 is not a tooling-first phase anymore. It is a stabilization phase focused on the language/runtime that already exists.
 
 ### Objectives
 
 - Freeze the core bytecode/runtime baseline
 - Verify VM call-frame and return behavior
-- Close Phase 2 carryovers
+- Close the remaining runtime and documentation gaps listed in WP-001
 - Keep built-in runtime functions stable through the VM
 - Define the module/import boundary honestly
 - Align docs, tests, and examples with the real implementation
 
 ### Required before Phase 3 is done
 
-- Nested `CASE` resolved or explicitly deferred from release scope
-- `ELSEIF` resolved or explicitly deferred from release scope
+- Function arity validation and value-level VM assertions completed
 - Current scope behavior (`LOCAL`, `STATIC`, `PRIVATE`, `PUBLIC`) documented accurately
 - Database statement stubs documented as stubs
 - Release examples curated and reliable
@@ -122,9 +121,10 @@ These are important, but they are not current release-gating work.
 
 ### Planned
 
+- Language safety and diagnostics (arity, structured errors, stack traces)
 - Standard library growth beyond current builtins
-- Better packaging and project structure
-- Better debugging support
+- Module/package design and project structure
+- Better debugging and LSP support
 
 ### Deferred
 
@@ -134,7 +134,30 @@ These are important, but they are not current release-gating work.
 - HTTP/web work
 - Async/concurrency model
 - Macro system rollout
+- `.ch` preprocessing and legacy compatibility macros
+- `@ SAY/GET` compatibility
 - Ecosystem/package registry
+
+The sequencing decision for these next features is recorded in
+[ADR-002](../../adr/ADR-002-post-phase3-feature-sequencing.md).
+Language compatibility and feature gates are defined in
+[ADR-003](../../adr/ADR-003-language-feature-evolution.md).
+Database scope and prerequisites are defined in
+[ADR-004](../../adr/ADR-004-database-feature-boundary.md).
+Clipper compatibility scope is defined in
+[ADR-005](../../adr/ADR-005-clipper-compatibility-boundary.md).
+Execution is tracked by [WP-006](../../work-packages/WP-006-language-safety-and-diagnostics.md),
+[WP-007](../../work-packages/WP-007-standard-library-expansion.md),
+[WP-008](../../work-packages/WP-008-module-package-design.md), and
+[WP-009](../../work-packages/WP-009-tooling-depth.md).
+Database design is tracked separately in
+[WP-011](../../work-packages/WP-011-database-extension-design.md).
+Compatibility inventory is tracked in
+[WP-012](../../work-packages/WP-012-clipper-compatibility-inventory.md).
+
+For future macro/preprocessor work, the preferred compatibility target is **Clipper 5.2 behavior first**, with Clipper 5.3 treated as secondary compatibility guidance.
+
+The `include/` headers already present in the repository should serve as the primary Clipper 5.2 reference set for `.ch` compatibility, especially `STD.CH` for `@ SAY`, `@ GET`, and related command forms.
 
 ---
 

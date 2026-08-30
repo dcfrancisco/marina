@@ -1076,9 +1076,14 @@ impl VM {
             // Remove this frame's locals
             self.locals.truncate(frame.locals_start);
 
-            // Push return value onto stack
-            self.push(return_value);
-            self.ip = frame.return_ip;
+            // A sentinel return from Main terminates execution; its value is
+            // not an expression result and must not leak onto the stack.
+            if frame.return_ip == usize::MAX {
+                self.ip = usize::MAX;
+            } else {
+                self.push(return_value);
+                self.ip = frame.return_ip;
+            }
         } else {
             // Return from main - halt (set ip beyond chunk length)
             self.ip = usize::MAX;

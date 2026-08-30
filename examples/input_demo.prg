@@ -7,7 +7,7 @@ ClearScreen()
 SetPos(0, 20)
 OutStd("╔════════════════════════════════════╗")
 SetPos(1, 20)
-OutStd("║     CUSTOMER REGISTRATION FORM      ║")
+OutStd("║     CUSTOMER REGISTRATION FORM     ║")
 SetPos(2, 20)
 OutStd("╚════════════════════════════════════╝")
 

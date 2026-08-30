@@ -428,9 +428,9 @@ This document maps essential features of a great modern programming language to 
 | Phase | Focus | Status | Priority Features |
 |-------|-------|--------|-------------------|
 | **Phase 1** | Core VM & Compiler | Completed | Lexer, parser, compiler, VM, core control flow |
-| **Phase 2** | Language expansion | Completed with carryovers | `CASE`, augmented ops, increment/decrement, indexed assignment |
+| **Phase 2** | Language expansion | Completed | `CASE`, `ELSEIF`, augmented ops, increment/decrement, indexed assignment |
 | **Phase 2.5** | Refactoring | Completed | Modular parser/compiler/VM layout |
-| **Phase 3** | Runtime & module stabilization | In Progress | VM correctness, carryover fixes, docs/tests/examples alignment |
+| **Phase 3** | Runtime & module stabilization | In Progress | VM correctness, arity/value assertions, docs/tests/examples alignment |
 | **Phase 4+** | Libraries, tooling, ecosystem | Planned / Deferred | Databases, modules, packages, advanced tooling |
 
 ---
@@ -438,11 +438,10 @@ This document maps essential features of a great modern programming language to 
 ## Next Immediate Actions (Priority Order)
 
 ### 🎯 Phase 3 - Runtime & Module Stabilization
-1. Resolve nested `CASE`
-2. Implement or explicitly defer `ELSEIF`
-3. Validate function/call-frame behavior and return semantics
-4. Freeze and document the current runtime/bytecode baseline
-5. Make docs and examples match the implemented system
+1. Validate function arity, call-frame behavior, and return semantics
+2. Add value-level VM assertions and frame-cleanup checks
+3. Freeze and document the current runtime/bytecode baseline
+4. Make docs and examples match the implemented system
 
 ### 🎯 Post-Phase-3
 1. Decide the minimal module/import plan

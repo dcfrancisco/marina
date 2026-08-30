@@ -13,6 +13,18 @@ fn run_source(source: &str) -> Result<(), String> {
     Ok(())
 }
 
+fn run_source_with_vm(source: &str) -> Result<VM, String> {
+    let mut lexer = Lexer::new(source.to_string());
+    let tokens = lexer.scan_tokens()?;
+    let mut parser = Parser::new(tokens);
+    let program = parser.parse()?;
+    let compiler = Compiler::new();
+    let (chunk, functions) = compiler.compile(program)?;
+    let mut vm = VM::new();
+    vm.run(&chunk, functions)?;
+    Ok(vm)
+}
+
 #[test]
 fn test_vm_basic_arithmetic() {
     // Just verify it runs without error
@@ -206,4 +218,31 @@ fn test_vm_imported_string_math_and_system_modules() {
         result.is_ok(),
         "Imported built-in modules should execute through namespaced calls"
     );
+}
+
+#[test]
+fn test_vm_main_cleans_call_frame_and_locals() {
+    let vm = run_source_with_vm(
+        "FUNCTION Main()\nLOCAL temporary := 42\nRETURN temporary",
+    )
+    .expect("Main should execute");
+    assert_eq!(vm.call_depth(), 0, "Main frame must be released");
+    assert_eq!(vm.local_count(), 0, "Main locals must be released");
+    assert!(vm.stack_snapshot().is_empty(), "return value must not leak");
+}
+
+#[test]
+fn test_vm_runtime_errors_are_reported() {
+    let division = run_source("LOCAL value := 1 / 0");
+    assert!(division.unwrap_err().contains("Division by zero"));
+
+    let index = run_source("LOCAL values := {1}\nLOCAL value := values[2]");
+    assert!(index.unwrap_err().contains("out of bounds"));
+}
+
+#[test]
+fn test_vm_unknown_function_error_is_deterministic() {
+    let err = run_source("LOCAL value := DefinitelyMissing(1)")
+        .expect_err("unknown functions must fail");
+    assert_eq!(err, "Unknown function: DefinitelyMissing");
 }

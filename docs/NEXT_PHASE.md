@@ -1,5 +1,17 @@
 # Next Phase — Phase 3 Runtime & Module Stabilization
 
+The release decision and tracked gaps are maintained in
+[ADR-001](adr/ADR-001-phase3-runtime-stabilization.md) and
+[WP-001](work-packages/WP-001-phase3-runtime-stabilization.md).
+Post-Phase-3 feature sequencing is proposed in
+[ADR-002](adr/ADR-002-post-phase3-feature-sequencing.md).
+Language-specific feature rules are in
+[ADR-003](adr/ADR-003-language-feature-evolution.md).
+Database remains separately designed under
+[ADR-004](adr/ADR-004-database-feature-boundary.md).
+Clipper 5.2/5.3 compatibility boundaries are defined in
+[ADR-005](adr/ADR-005-clipper-compatibility-boundary.md).
+
 **This document describes the immediate work required after Phase 2 and Phase 2.5.**  
 The goal of Phase 3 is to **stabilize the implemented language core and runtime**, not broaden the feature surface.
 
@@ -11,7 +23,7 @@ The goal of Phase 3 is to **stabilize the implemented language core and runtime*
 
 ### Phase 2 — Language Expansion
 
-**Status: Complete with carryover fixes**
+**Status: Complete**
 
 Delivered:
 
@@ -21,10 +33,8 @@ Delivered:
 - Indexed assignment
 - Additional examples and tests
 
-Carryover items entering Phase 3:
-
-- Nested `CASE` still has an ignored test and is not fully supported
-- `ELSEIF` is tokenized but not fully implemented in the parser
+Carryover items are closed: nested `CASE` and `ELSEIF` are implemented and
+covered by parser/compiler/VM tests.
 
 ### Phase 2.5 — Refactoring
 
@@ -49,9 +59,9 @@ Delivered:
    - Confirm function calls, locals, arguments, and return behavior
    - Remove edge-case inconsistencies in top-level versus function execution
 
-3. **Close Phase 2 carryovers**
-   - Resolve nested `CASE`
-   - Implement or explicitly defer `ELSEIF`
+3. **Close the remaining stabilization gaps**
+   - Validate user-defined function arity
+   - Add value-level VM assertions and frame-cleanup checks
 
 4. **Keep native runtime bindings stable**
    - Console and TUI builtins continue to execute through the VM
@@ -77,7 +87,13 @@ The following remain explicitly deferred until after core stability:
 - HTTP and web services
 - Async runtime or concurrency model
 - Macro system rollout
+- `.ch` preprocessing, `#command`, `#translate`, and `#include`
+- `@ SAY/GET` compatibility
 - Rich standard library expansion beyond current builtins
 - LSP expansion beyond the current experimental binary
 - DAP implementation
 - Package ecosystem work
+
+When macro/preprocessor work is scheduled, the compatibility target should be **Clipper 5.2 first**, with Clipper 5.3 as a secondary reference rather than the primary behavioral target.
+
+The `include/` headers currently in the repository should be treated as **Clipper 5.2 reference material** for that future work, especially `STD.CH` and related compatibility headers.

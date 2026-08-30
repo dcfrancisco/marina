@@ -214,3 +214,52 @@ fn test_compile_namespaced_call_without_import_fails() {
         "Expected import validation error, got: {err}"
     );
 }
+
+#[test]
+fn test_compile_unsupported_module_import_fails() {
+    let err = compile_source("IMPORT \"custom\"\nLOCAL value := custom.run()")
+        .expect_err("unsupported imports must fail");
+    assert!(err.contains("Unsupported module import 'custom'"));
+}
+
+#[test]
+fn test_compile_unsupported_namespaced_function_fails() {
+    let err = compile_source("IMPORT \"math\"\nLOCAL value := math.pow(2, 3)")
+        .expect_err("unsupported namespace members must fail");
+    assert!(err.contains("Unsupported function 'pow' for module 'math'"));
+}
+
+#[test]
+fn test_compile_general_member_expression_fails() {
+    let err = compile_source("LOCAL value := object.field")
+        .expect_err("general member expressions are not supported");
+    assert!(err.contains("Member access is only supported as a function call target"));
+}
+
+#[test]
+fn test_compile_unknown_namespaced_function_fails() {
+    let err = compile_source("IMPORT \"string\"\nLOCAL value := string.missing(\"x\")")
+        .expect_err("unknown namespace members must fail");
+    assert!(err.contains("Unsupported function 'missing' for module 'string'"));
+}
+
+#[test]
+fn test_compile_function_arity_mismatch_fails() {
+    let source = "FUNCTION Add(a, b)\nRETURN a + b\n\nLOCAL total := Add(1)";
+    let mut lexer = Lexer::new(source.to_string());
+    let tokens = lexer.scan_tokens().expect("lexing should succeed");
+    let mut parser = Parser::new(tokens);
+    let program = parser.parse().expect("parsing should succeed");
+    let err = Compiler::new().compile(program).expect_err("arity mismatch must fail");
+    assert!(err.contains("Function 'Add' expects 2 argument(s), received 1"));
+}
+
+#[test]
+fn test_compile_function_arity_accepts_valid_call() {
+    let source = "FUNCTION Add(a, b)\nRETURN a + b\n\nLOCAL total := Add(1, 2)";
+    let mut lexer = Lexer::new(source.to_string());
+    let tokens = lexer.scan_tokens().expect("lexing should succeed");
+    let mut parser = Parser::new(tokens);
+    let program = parser.parse().expect("parsing should succeed");
+    assert!(Compiler::new().compile(program).is_ok());
+}

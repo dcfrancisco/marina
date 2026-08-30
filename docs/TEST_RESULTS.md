@@ -1,50 +1,31 @@
-# Clipper Compiler & VM - Test Results (as of December 2025)
+# Marina Compiler & VM — Test Results (reviewed 2026-08-30)
 
-## ✅ Passing Tests
+## Covered by automated tests
 
-### simple.prg
-- Arithmetic and variable assignment: PASS
+- Lexing, parser diagnostics, declarations, imports, expressions, arrays, and
+  block structure
+- Arithmetic, comparisons, boolean logic, loops, `CASE`/`ELSEIF`, and indexed
+  assignment
+- User-defined functions/procedures, nested calls, recursion, returns, and the
+  `Main()` entrypoint
+- Current `LOCAL` versus shared-global behavior for `STATIC`, `PRIVATE`, and
+  `PUBLIC`
+- Namespaced built-ins from `console`, `input`, `math`, `string`, and `system`
+- Formatter and documentation rendering
 
-### loops.prg
-- FOR, WHILE, DO WHILE loops: PASS
+## Known gaps
 
-### strings.prg
-- String operations and comparison: PASS
+- Most VM tests assert successful execution rather than returned values,
+  observable state, output, or call-frame cleanup (WP-001.2).
+- User-defined function arity is not validated before invocation (WP-001.1).
+- Database instructions (`USE`, `DBSKIP`, and related opcodes) are diagnostic
+  no-op stubs, not persistence.
+- `.ch` preprocessing, `#command`, `#translate`, `#include`, and `@ SAY/GET`
+  remain deferred.
 
-### arrays.prg
-- Array creation and indexing: PASS
+## Verification note
 
-### conditionals.prg
-- IF/ELSE, nested conditionals: PASS
-
-## ❌ Known Limitations / Failing Tests
-
-### factorial.prg
-- Function calls not yet fully implemented
-- Proper call frames and parameter passing needed
-- RETURN statement handling incomplete
-
-## Features Implemented
-- Lexical analysis (tokenization)
-- Parsing (AST generation)
-- Bytecode compilation
-- Stack-based VM execution
-- Local and global variables
-- Arithmetic, comparison, logical operations
-- String concatenation
-- Arrays (creation and indexing)
-- FOR, WHILE, DO WHILE loops
-- IF/ELSE conditionals
-- Print statement ("?")
-- Multiple variable declarations
-
-## TODO / In Progress
-- Function definitions and calls
-- Proper RETURN handling
-- Database operations (USE, DBSKIP, etc.)
-- Built-in string functions
-- More comprehensive standard library
-
----
-
-For more details, see the examples/ directory and the main documentation.
+The review environment could not complete `cargo test --all-targets` because
+Cargo dependencies were unavailable in its registry/cache. CI must run the
+command with a populated cache or network access; the source test inventory is
+the current behavioral reference until that run is available.
