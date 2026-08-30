@@ -1,6 +1,6 @@
 # WP-001: Phase 3 runtime and module stabilization
 
-- **Status:** In progress
+- **Status:** Complete pending hosted CI confirmation
 - **Owner:** Marina maintainers
 - **Related ADR:** [ADR-001](../adr/ADR-001-phase3-runtime-stabilization.md)
 
@@ -42,9 +42,9 @@ are separate future work.
 
 ## Exit checklist
 
-- [ ] Function arity errors are deterministic and tested.
-- [ ] VM tests assert observable values and frame state.
-- [ ] Module and scope references match source behavior.
-- [ ] Database operations are visibly stubs.
-- [ ] Release examples and CI test command are documented.
-- [ ] Status pages link this work package and ADR.
+- [x] Function arity errors are deterministic and tested.
+- [x] VM tests assert observable values and frame state.
+- [x] Module and scope references match source behavior.
+- [x] Database operations are visibly stubs.
+- [x] Release examples and CI test command are documented.
+- [x] Status pages link this work package and ADR.

@@ -1,4 +1,12 @@
-# Marina Compiler & VM — Test Results (reviewed 2026-08-30)
+# Marina Compiler & VM — Test Results (verified 2026-08-31)
+
+## Verification summary
+
+- `cargo test --all-targets --no-fail-fast`: **100 passed, 0 failed**
+- `./scripts/run_examples_noninteractive.sh --no-build`: **28 ran, 13 skipped, 0 failed**
+
+Tests used a temporary writable Cargo target directory because the existing
+workspace `target/` directory is not writable in this environment.
 
 ## Covered by automated tests
 
@@ -13,11 +21,8 @@
 - Namespaced built-ins from `console`, `input`, `math`, `string`, and `system`
 - Formatter and documentation rendering
 
-## Known gaps
+## Known boundaries
 
-- Most VM tests assert successful execution rather than returned values,
-  observable state, output, or call-frame cleanup (WP-001.2).
-- User-defined function arity is not validated before invocation (WP-001.1).
 - Database instructions (`USE`, `DBSKIP`, and related opcodes) are diagnostic
   no-op stubs, not persistence.
 - `.ch` preprocessing, `#command`, `#translate`, `#include`, and `@ SAY/GET`
@@ -25,7 +30,5 @@
 
 ## Verification note
 
-The review environment could not complete `cargo test --all-targets` because
-Cargo dependencies were unavailable in its registry/cache. CI must run the
-command with a populated cache or network access; the source test inventory is
-the current behavioral reference until that run is available.
+Hosted CI should repeat both commands with a writable Cargo cache. Interactive
+examples remain intentionally excluded by the example runner.

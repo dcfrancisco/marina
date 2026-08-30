@@ -181,8 +181,9 @@ impl Lexer {
             ',' => TokenType::Comma,
             '.' => {
                 // Check for .T. or .F. (Clipper boolean literals)
-                if self.peek().to_ascii_uppercase() == 'T'
-                    || self.peek().to_ascii_uppercase() == 'F'
+                if (self.peek().to_ascii_uppercase() == 'T'
+                    || self.peek().to_ascii_uppercase() == 'F')
+                    && self.peek_next() == '.'
                 {
                     return self.scan_clipper_boolean();
                 } else {

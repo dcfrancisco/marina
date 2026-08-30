@@ -1,20 +1,23 @@
-# Clipper-2025 / Marina Official Handbook
+# Clipper-2025 / Marina Handbook
 
-*A Complete Language, VM, Module, Database, and Vision Specification*
+*Current runtime guide plus clearly marked design material*
 **Version 1.0 (2025 Edition)**
 
 ---
 
 ## Welcome
 
-This handbook contains the complete specification and manual for Clipper-2025 (Marina), the modern resurrection of Nantucket/CA Clipper.
+This handbook combines current Marina behavior with historical and future
+design notes. It is not a claim that every described module, database, or macro
+feature is implemented. For release scope, use the
+[Supported Features](../reference/SUPPORTED_FEATURES.md) reference.
 
 Clipper-2025 is:
 - **Expression-first** modern language
 - **VM-based** with portable bytecode
-- **Module-driven** with clean namespaces
-- **Database-agnostic** (DBF/CDX, SQL, NoSQL)
-- **Macro-enhanced** with safe AST transformations
+- **Built-in namespace imports** with user modules planned
+- **Database-boundary documented** (persistence is deferred)
+- **Macro direction documented** (preprocessing is deferred)
 - **Cross-platform** (macOS, Linux, Windows)
 - **Future-proof** for the next 30 years
 
@@ -28,10 +31,11 @@ Clipper-2025 is:
 2. [Language → Design Philosophy](language/design_philosophy.md) - Core principles
 3. [Language → Syntax](language/syntax.md) - Quick language overview
 
-**Building applications?** Read these:
+**Building applications?** Read these, noting that database and module pages
+are design notes:
 
 1. [Architecture → Modules](architecture/modules.md) - How to organize code
-2. [Database → DBF Engine](database/dbf_engine.md) - Working with databases
+2. [Database → DBF Engine](database/dbf_engine.md) - Future database design notes
 3. [Reference → Standard Library](reference/stdlib.md) - Built-in functions
 
 **Implementing tools or extending Marina?** Technical deep-dives:
@@ -62,8 +66,8 @@ Clipper-2025 is:
 
 ### 💾 Database
 
-- [DBF Engine](database/dbf_engine.md) - Modern DBF/CDX implementation
-- [Modern Backends](database/modern_backends.md) - SQL, NoSQL, abstraction layer
+- [DBF Engine](database/dbf_engine.md) - Future DBF/CDX design notes
+- [Modern Backends](database/modern_backends.md) - Future SQL/NoSQL design notes
 
 ### 🔮 Vision & Roadmap
 
@@ -117,7 +121,8 @@ Clipper-2025 is:
 
 ## Project Structure
 
-This handbook is organized into focused documents for easy navigation:
+This handbook is organized into focused documents for easy navigation. Pages
+marked “Future Design Notes” are not current runtime capabilities:
 
 ```
 handbook/

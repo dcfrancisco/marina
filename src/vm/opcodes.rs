@@ -183,7 +183,7 @@ impl VM {
             | OpCode::DbGoBottom
             | OpCode::DbSeek
             | OpCode::DbReplace => {
-                // Database operations - stub for now
+                // Deliberate release-boundary stub: no persistence or state change.
                 println!("Database operation: {:?}", instruction.opcode);
                 self.ip += 1;
             }
@@ -914,8 +914,8 @@ impl VM {
                     std::io::stdout().flush().unwrap();
                 }
 
-                // Simple input (for now, just read a line)
-                // TODO: Implement full editing with arrow keys, insert/overwrite modes, etc.
+                // Release behavior is line-oriented input. Full terminal editing
+                // is deferred until a portable TTY abstraction exists.
                 use std::io::BufRead;
                 let mut input = String::new();
                 let stdin = std::io::stdin();
@@ -1015,8 +1015,8 @@ impl VM {
                     std::io::stdout().flush().unwrap();
                 }
 
-                // Simple input (for now, just read a line)
-                // TODO: Implement character-by-character input with immediate asterisk display
+                // Release behavior is line-oriented hidden input. Character-by-character
+                // masking is deferred until a portable TTY abstraction exists.
                 use std::io::BufRead;
                 let mut input = String::new();
                 let stdin = std::io::stdin();

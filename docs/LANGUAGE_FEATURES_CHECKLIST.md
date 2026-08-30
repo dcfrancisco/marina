@@ -1,6 +1,11 @@
 # Programming Language Features Checklist — Marina (Clipper-2025)
 
-**Last Updated:** 2025-11-19
+**Last Updated:** 2026-08-31
+
+> Current Phase 3 status: `ELSEIF`, nested `CASE`, user-defined functions,
+> recursion, returns, and the five built-in import namespaces are implemented
+> and covered by automated tests. The authoritative release scope is
+> [Supported Features](reference/SUPPORTED_FEATURES.md).
 
 This document maps essential features of a great modern programming language to Marina's implementation roadmap.
 
@@ -40,7 +45,7 @@ This document maps essential features of a great modern programming language to 
 
 ### 1.3 Control Flow
 - [x] **If/Else** - Conditional branching ✅ Phase 1
-- [ ] **ElseIf** - Multi-way conditionals → Phase 2
+- [x] **ElseIf** - Multi-way conditionals ✅ Phase 2
 - [x] **Case/Switch** - Pattern matching ✅ Phase 2
 - [x] **While Loops** - Pre-test loops ✅ Phase 1
 - [x] **Do-While Loops** - Post-test loops ✅ Phase 1
@@ -53,17 +58,17 @@ This document maps essential features of a great modern programming language to 
 - [ ] **Guard Clauses** - Early returns → Phase 3
 
 ### 1.4 Functions & Procedures
-- [ ] **Function Definition** - `FUNCTION Name(params)` → Phase 1 (80% done)
-- [ ] **Function Calls** - `Name(args)` → Phase 1 (80% done)
-- [ ] **Return Values** - `RETURN value` → Phase 1 (needs fixing)
-- [ ] **Multiple Parameters** - `FUNCTION(a, b, c)` → Phase 1 (needs fixing)
+- [x] **Function Definition** - `FUNCTION Name(params)` ✅ Phase 1
+- [x] **Function Calls** - `Name(args)` ✅ Phase 1
+- [x] **Return Values** - `RETURN value` ✅ Phase 1
+- [x] **Multiple Parameters** - `FUNCTION(a, b, c)` ✅ Phase 1
 - [ ] **Default Parameters** - `FUNCTION(x := 10)` → Phase 3
 - [ ] **Optional Parameters** - `FUNCTION(x?)` → Phase 3
 - [ ] **Rest Parameters** - `FUNCTION(...args)` → Phase 3
 - [ ] **Named Arguments** - `Call(name: "value")` → Phase 3
 - [ ] **Closures/Lambdas** - `{|x| x + 1}` → Phase 3
 - [ ] **Higher-Order Functions** - Functions returning functions → Phase 3
-- [ ] **Recursion** - Functions calling themselves → Phase 1 (needs fixing)
+- [x] **Recursion** - Functions calling themselves ✅ Phase 1
 - [ ] **Tail Call Optimization** - Stack-safe recursion → Phase 4
 - [ ] **Pure Functions** - No side effects (convention) → Phase 6
 
@@ -430,18 +435,16 @@ This document maps essential features of a great modern programming language to 
 | **Phase 1** | Core VM & Compiler | Completed | Lexer, parser, compiler, VM, core control flow |
 | **Phase 2** | Language expansion | Completed | `CASE`, `ELSEIF`, augmented ops, increment/decrement, indexed assignment |
 | **Phase 2.5** | Refactoring | Completed | Modular parser/compiler/VM layout |
-| **Phase 3** | Runtime & module stabilization | In Progress | VM correctness, arity/value assertions, docs/tests/examples alignment |
+| **Phase 3** | Runtime & module stabilization | RC ready pending hosted CI | VM correctness, arity/value assertions, docs/tests/examples alignment |
 | **Phase 4+** | Libraries, tooling, ecosystem | Planned / Deferred | Databases, modules, packages, advanced tooling |
 
 ---
 
 ## Next Immediate Actions (Priority Order)
 
-### 🎯 Phase 3 - Runtime & Module Stabilization
-1. Validate function arity, call-frame behavior, and return semantics
-2. Add value-level VM assertions and frame-cleanup checks
-3. Freeze and document the current runtime/bytecode baseline
-4. Make docs and examples match the implemented system
+### 🎯 Release action
+1. Confirm the first hosted CI run
+2. Cut `v1.0-rc1` if hosted CI passes
 
 ### 🎯 Post-Phase-3
 1. Decide the minimal module/import plan
@@ -451,5 +454,5 @@ This document maps essential features of a great modern programming language to 
 
 ---
 
-**Last Review:** 2026-06-12  
-**Next Review:** After Phase 3 stabilization work lands
+**Last Review:** 2026-08-31
+**Next Review:** After hosted CI confirmation

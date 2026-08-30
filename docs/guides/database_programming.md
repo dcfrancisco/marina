@@ -1,4 +1,4 @@
-# **Clipper-2025 DBF/CDX Engine Design**
+# **Clipper-2025 DBF/CDX Engine — Future Design Notes**
 
 > **Current implementation status:** Database support is not implemented in the
 > Phase 3 runtime. The `USE`, `DBSKIP`, `DBGOTOP`, `DBGOBOTTOM`, `DBSEEK`, and
@@ -333,7 +333,8 @@ Clipper-2025 will use Marina bytecode internally!
 
 # 🟫 **12. Future Enhancements (Clipper Dreams Completed)**
 
-These were planned by CA but never implemented — and now **Marina will finish them**:
+These were planned by CA but never implemented; Marina may revisit them in a
+future database-design phase:
 
 ### ✔ SQL-based RDD
 
@@ -349,7 +350,7 @@ DBF and SQL indexes behave similarly.
 
 ### ✔ remote cursor support
 
-Clipper planned "NetRDD," you will implement modern equivalent:
+Clipper planned "NetRDD"; a future Marina design may consider equivalents such as:
 
 * PostgreSQL streaming cursor
 * MongoDB cursor

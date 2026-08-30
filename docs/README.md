@@ -33,6 +33,7 @@ Concise technical references:
 - [Language Syntax](reference/language_syntax.md) - Complete syntax guide
 - [Bytecode Opcodes](reference/bytecode_opcodes.md) - VM instruction set
 - [Standard Library](reference/stdlib_functions.md) - Built-in functions
+- [Supported Features](reference/SUPPORTED_FEATURES.md) - Current release scope
 - [Clipper Vision](reference/clipper_vision.md) - Project philosophy
 
 **Best for:** Quick lookups, syntax checks, API reference.
@@ -41,7 +42,9 @@ Concise technical references:
 
 ## 🚀 **Quick Links**
 
-- **Current Status**: Phase 2 and Phase 2.5 delivered; Phase 3 stabilization in progress
+- **Current Status**: Phase 3 release-candidate ready pending hosted CI confirmation
+- **CI status**: [Local verification and hosted-CI gate](CI_STATUS.md)
+- **Release notes**: [Unreleased Phase 3 notes](RELEASE_NOTES.md)
 - **Next Phase**: Phase 3 - Runtime & Module Stabilization
 - **Formatter**: `clipper fmt` (MVP: indentation + keyword casing)
 - **See**: [Project README](../README.md) for implementation status
@@ -102,7 +105,7 @@ Marina/Clipper-2025 completes the vision that Computer Associates never finished
 ✅ **True Clipper VM** - Bytecode execution, cross-platform
 ✅ **Modern Language** - Expression-first, no xBase commands
 ✅ **Modular Architecture** - Clean separation of concerns
-✅ **Database Agnostic** - DBF, PostgreSQL, MongoDB, etc.
+✅ **Database boundary** - Database work is explicitly deferred beyond the current runtime
 ✅ **Safe & Predictable** - No macro hell, proper errors
 ✅ **Extensible** - Module system, future OOP, macros
 ✅ **Cross-Platform** - macOS, Linux, Windows, future WASM

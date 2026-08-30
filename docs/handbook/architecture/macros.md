@@ -1,4 +1,7 @@
-# Macro Engine & `.CH` System
+# Macro Engine & `.CH` System — Future Design Notes
+
+> Macro preprocessing, `.ch`, `#command`, `#translate`, and AST macros are not
+> implemented in the current runtime. This page describes future design only.
 
 Clipper's original macro system (`#command`, `#translate`, `#include`, and `&var`) was both powerful and dangerous.
 

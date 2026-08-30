@@ -1,4 +1,9 @@
-# Module System
+# Module System — Design Notes
+
+> The current runtime supports only static validation of five built-in
+> namespaces. The filesystem loader, module registry, dynamic loading, and
+> `module.json` examples below are future design material, not implemented
+> behavior. See [Supported Features](../../reference/SUPPORTED_FEATURES.md).
 
 Legacy Clipper used:
 

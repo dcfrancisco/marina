@@ -59,6 +59,7 @@ Current runtime model:
 - Increment/Decrement: `++`, `--`
 - Comparison: `=`, `!=`, `<>`, `<`, `>`, `<=`, `>=`
 - Logical: `AND`, `OR`, `NOT`
+- Compatibility aliases: `&&`, `||`
 - Assignment: `:=`, `=`
 
 ### Arrays
@@ -97,7 +98,7 @@ Current runtime model:
 - Modular structure: parser/, compiler/, vm/
 - Bug fixes: Dup opcode, CASE compilation, Halt loop
 
-**Phase 3 (Runtime & Module Stabilization):** 🔄 In Progress
+**Phase 3 (Runtime & Module Stabilization):** ✅ Release-candidate ready pending hosted CI confirmation
 - Freeze bytecode/runtime behavior for the current language surface
 - Finalize function call and VM execution semantics
 - Expand runtime validation around function calls, returns, and entrypoints
@@ -105,6 +106,9 @@ Current runtime model:
 - Minimal built-in import namespaces are now supported; dynamic/lazy modules are not
 - `.ch` preprocessing and `@ SAY/GET` compatibility are explicitly deferred until the future macro/preprocessor phase
 - Tooling present but not phase-defining: `marina-fmt`, `marina-docs`, experimental `marina-lsp`, stub `marina-dap`
+
+See the [supported-feature reference](docs/reference/SUPPORTED_FEATURES.md) and
+[unreleased notes](docs/RELEASE_NOTES.md) for the release boundary.
 
 **Phase 5 (Ecosystem & IDE):** 📋 Future
 - VSCode extension (when language is mature)
@@ -335,11 +339,8 @@ The VM executes instructions using:
 
 ### Future Tooling
 
-**Phase 3 (Developer Tools):**
-- **`marina-lsp`** - Language Server Protocol for editor integration
-- **`marina-dap`** - Debug Adapter Protocol for debugging support
-- **`clipper fmt`** - Code formatter
-- **`marina-docs`** - Documentation rendering for Markdown to HTML/PDF
+**Current tooling:** `clipper fmt` and `marina-docs` are implemented; `marina-lsp`
+is experimental and `marina-dap` is a stub. Tooling is not a Phase 3 exit gate.
 
 **Phase 5 (IDE Integration - when language is mature):**
 - **VSCode Extension** - Separate TypeScript project with syntax highlighting

@@ -1,5 +1,8 @@
 # Repository Review
 
+> Updated after local Phase 3 remediation on 2026-08-31. The remaining
+> external release gate is hosted CI confirmation; see [CI status](CI_STATUS.md).
+
 This review consolidates the requested deliverables:
 
 1. Documentation Drift Report
@@ -15,7 +18,8 @@ Review basis:
 - Examples under `examples/`
 - VS Code extension under `vscode/marina/`
 - Existing repository documentation
-- `cargo test` result: 75 passed, 1 ignored
+- `cargo test --all-targets --no-fail-fast` result: 100 passed, 0 failed
+- Non-interactive examples: 28 ran, 13 skipped, 0 failed
 
 ## 1. Documentation Drift Report
 
@@ -67,18 +71,16 @@ These topics are repeatedly documented as implemented even though the repository
 - Docs renderer
 - Syntax-only VS Code extension
 
-### In Progress
+### Release-candidate ready
 
-- VM correctness hardening
-- Function semantics stabilization
-- Bytecode baseline review
-- Documentation alignment
-- Core example curation
+- VM correctness, function semantics, and bytecode baseline verified locally
+- Documentation alignment and core example curation completed
+- Hosted CI confirmation remains external
 
-### Planned
+### Post-Phase-3 planned
 
 - Minimal module architecture
-- Import system
+- User-module import system
 - Lazy-loading design, if retained for the post-stabilization roadmap
 
 ### Deferred
@@ -102,14 +104,13 @@ Yes, if Phase 3 is defined as runtime and module stabilization.
 
 The repository already has enough implemented language/runtime surface that finishing the stabilization pass is a more realistic priority than adding new domains.
 
-### Phase 3 blockers
+### Phase 3 status after remediation
 
-- No honest, implemented module/import story
-- Nested `CASE` is still ignored in tests
-- `ELSEIF` appears in tokens/docs but is not fully implemented in the `IF` parser path
-- Variable-scope documentation is ahead of runtime reality
+- Minimal built-in imports are implemented and documented; user modules remain deferred
+- Nested `CASE` and `ELSEIF` are implemented and covered by tests
+- Variable-scope documentation matches the current runtime limitation
 - Database syntax exists without a supported runtime subsystem
-- Documentation inconsistency is large enough to confuse release expectations
+- Legacy handbook pages are now explicitly marked as design material
 
 ### Scope creep candidates
 
@@ -170,13 +171,13 @@ LSP implementation should not be treated as a Phase 3 requirement.
 
 ### v1.0-rc1 blockers
 
-- [ ] Resolve or explicitly defer nested `CASE`
-- [ ] Resolve or explicitly defer `ELSEIF`
-- [ ] Publish an accurate statement on scope semantics for `STATIC`, `PRIVATE`, and `PUBLIC`
-- [ ] Decide whether stub database statements stay exposed in rc1
-- [ ] Keep root docs authoritative and consistent
-- [ ] Select a minimal, reliable example set for release validation
-- [ ] Reduce or accept current compiler warnings intentionally
+- [x] Resolve or explicitly defer nested `CASE`
+- [x] Resolve or explicitly defer `ELSEIF`
+- [x] Publish an accurate statement on scope semantics for `STATIC`, `PRIVATE`, and `PUBLIC`
+- [x] Decide whether stub database statements stay exposed in rc1
+- [x] Keep root docs authoritative and consistent
+- [x] Select a minimal, reliable example set for release validation
+- [x] Reduce or accept current compiler warnings intentionally
 
 ### v1.0-rc1 required docs
 
@@ -184,8 +185,8 @@ LSP implementation should not be treated as a Phase 3 requirement.
 - [x] Root architecture document
 - [x] Root roadmap
 - [x] Root next-phase document
-- [ ] Release notes / changelog
-- [ ] Clear statement of supported and unsupported language features
+- [x] Release notes / changelog
+- [x] Clear statement of supported and unsupported language features
 
 ### v1.0-rc1 required tests
 
@@ -195,19 +196,19 @@ LSP implementation should not be treated as a Phase 3 requirement.
 - [x] VM tests
 - [x] Formatter tests
 - [x] Docs renderer tests
-- [ ] Additional regression tests for Phase 3 blockers
+- [x] Additional regression tests for Phase 3 blockers
 
 ### v1.0-rc1 required examples
 
-- [ ] A non-interactive arithmetic/control-flow example
-- [ ] A function call example
-- [ ] An arrays/indexed assignment example
-- [ ] A console builtin example
-- [ ] A documented list of intentionally interactive examples
+- [x] A non-interactive arithmetic/control-flow example
+- [x] A function call example
+- [x] An arrays/indexed assignment example
+- [x] A console builtin example
+- [x] A documented list of intentionally interactive examples
 
 ### v1.0 final blockers beyond rc1
 
-- [ ] Clear Phase 3 closure decision on modules/imports
-- [ ] Warning cleanup or explicit warning policy
-- [ ] Final pass on example reliability and user-facing docs
-- [ ] Confidence pass on bytecode stability expectations
+- [x] Clear Phase 3 closure decision on modules/imports
+- [x] Warning cleanup or explicit warning policy
+- [x] Final pass on example reliability and user-facing docs
+- [x] Confidence pass on bytecode stability expectations

@@ -1,6 +1,6 @@
 # WP-005: Release validation and deferred-feature boundaries
 
-- **Status:** Implemented — pending CI verification
+- **Status:** Complete pending hosted CI confirmation
 - **Priority:** P1
 - **Related:** [ADR-001](../adr/ADR-001-phase3-runtime-stabilization.md)
 

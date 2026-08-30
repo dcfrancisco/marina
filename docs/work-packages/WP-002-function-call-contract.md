@@ -1,6 +1,6 @@
 # WP-002: Enforce the function-call contract
 
-- **Status:** Implemented — pending CI verification
+- **Status:** Complete pending hosted CI confirmation
 - **Priority:** P0
 - **Related:** [ADR-001](../adr/ADR-001-phase3-runtime-stabilization.md)
 

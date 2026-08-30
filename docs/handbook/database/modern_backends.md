@@ -1,4 +1,7 @@
-# Modern Database Backends
+# Modern Database Backends — Future Design Notes
+
+> PostgreSQL, MongoDB, SQLite, and other database backends are not implemented
+> in the current runtime. This page is retained as future design material.
 
 Clipper-2025 allows **multiple backend engines**, optional.
 

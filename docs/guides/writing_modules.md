@@ -1,4 +1,4 @@
-# **Marina Module System Specification**
+# **Marina Module System — Future Design Notes**
 
 > **Phase 3 status:** This guide describes the target module architecture. The
 > current compiler supports only the built-in namespaces listed in the [module

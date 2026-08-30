@@ -1,6 +1,6 @@
 # Roadmap
 
-This roadmap reflects repository reality as of the current Phase 3 review.
+This roadmap reflects repository reality as of the Phase 3 release-candidate review.
 
 Status labels:
 
@@ -53,7 +53,7 @@ Remaining caveats:
 
 ### Phase 3: Runtime and Module Stabilization
 
-**Status: In Progress**
+**Status: Release-candidate ready pending hosted CI confirmation**
 
 #### Completed
 
@@ -64,20 +64,14 @@ Remaining caveats:
 - Basic syntax extension for VS Code
 - Test coverage for compiler, parser, VM, formatter, and docs subsystems
 
-#### In Progress
+#### Release-candidate gate
 
-- VM correctness hardening
-- Bytecode behavior review and stabilization
-- Function call semantics review
-- Documentation alignment with implemented behavior
-- Example coverage for core language behavior
+- Hosted CI confirmation for the enabled workflow
 
-#### Planned
+#### Post-Phase-3 planned
 
-- Minimal import design
-- Minimal module architecture
-- Lazy-loading design bounded to core use cases
-- Phase 3 release criteria and examples cleanup
+- Minimal module architecture beyond the current built-in namespace imports
+- Structured diagnostics and deeper runtime tooling
 
 #### Deferred
 
@@ -118,13 +112,13 @@ These items are not current-phase deliverables.
 | Parser | Completed | Diagnostics path exists |
 | AST | Completed | Single-file program model |
 | Bytecode compiler | Completed | Stable enough for current tests |
-| VM run loop | In Progress | Needs stabilization pass, not redesign |
-| Function call frames | In Progress | Implemented, but still part of stabilization scope |
+| VM run loop | Completed for RC baseline | Covered by current VM tests |
+| Function call frames | Completed for RC baseline | Calls, returns, recursion, and cleanup are tested |
 | Arrays/indexing | Completed | Parse, compile, execute |
-| `CASE` statements | In Progress | Implemented; nested case still open |
+| `CASE` statements | Completed | Includes nested `CASE` and `OTHERWISE` |
 | Database statements | Experimental | Parse/compile path exists; runtime is stubbed |
-| Module system | Planned | Not implemented |
-| Import system | Planned | Not implemented |
+| Module system | Planned | User modules and filesystem loading are not implemented |
+| Import system | Completed (minimal) | Static imports for five built-in namespaces only |
 | Lazy loading | Planned | Not implemented |
 | Native module ABI | Planned | Not implemented |
 | Built-in runtime functions | Completed | Implemented inside VM |

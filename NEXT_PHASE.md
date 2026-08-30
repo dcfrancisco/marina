@@ -1,14 +1,15 @@
 # Next Phase
 
-This file tracks the remaining work needed to finish **Phase 3: Runtime & Module Stabilization**.
+Phase 3 runtime and module stabilization is complete locally and is
+release-candidate ready. The remaining external gate is hosted CI confirmation.
 
 Phase 3 is complete when Marina has a stable execution core and a narrowly scoped module plan that matches the codebase.
 
-## Exit Criteria
+## Exit Criteria — locally satisfied
 
 ### 1. VM behavior is predictable
 
-Required:
+Verified:
 
 - Review current opcode behavior for edge cases
 - Remove release-blocking runtime inconsistencies
@@ -16,7 +17,7 @@ Required:
 
 ### 2. Function semantics are settled
 
-Required:
+Verified:
 
 - Confirm argument ordering and return behavior
 - Confirm top-level plus `Main()` execution flow
@@ -24,7 +25,7 @@ Required:
 
 ### 3. Bytecode surface is stable enough for v1.0-rc1
 
-Required:
+Verified:
 
 - Treat current opcodes as the release baseline
 - Avoid adding non-core instructions
@@ -32,7 +33,7 @@ Required:
 
 ### 4. The module story is honest and minimal
 
-Required:
+Verified:
 
 - Replace speculative module documentation with an implementation plan
 - Define the smallest viable import/module boundary for post-Phase-3 work
@@ -40,15 +41,14 @@ Required:
 
 ### 5. Core language gaps are resolved or explicitly deferred
 
-Required:
+Verified:
 
-- Address ignored nested `CASE`
-- Decide whether `ELSEIF` is supported or deferred
+- Nested `CASE` and `ELSEIF` are implemented and covered by tests
 - Document the current meaning of `STATIC`, `PRIVATE`, and `PUBLIC`
 
 ### 6. Examples and docs support release evaluation
 
-Required:
+Verified:
 
 - Keep a small set of reliable core examples
 - Ensure README, roadmap, and architecture docs agree
@@ -65,9 +65,7 @@ Required:
 - Full LSP productization
 - DAP implementation
 
-## Recommended Work Order
+## Remaining release action
 
-1. Close runtime correctness gaps (`CASE`, `ELSEIF`, variable-scope semantics).
-2. Freeze and document the bytecode/runtime baseline.
-3. Keep modules at the architecture-definition level unless implementation is intentionally started.
-4. Prepare `v1.0-rc1` only after docs, tests, and examples describe the same system.
+1. Confirm the first hosted GitHub Actions run after these changes land.
+2. Cut `v1.0-rc1` if hosted CI passes.

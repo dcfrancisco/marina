@@ -35,10 +35,7 @@ impl Compiler {
             }
 
             Expr::Member { .. } => {
-                return Err(
-                    "Member access is only supported as a function call target in the current module model"
-                        .to_string(),
-                );
+                return Err("Member access is only supported as a function call target".to_string());
             }
 
             Expr::Binary {

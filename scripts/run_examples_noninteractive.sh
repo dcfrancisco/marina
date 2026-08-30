@@ -59,7 +59,7 @@ failed=0
 
 echo "Running non-interactive examples..."
 for file in "$EXAMPLES_DIR"/*.prg; do
-  if grep -Eq "$skip_regex" "$file"; then
+  if grep -Eiq "$skip_regex" "$file"; then
     echo "SKIP  $(basename "$file") (interactive)"
     skipped=$((skipped + 1))
     continue

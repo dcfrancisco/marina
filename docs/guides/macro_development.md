@@ -1,4 +1,7 @@
-# **Clipper-2025 Macro Engine**
+# **Clipper-2025 Macro Engine — Future Design Notes**
+
+> Macro preprocessing and `.ch` compatibility are deferred and are not
+> implemented in the current runtime.
 
 *The future macro system that preserves Clipper's power while avoiding its historical flaws.*
 

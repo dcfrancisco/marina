@@ -1,4 +1,8 @@
-# Database Engine
+# Database Engine — Future Design Notes
+
+> Database persistence is not implemented in the current runtime. `USE`,
+> `DBSKIP`, and related database opcodes are diagnostic no-op stubs. This page
+> describes possible future architecture only.
 
 Clipper-2025's database engine is designed around one philosophy:
 

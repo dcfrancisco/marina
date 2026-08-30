@@ -1,9 +1,8 @@
-name: CI (Disabled)
+name: CI
 
-# CI workflow disabled
-# on:
-#   push:
-#   pull_request:
+on:
+  push:
+  pull_request:
 
 jobs:
   test-and-examples:
