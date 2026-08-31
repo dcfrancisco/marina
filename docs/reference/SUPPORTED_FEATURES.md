@@ -19,8 +19,10 @@ This is the release-scope reference for the current Phase 3 runtime.
   loader, user module registry, package resolver, or lazy loading.
 - `STATIC`, `PRIVATE`, and `PUBLIC` use shared global storage. They do not yet
   provide distinct Clipper visibility or lifetime semantics.
-- Database statements compile to diagnostic no-op stubs. They do not provide
-  DBF/CDX persistence, workareas, indexes, or drivers.
+- Database statements support a minimal persisted DBF adapter: `USE`, `DBLIST`,
+  `DBEOF()`, command `SKIP`/function `DBSKIP()`, cursor movement, first-field `DBSEEK`, and `REPLACE` for character, date,
+  logical, numeric, and float fields. CDX, memo, locking, transactions,
+  append/delete, and modern database backends remain deferred.
 - General object/member expressions are unsupported. Member access is valid only
   as the target of a namespaced built-in function call.
 - `.ch` preprocessing, `#command`, `#translate`, `#include`, `@ SAY/GET`,

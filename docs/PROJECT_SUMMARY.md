@@ -118,7 +118,7 @@ Virtual Machine (execution)
 - [x] User-defined functions with parameters
 - [x] RETURN statement handling
 - [x] ELSEIF and nested `CASE`
-- [ ] Database operations (USE, DBSKIP, etc.)
+- [x] Minimal DBF operations (USE, DBLIST, DBEOF, SKIP/DBSKIP, DBGOTOP/DBGOBOTTOM, DBSEEK, REPLACE)
 - [x] String manipulation functions (SUBSTR, LEN, etc.)
 - [ ] Date/time functions
 - [ ] File I/O
@@ -197,7 +197,7 @@ cargo run repl
 
 1. **Functions:** Implement proper function calls with call frames
 2. **Standard Library:** Add string, math, and array manipulation functions
-3. **Database:** Implement DBF file operations (classic Clipper feature)
+3. **Database:** Expand the implemented DBF subset with indexes, CRUD, and transactions
 4. **Optimization:** Add bytecode optimization pass
 5. **Error Handling:** Better error messages with line numbers
 6. **Debugging:** Integrated debugger with breakpoints

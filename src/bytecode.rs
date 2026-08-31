@@ -52,6 +52,7 @@ pub enum OpCode {
     DbSkip,
     DbGoTop,
     DbGoBottom,
+    DbList,
     DbSeek,
     DbReplace,
 
@@ -202,6 +203,7 @@ impl Chunk {
             OpCode::DbSkip => println!("DB_SKIP"),
             OpCode::DbGoTop => println!("DB_GO_TOP"),
             OpCode::DbGoBottom => println!("DB_GO_BOTTOM"),
+            OpCode::DbList => println!("DB_LIST"),
             OpCode::DbSeek => println!("DB_SEEK"),
             OpCode::DbReplace => println!("DB_REPLACE"),
             OpCode::Print => println!("PRINT"),

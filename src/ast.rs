@@ -156,6 +156,7 @@ pub enum Stmt {
     DbSkip(Option<Expr>),
     DbGoTop,
     DbGoBottom,
+    DbList,
 
     DbSeek {
         key: Expr,

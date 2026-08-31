@@ -296,8 +296,8 @@ Upper(), Lower(), Len()
 
 ### Database (DBF example)
 
-Database APIs are planned, not available in the current runtime. The following
-is illustrative only and must not be treated as a working example:
+The current runtime supports a focused DBF command/function subset. For a
+working example, see `examples/database_demo.prg`.
 
 ```clipper
 db := DB.open("customer.dbf")

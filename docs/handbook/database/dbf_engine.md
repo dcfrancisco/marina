@@ -1,8 +1,9 @@
 # Database Engine — Future Design Notes
 
-> Database persistence is not implemented in the current runtime. `USE`,
-> `DBSKIP`, and related database opcodes are diagnostic no-op stubs. This page
-> describes possible future architecture only.
+> The current runtime implements a focused DBF subset: `USE`, command `SKIP`,
+> function `DBSKIP()`, `DBGOTOP`, `DBGOBOTTOM`, `DBSEEK`, and `REPLACE`. This page describes the
+> larger DBF/CDX design; indexes, memo fields, locking, and transactions remain
+> future work.
 
 Clipper-2025's database engine is designed around one philosophy:
 
@@ -28,7 +29,8 @@ Clipper-2025's `dbf` module is a **modern, safe, fully encapsulated** DBF/CDX en
 ### But unlike legacy Clipper:
 
 ❌ No workareas
-❌ No `USE`, `APPEND`, `SKIP`, `REPLACE` commands
+✅ `USE`, `SKIP`, and `REPLACE` command subset
+❌ No `APPEND`, indexes, or transactions
 ❌ No global shared state
 ❌ No RDD magic
 ❌ No "current alias"

@@ -17,7 +17,7 @@ are not ordinary parser bugs:
 | `.CH` includes and preprocessor | Not parsed | `#command`, `#translate`, and `#include` programs cannot run |
 | `@ SAY/GET`, `ACCEPT`, `READ` | Not implemented | TUI forms require a future preprocessing/input design |
 | Macro operator `&` and codeblocks | Not implemented as general language features | Dynamic dispatch and block APIs are unavailable |
-| xBase commands/workareas/RDD | Deliberately removed; DB opcodes are stubs | Compatibility is not command-for-command |
+| xBase commands/workareas/RDD | Minimal DBF command subset; no full workarea/RDD model | Compatibility is not command-for-command |
 | `STATIC`/`PRIVATE`/`PUBLIC` visibility | Accepted through shared globals | Scope and lifetime differ from Clipper |
 | Core procedural syntax | Implemented subset | This is the current compatibility baseline |
 
@@ -50,4 +50,3 @@ label.
 Documentation can state a precise compatibility subset without promising that
 legacy Clipper applications run unchanged. The headers remain useful fixtures,
 while the modern expression-first core stays small and testable.
-

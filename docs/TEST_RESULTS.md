@@ -2,8 +2,8 @@
 
 ## Verification summary
 
-- `cargo test --all-targets --no-fail-fast`: **100 passed, 0 failed**
-- `./scripts/run_examples_noninteractive.sh --no-build`: **28 ran, 13 skipped, 0 failed**
+- `cargo test --all-targets --no-fail-fast`: **102 passed, 0 failed**
+- `./scripts/run_examples_noninteractive.sh --no-build`: **28 ran, 14 skipped, 0 failed**
 
 Tests used a temporary writable Cargo target directory because the existing
 workspace `target/` directory is not writable in this environment.
@@ -19,12 +19,14 @@ workspace `target/` directory is not writable in this environment.
 - Current `LOCAL` versus shared-global behavior for `STATIC`, `PRIVATE`, and
   `PUBLIC`
 - Namespaced built-ins from `console`, `input`, `math`, `string`, and `system`
+- DBF open, cursor movement, first-field seek, replacement persistence, and
+  missing-table errors
 - Formatter and documentation rendering
 
 ## Known boundaries
 
-- Database instructions (`USE`, `DBSKIP`, and related opcodes) are diagnostic
-  no-op stubs, not persistence.
+- Database instructions have DBF integration coverage for open, cursor
+  movement, seek, replacement persistence, and missing-table errors.
 - `.ch` preprocessing, `#command`, `#translate`, `#include`, and `@ SAY/GET`
   remain deferred.
 

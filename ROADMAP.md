@@ -49,7 +49,7 @@ Completed items:
 
 Remaining caveats:
 
-- Nested `CASE` is still ignored in tests and should be fixed before v1.0.
+- Broader language compatibility remains post-Phase-3 work.
 
 ### Phase 3: Runtime and Module Stabilization
 
@@ -63,6 +63,10 @@ Remaining caveats:
 - Documentation renderer
 - Basic syntax extension for VS Code
 - Test coverage for compiler, parser, VM, formatter, and docs subsystems
+- Minimal persisted DBF runtime: `USE`, `DBLIST`, `DBEOF()`, command `SKIP`,
+  function `DBSKIP()`,
+  `DBGOTOP`, `DBGOBOTTOM`, `DBSEEK`, and `REPLACE`
+- Runnable DBF example and generated fixture helper
 
 #### Backlog
 
@@ -95,7 +99,7 @@ These items are not current-phase deliverables.
 
 #### Deferred
 
-- Database engines
+- Expanded database engine capabilities beyond the shipped DBF subset
 - PostgreSQL drivers
 - MongoDB drivers
 - HTTP clients
@@ -116,7 +120,7 @@ These items are not current-phase deliverables.
 | Function call frames | Completed for RC baseline | Calls, returns, recursion, and cleanup are tested |
 | Arrays/indexing | Completed | Parse, compile, execute |
 | `CASE` statements | Completed | Includes nested `CASE` and `OTHERWISE` |
-| Database statements | Experimental | Parse/compile path exists; runtime is stubbed |
+| Database statements | Completed (minimal DBF) | Persisted DBF cursor/list/seek/replace subset; advanced features pending |
 | Module system | Planned | User modules and filesystem loading are not implemented |
 | Import system | Completed (minimal) | Static imports for five built-in namespaces only |
 | Lazy loading | Planned | Not implemented |
@@ -127,6 +131,18 @@ These items are not current-phase deliverables.
 | VS Code syntax package | Completed | Syntax-only support |
 | `marina-lsp` | Experimental | Feature-gated binary, not integrated |
 | `marina-dap` | Deferred | Stub only |
+
+## Current Gaps and Pending Work
+
+The following are the active gaps after the current implementation review:
+
+- `.ch` preprocessing and `#include`/`#command`/`#translate`
+- User modules and filesystem loading
+- Structured diagnostics and exception handling
+- CDX/NTX indexes, memo fields, append/delete, locking, and transactions
+- SQL/NoSQL drivers and backend-neutral database APIs
+- Automatic CI (currently manual/backlog)
+- Full LSP and DAP implementations
 
 ## Roadmap Corrections From Earlier Docs
 

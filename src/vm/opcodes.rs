@@ -254,14 +254,42 @@ impl VM {
             OpCode::SetIndex => self.execute_set_index()?,
             OpCode::Print => self.execute_print()?,
 
-            OpCode::DbUse
-            | OpCode::DbSkip
-            | OpCode::DbGoTop
-            | OpCode::DbGoBottom
-            | OpCode::DbSeek
-            | OpCode::DbReplace => {
-                // Deliberate release-boundary stub: no persistence or state change.
-                println!("Database operation: {:?}", instruction.opcode);
+            OpCode::DbUse => {
+                let path = self.pop()?;
+                let path = match path { Value::String(s) => s, _ => return Err("USE requires a filename".into()) };
+                self.database = Some(crate::dbf::DbfTable::open(path)?);
+                self.ip += 1;
+            }
+            OpCode::DbSkip => {
+                let count = self.pop_number()? as i32;
+                self.database.as_mut().ok_or("No database is open")?.skip(count);
+                self.ip += 1;
+            }
+            OpCode::DbGoTop => {
+                self.database.as_mut().ok_or("No database is open")?.go_top();
+                self.ip += 1;
+            }
+            OpCode::DbGoBottom => {
+                self.database.as_mut().ok_or("No database is open")?.go_bottom();
+                self.ip += 1;
+            }
+            OpCode::DbList => {
+                let rows = self.database.as_ref().ok_or("No database is open")?.list();
+                for row in rows {
+                    println!("{}", row);
+                }
+                self.ip += 1;
+            }
+            OpCode::DbSeek => {
+                let key = self.pop()?;
+                self.database.as_mut().ok_or("No database is open")?.seek(&key)?;
+                self.ip += 1;
+            }
+            OpCode::DbReplace => {
+                let value = self.pop()?;
+                let field = self.pop()?;
+                let field = match field { Value::String(s) => s, _ => return Err("REPLACE requires a field name".into()) };
+                self.database.as_mut().ok_or("No database is open")?.replace(&field, value)?;
                 self.ip += 1;
             }
 
@@ -412,6 +440,26 @@ impl VM {
             None => func_upper.as_str(),
         };
         match canonical_name {
+            "DBSKIP" => {
+                if arity > 1 {
+                    return Err("DBSKIP requires 0 or 1 argument".to_string());
+                }
+                let count = if arity == 1 { self.pop_number()? as i32 } else { 1 };
+                let _func = self.pop()?;
+                self.database
+                    .as_mut()
+                    .ok_or("No database is open")?
+                    .skip(count);
+                self.push(Value::Nil);
+            }
+            "DBEOF" => {
+                if arity != 0 {
+                    return Err("DBEOF requires 0 arguments".to_string());
+                }
+                let _func = self.pop()?;
+                let eof = self.database.as_ref().ok_or("No database is open")?.eof();
+                self.push(Value::Boolean(eof));
+            }
             "SETPOS" | "DEVPOS" => {
                 if arity != 2 {
                     return Err(format!("{} requires 2 arguments (row, col)", func_name));

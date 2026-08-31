@@ -382,6 +382,10 @@ impl Compiler {
                 self.chunk.write(OpCode::DbGoBottom, None);
             }
 
+            Stmt::DbList => {
+                self.chunk.write(OpCode::DbList, None);
+            }
+
             Stmt::DbSeek { key } => {
                 self.compile_expression(key)?;
                 self.chunk.write(OpCode::DbSeek, None);

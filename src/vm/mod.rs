@@ -6,6 +6,7 @@ mod stack;
 
 #[derive(Debug)]
 pub struct VM {
+    pub(crate) database: Option<crate::dbf::DbfTable>,
     stack: Vec<Value>,
     pub(crate) globals: HashMap<usize, Value>,
     pub(crate) locals: Vec<Value>, // Top-level locals (not in functions)
@@ -27,6 +28,7 @@ pub(crate) struct CallFrame {
 impl VM {
     pub fn new() -> Self {
         VM {
+            database: None,
             stack: Vec::new(),
             globals: HashMap::new(),
             locals: Vec::new(),

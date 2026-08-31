@@ -15,12 +15,11 @@ and expected/received values where applicable.
 
 The VM reports deterministic errors for division by zero, invalid array/string
 indexes, numeric type violations, stack underflow, and unknown functions.
-Database opcodes are not errors today: they are explicit diagnostic no-op stubs
-and must not be interpreted as persistence.
+Database runtime errors include missing or unreadable DBFs, invalid layouts,
+unsupported field types, missing current records, and invalid replacements.
 
 ## Compatibility note
 
 Error text is currently stable enough for tests but is not yet a versioned
 machine-readable API. Consumers should avoid parsing error strings until WP-006
 defines error categories and source locations.
-

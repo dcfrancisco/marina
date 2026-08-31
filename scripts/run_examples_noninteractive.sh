@@ -49,7 +49,7 @@ if [[ ! -x "$CLIPPER_BIN" ]]; then
   (cd "$ROOT_DIR" && cargo build --release --bin clipper)
 fi
 
-skip_regex='GetInput\(|GetSecret\(|Inkey\(|ACCEPT|INPUT|ReadKey\(|WaitKey\('
+skip_regex='GetInput\(|GetSecret\(|Inkey\(|ACCEPT|INPUT|ReadKey\(|WaitKey\(|^USE[[:space:]]'
 
 shopt -s nullglob
 

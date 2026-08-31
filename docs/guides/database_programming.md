@@ -1,9 +1,11 @@
 # **Clipper-2025 DBF/CDX Engine — Future Design Notes**
 
-> **Current implementation status:** Database support is not implemented in the
-> Phase 3 runtime. The `USE`, `DBSKIP`, `DBGOTOP`, `DBGOBOTTOM`, `DBSEEK`, and
-> `REPLACE` opcodes are diagnostic no-op stubs; the APIs and examples below are
-> design proposals only and do not provide persistence.
+> **Current implementation status:** The Phase 3 runtime supports a focused DBF
+> subset through `USE`, `DBLIST`, `DBEOF()`, command `SKIP`, function `DBSKIP()`,
+> `DBGOTOP`, `DBGOBOTTOM`, `DBSEEK`, and
+> `REPLACE`, with persistence for character, date, logical, numeric, and float
+> fields. CDX indexes, memo fields, locking, transactions, append/delete, and
+> SQL/NoSQL backends remain deferred.
 
 *Modernizing Clipper's powerful database engine without xBase commands or workareas.*
 

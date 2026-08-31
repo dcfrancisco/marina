@@ -16,7 +16,7 @@ until a concrete fixture or specification is recorded.
 | `#command`, `#translate` | `STD.CH`, `COMMON.CH` | Not parsed | Deferred | Future preprocessor ADR |
 | Macro operator `&` | Clipper macro rules | Not implemented | Deferred | Future macro ADR |
 | `@ SAY/GET`, `ACCEPT`, `READ` | `SIMPLEIO.CH`, `STD.CH` | Not implemented | Deferred | Future TUI/preprocessor ADR |
-| Workareas and RDD commands | RDD headers | No workarea model; DB opcodes are stubs | Intentional replacement/deferred | ADR-004 / WP-011 |
+| DBF commands/workarea subset | RDD headers | `USE`, `SKIP`, `DBSKIP()`, navigation, `DBSEEK`, `DBLIST`, `REPLACE` | Supported subset; no full workarea/RDD | ADR-004 / DBF tests |
 | Codeblocks | Clipper expression syntax | Not implemented as values | Deferred | ADR-003 / WP-010 |
 | Classes/objects | 5.x object extensions | Not implemented | Deferred | Feature-specific ADR required |
 | 5.3-only behavior | No local corpus | Unverified | Not claimed | Add fixture before claiming support |
@@ -26,4 +26,3 @@ until a concrete fixture or specification is recorded.
 Every row classified as supported must have a positive and invalid-input test.
 Every intentional difference must have a migration note. No feature is labeled
 “Clipper 5.2/5.3 compatible” solely because a matching header exists.
-

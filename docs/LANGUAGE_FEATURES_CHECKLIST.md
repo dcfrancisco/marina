@@ -242,7 +242,7 @@ This document maps essential features of a great modern programming language to 
 ## 7. Database Integration
 
 ### 7.1 DBF/CDX (Legacy Clipper)
-- [ ] **Open DBF** - Clean cursor API (NO USE) → Phase 4
+- [x] **Open DBF (command subset)** - `USE` with persisted DBF cursor operations
 - [ ] **Query Records** - Iterator-based → Phase 4
 - [ ] **Insert/Update/Delete** - CRUD operations → Phase 4
 - [ ] **Indexes** - CDX support → Phase 4

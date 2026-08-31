@@ -1,4 +1,6 @@
 use marina::{compiler::Compiler, lexer::Lexer, parser::Parser, vm::VM};
+use std::fs;
+use std::path::PathBuf;
 
 fn run_source(source: &str) -> Result<(), String> {
     let mut lexer = Lexer::new(source.to_string());
@@ -23,6 +25,53 @@ fn run_source_with_vm(source: &str) -> Result<VM, String> {
     let mut vm = VM::new();
     vm.run(&chunk, functions)?;
     Ok(vm)
+}
+
+fn test_dbf_path() -> PathBuf {
+    std::env::temp_dir().join(format!("marina-db-{}.dbf", std::process::id()))
+}
+
+fn write_test_dbf(path: &PathBuf) {
+    let mut bytes = vec![0u8; 32 + 32 * 2 + 1 + 2 * 15 + 1];
+    bytes[0] = 3;
+    bytes[4..8].copy_from_slice(&2u32.to_le_bytes());
+    bytes[8..10].copy_from_slice(&(97u16).to_le_bytes());
+    bytes[10..12].copy_from_slice(&(15u16).to_le_bytes());
+    bytes[32..36].copy_from_slice(b"ID\0\0");
+    bytes[43] = b'C'; bytes[48] = 4;
+    bytes[64..68].copy_from_slice(b"NAME");
+    bytes[75] = b'C'; bytes[80] = 10;
+    bytes[96] = 0x0d;
+    bytes[97] = b' '; bytes[98..102].copy_from_slice(b"0001"); bytes[102..112].copy_from_slice(b"OLD       ");
+    bytes[112] = b' '; bytes[113..117].copy_from_slice(b"0002"); bytes[117..127].copy_from_slice(b"SECOND    ");
+    bytes[127] = 0x1a;
+    fs::write(path, bytes).unwrap();
+}
+
+#[test]
+fn test_vm_dbf_navigation_seek_and_replace() {
+    let path = test_dbf_path();
+    write_test_dbf(&path);
+    let source = format!(
+        "USE \"{}\"\nDBGOTOP\nREPLACE NAME WITH \"FIRST\"\nSKIP 1\nREPLACE NAME WITH \"UPDATED\"",
+        path.display()
+    );
+    assert!(run_source(&source).is_ok(), "database program failed: {:?}", run_source(&source));
+    let bytes = fs::read(&path).unwrap();
+    assert_eq!(&bytes[102..112], b"FIRST     ");
+    assert_eq!(&bytes[117..127], b"UPDATED   ");
+
+    let source = format!("USE \"{}\"\nDBGOBOTTOM\nREPLACE NAME WITH \"SEEKED\"", path.display());
+    assert!(run_source(&source).is_ok());
+    let bytes = fs::read(&path).unwrap();
+    assert_eq!(&bytes[117..127], b"SEEKED    ");
+    let _ = fs::remove_file(path);
+}
+
+#[test]
+fn test_vm_dbf_errors_without_open_table() {
+    let result = run_source("DBGOTOP");
+    assert_eq!(result.unwrap_err(), "No database is open");
 }
 
 #[test]

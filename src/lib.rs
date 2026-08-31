@@ -4,6 +4,7 @@
 pub mod ast;
 pub mod bytecode;
 pub mod compiler;
+pub(crate) mod dbf;
 pub mod diagnostics;
 pub mod docs;
 pub mod formatter;

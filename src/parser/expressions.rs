@@ -313,7 +313,7 @@ impl Parser {
             return Ok(Expr::String(self.previous().lexeme.clone()));
         }
 
-        if self.match_token(&[TokenType::Identifier]) {
+        if self.match_token(&[TokenType::Identifier, TokenType::DbSkip]) {
             return Ok(Expr::Variable(self.previous().lexeme.clone()));
         }
 

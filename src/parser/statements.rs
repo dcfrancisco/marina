@@ -139,12 +139,14 @@ impl Parser {
             self.case_statement()
         } else if self.match_token(&[TokenType::Use]) {
             self.db_use_statement()
-        } else if self.match_token(&[TokenType::DbSkip]) {
+        } else if self.match_token(&[TokenType::DbSkip, TokenType::Skip]) {
             self.db_skip_statement()
         } else if self.match_token(&[TokenType::DbGoTop]) {
             Ok(Stmt::DbGoTop)
         } else if self.match_token(&[TokenType::DbGoBottom]) {
             Ok(Stmt::DbGoBottom)
+        } else if self.match_token(&[TokenType::DbList]) {
+            Ok(Stmt::DbList)
         } else if self.match_token(&[TokenType::DbSeek]) {
             self.db_seek_statement()
         } else if self.match_token(&[TokenType::Replace]) {
@@ -402,7 +404,23 @@ impl Parser {
     }
 
     fn db_skip_statement(&mut self) -> Result<Stmt, String> {
-        let count = if !self.is_at_end() && !self.check(&TokenType::Newline) {
+        // Newlines are not retained by the lexer, so only start an expression
+        // when the next token can actually begin one. This keeps bare DBSKIP
+        // from consuming the following statement.
+        let starts_expression = matches!(
+            self.peek().token_type,
+            TokenType::Number
+                | TokenType::String
+                | TokenType::Identifier
+                | TokenType::True
+                | TokenType::False
+                | TokenType::Nil
+                | TokenType::Minus
+                | TokenType::LeftParen
+                | TokenType::LeftBracket
+                | TokenType::LeftBrace
+        );
+        let count = if !self.is_at_end() && starts_expression {
             Some(self.expression()?)
         } else {
             None

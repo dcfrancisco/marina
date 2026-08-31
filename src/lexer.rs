@@ -49,8 +49,10 @@ impl Lexer {
         keywords.insert("DBCREATE".to_string(), TokenType::DbCreate);
         keywords.insert("DBAPPEND".to_string(), TokenType::DbAppend);
         keywords.insert("DBSKIP".to_string(), TokenType::DbSkip);
+        keywords.insert("SKIP".to_string(), TokenType::Skip);
         keywords.insert("DBGOTOP".to_string(), TokenType::DbGoTop);
         keywords.insert("DBGOBOTTOM".to_string(), TokenType::DbGoBottom);
+        keywords.insert("DBLIST".to_string(), TokenType::DbList);
         keywords.insert("DBSEEK".to_string(), TokenType::DbSeek);
         keywords.insert("INDEX".to_string(), TokenType::Index);
         keywords.insert("CLOSE".to_string(), TokenType::Close);

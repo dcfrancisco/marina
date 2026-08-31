@@ -9,16 +9,15 @@
 ## Review of the current state
 
 The VM contains database opcodes (`USE`, `DBSKIP`, `DBGOTOP`, `DBGOBOTTOM`,
-`DBSEEK`, and `REPLACE`), but they only print a diagnostic and advance the
-instruction pointer. The database guides describe DBF/CDX, SQL, NoSQL, remote
-cursors, and transactions as design targets; none are runtime-backed today.
+`DBSEEK`, and `REPLACE`). They now provide a minimal persisted DBF adapter:
+open, cursor movement, first-field seek, and field replacement. CDX, memo,
+locking, transactions, SQL, NoSQL, and remote cursors remain design targets.
 
 ## Decision
 
-Database support stays outside Phase 3 and is not enabled by the presence of
-placeholder opcodes. Before an engine is implemented, Marina will define a
-backend-neutral database API and its value/error semantics in a feature-specific
-ADR.
+Advanced database support stays outside Phase 3. The shipped DBF subset is an
+explicit compatibility adapter; it does not claim to be a backend-neutral API
+or full Clipper RDD implementation.
 
 The design must settle, in order:
 
@@ -41,7 +40,7 @@ printing, and lifetime rules consistent with [ADR-003](ADR-003-language-feature-
 
 ## Acceptance gates
 
-- No database feature is marked implemented while operations are no-op stubs.
+- Implemented database operations must not be no-op stubs.
 - An API ADR specifies errors, transactions, locking, and resource cleanup.
 - A conformance suite covers open/close, seek, iteration, read, and mutation.
 - Database behavior is tested independently of terminal I/O and macro parsing.
@@ -52,4 +51,3 @@ This preserves a small, predictable language core and prevents aspirational DBF,
 SQL, and NoSQL documentation from being mistaken for shipped functionality.
 It also makes backend work incremental: one tested adapter can land without
 committing Marina to a universal database model prematurely.
-

@@ -20,5 +20,7 @@ CI must provide a writable Cargo registry/cache (or network access) for the
 dependency resolution step. A local failure caused by an empty or read-only
 Cargo cache is an environment failure, not evidence that an example passed.
 
-Database examples are not part of this validation: database opcodes are still
-no-op stubs and are tracked separately from release behavior.
+Database examples are classified separately because they require a DBF fixture;
+the repository includes a fixture and `examples/database_demo.prg`, which can
+be run with `bash scripts/create_database_demo_dbf.sh` followed by the normal
+CLI command.
