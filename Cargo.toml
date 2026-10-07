@@ -36,7 +36,7 @@ path = "src/bin/marina-docs.rs"
 crossterm = "0.28"
 
 # For Windows API (VT mode)
-windows = { version = "0.52.0", features = ["Win32_System_Console"] }
+windows = { version = "0.52.0", features = ["Win32_System_Console", "Win32_Foundation"] }
 
 # LSP dependencies
 tower-lsp = { version = "0.20", optional = true }

@@ -4,19 +4,20 @@ fn enable_vt_mode() {
     use windows::Win32::System::Console::GetStdHandle;
     use windows::Win32::System::Console::STD_OUTPUT_HANDLE;
     use windows::Win32::System::Console::{
-        ENABLE_VIRTUAL_TERMINAL_PROCESSING, GetConsoleMode, SetConsoleMode,
+        CONSOLE_MODE, ENABLE_VIRTUAL_TERMINAL_PROCESSING, GetConsoleMode, SetConsoleMode,
     };
-    use windows::core::Result as WinResult;
     unsafe {
-        let handle = GetStdHandle(STD_OUTPUT_HANDLE);
+        let Ok(handle) = GetStdHandle(STD_OUTPUT_HANDLE) else {
+            return;
+        };
         if handle.0 == 0 {
             return;
         }
-        let mut mode = 0u32;
+        let mut mode = CONSOLE_MODE(0);
         if GetConsoleMode(handle, &mut mode).is_err() {
             return;
         }
-        if mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING == 0 {
+        if mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING == CONSOLE_MODE(0) {
             let new_mode = mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
             let _ = SetConsoleMode(handle, new_mode);
         }

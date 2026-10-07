@@ -10,6 +10,10 @@ fn read_line_with_editing(default: &str, width: usize, secret: bool) -> io::Resu
 
     enable_raw_mode()?;
     let result = (|| {
+        // Preserve the cursor position established by SetPos() and the
+        // prompt. A carriage return would incorrectly move input to column 0.
+        print!("\x1b[s");
+        io::stdout().flush()?;
         loop {
             match event::read()? {
                 Event::Key(key) if key.kind == KeyEventKind::Press => match key.code {
@@ -46,7 +50,7 @@ fn read_line_with_editing(default: &str, width: usize, secret: bool) -> io::Resu
                 value.iter().collect()
             };
             let tail_len = display.chars().count().saturating_sub(cursor);
-            print!("\r\x1b[0K{}", display);
+            print!("\x1b[u\x1b[0K{}", display);
             if tail_len > 0 {
                 print!("\x1b[{}D", tail_len);
             }
@@ -63,8 +67,12 @@ fn read_line_with_editing(default: &str, width: usize, secret: bool) -> io::Resu
 fn read_input(default: &str, secret: bool) -> io::Result<String> {
     let stdin = io::stdin();
     let stdout = io::stdout();
+    // Space(n) is used by programs as input-field padding, not as actual
+    // input. Treat whitespace-only defaults as empty so typing is accepted.
+    let width = default.chars().count();
+    let default = if default.trim().is_empty() { "" } else { default };
     if stdin.is_terminal() && stdout.is_terminal() {
-        read_line_with_editing(default, default.chars().count(), secret)
+        read_line_with_editing(default, width, secret)
     } else {
         read_line_fallback()
     }
